@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Swords, Backpack, User, Star, ShoppingBag, Globe, Trophy, LogOut, LogIn, BookOpen, Award, Egg, HelpCircle, Bug } from 'lucide-vue-next'
+import { Swords, Backpack, User, Star, ShoppingBag, Globe, Trophy, LogOut, LogIn, BookOpen, Award, Egg, HelpCircle, Bug, Shield } from 'lucide-vue-next'
 import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useAuthStore } from '~/stores/useAuthStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
@@ -62,12 +62,17 @@ const authNavItems = computed(() => [
   { label: t('Badges', 'Badges'), icon: Award, to: '/badges' },
   { label: t('Boutique', 'Shop'), icon: ShoppingBag, to: '/shop' },
   { label: t('Profil', 'Profile'), icon: User, to: '/profile' },
+])
+
+const adminNavItems = computed(() => [
+  { label: 'Admin', icon: Shield, to: '/admin' },
   { label: 'Debug', icon: Bug, to: '/debug' },
 ])
 
 const navItems = computed(() => [
   ...publicNavItems.value,
   ...(auth.isAuthenticated ? authNavItems.value : []),
+  ...(auth.user?.role === 'admin' ? adminNavItems.value : []),
 ])
 </script>
 

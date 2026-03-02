@@ -13,6 +13,7 @@ import { middleware } from '#start/kernel'
 const AuthController = () => import('#controllers/auth_controller')
 const GoogleAuthController = () => import('#controllers/google_auth_controller')
 const GameController = () => import('#controllers/game_controller')
+const AdminController = () => import('#controllers/admin_controller')
 
 router.get('/', async () => {
   return { status: 'ok', name: 'Poke-Idle Legacy API' }
@@ -40,3 +41,17 @@ router
   .use(middleware.auth())
 
 router.get('/pokedex', [GameController, 'pokedex'])
+
+router
+  .group(() => {
+    router.get('/dashboard', [AdminController, 'dashboard'])
+    router.get('/users', [AdminController, 'listUsers'])
+    router.put('/users/:id', [AdminController, 'updateUser'])
+    router.delete('/users/:id', [AdminController, 'deleteUser'])
+    router.post('/users/:id/give-items', [AdminController, 'giveItems'])
+    router.post('/users/:id/reset', [AdminController, 'resetUser'])
+    router.get('/users/:id/pokemons', [AdminController, 'listUserPokemons'])
+  })
+  .prefix('/admin')
+  .use(middleware.auth())
+  .use(middleware.admin())

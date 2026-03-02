@@ -11,12 +11,19 @@ interface AuthState {
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
+  user: {
+    id: number
+    username: string
+    email: string
+    role: 'user' | 'admin'
+  } | null
 }
 
 interface LoginResponse {
   id: number
   username: string
   email: string
+  role: 'user' | 'admin'
 }
 
 interface LoadGameResponse {
@@ -59,6 +66,7 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: false,
     isLoading: false,
     error: null,
+    user: null,
   }),
 
   actions: {
@@ -67,7 +75,8 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const api = useApi()
-        await api.post<LoginResponse>('/auth/register', { username, email, password })
+        const response = await api.post<LoginResponse>('/auth/register', { username, email, password })
+        this.user = response
         this.isAuthenticated = true
         await this.loadGameState()
       } catch (e: any) {
@@ -83,7 +92,8 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const api = useApi()
-        await api.post<LoginResponse>('/auth/login', { email, password })
+        const response = await api.post<LoginResponse>('/auth/login', { email, password })
+        this.user = response
         this.isAuthenticated = true
         await this.loadGameState()
       } catch (e: any) {
@@ -103,6 +113,7 @@ export const useAuthStore = defineStore('auth', {
         // ignore logout errors
       }
       this.isAuthenticated = false
+      this.user = null
       const player = usePlayerStore()
       player.reset()
       navigateTo('/guide')
@@ -111,11 +122,13 @@ export const useAuthStore = defineStore('auth', {
     async checkAuth() {
       try {
         const api = useApi()
-        await api.get('/auth/me')
+        const response = await api.get<LoginResponse>('/auth/me')
+        this.user = response
         this.isAuthenticated = true
         await this.loadGameState()
       } catch {
         this.isAuthenticated = false
+        this.user = null
       }
     },
 
