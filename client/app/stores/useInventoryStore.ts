@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { canEvolveByLevel, canEvolveByItem, pokemonXpForLevel, getEvoStageMult } from '~/data/evolutions'
 import type { Evolution } from '~/data/evolutions'
-import { getRarityDpsMult, getStarDpsMult } from '~/data/gacha'
+import { getRarityDpsMult, getStarDpsMult, getRarity } from '~/data/gacha'
 import type { Rarity } from '~/data/gacha'
 import { getGenForSlug } from '~/data/pokedex'
 
@@ -66,6 +66,16 @@ export const useInventoryStore = defineStore('inventory', {
   },
 
   actions: {
+    // Migration: update rarity of existing Pokemon to match current gacha data
+    migrateRarities() {
+      for (const pokemon of this.collection) {
+        const currentRarity = getRarity(pokemon.slug)
+        if (pokemon.rarity !== currentRarity) {
+          pokemon.rarity = currentRarity
+        }
+      }
+    },
+
     addPokemon(pokemon: Omit<OwnedPokemon, 'id' | 'level' | 'xp' | 'teamSlot'>): {
       isNew: boolean
       isMaxed: boolean

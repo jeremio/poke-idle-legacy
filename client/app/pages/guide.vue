@@ -6,6 +6,7 @@ import { RARITY_DPS_MULT } from '~/data/gacha'
 import { HATCH_DAMAGE, FIVE_STAR_SHINY_CHANCE } from '~/stores/useDaycareStore'
 import { STAR_DPS_MULT, STAR_DPS_MULT_SHINY } from '~/data/gacha'
 import { getSpriteUrl, getTrainerSpriteUrl } from '~/utils/showdown'
+import { TYPES } from '~/data/types'
 
 definePageMeta({
   layout: 'game',
@@ -205,6 +206,24 @@ function toggleGen(id: number) {
         </div>
       </section>
 
+      <!-- ── Table des Types ── -->
+      <section class="rounded-xl border border-gray-700/50 bg-gray-800/40 p-5">
+        <h2 class="mb-3 text-lg font-bold text-white">
+          {{ t('Table des Types', 'Type Chart') }}
+        </h2>
+        <div class="text-sm text-gray-300 mb-3">
+          <p>{{ t(
+            'Les types influencent les dégâts en combat. Super efficace = x2, Peu efficace = x0.5.',
+            'Types affect combat damage. Super effective = x2, Not very effective = x0.5.'
+          ) }}</p>
+        </div>
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+          <div v-for="type in TYPES" :key="type.id" class="rounded-lg border px-3 py-2 text-center" :style="{ borderColor: type.color, backgroundColor: type.color + '15' }">
+            <p class="text-sm font-bold" :style="{ color: type.color }">{{ t(type.nameFr, type.nameEn) }}</p>
+          </div>
+        </div>
+      </section>
+
       <!-- ═══════════════ ZONES & BOSSES ═══════════════ -->
       <h2 class="mt-4 text-xl font-bold text-white">{{ t('Zones & Boss', 'Zones & Bosses') }}</h2>
 
@@ -260,6 +279,23 @@ function toggleGen(id: number) {
 
     <!-- ═══════════════ PATCH NOTES TAB ═══════════════ -->
     <div v-if="activeTab === 'patchnotes'" class="flex flex-col gap-4">
+
+      <article class="rounded-xl border border-amber-500/50 bg-amber-900/20 p-5">
+        <h3 class="text-sm font-bold text-amber-300">🎉 v0.5.0 — Mars 2026</h3>
+        <ul class="mt-2 space-y-1 text-sm text-gray-300 list-disc list-inside">
+          <li>{{ t('Gen 2 et Gen 3 complètes : tous les Pokémon de base + évolutions', 'Gen 2 and Gen 3 completed: all base Pokemon + evolutions') }}</li>
+          <li>{{ t('26 Mega Évolutions ajoutées (Gen 1, 2 et 3) dans les gachas', '26 Mega Evolutions added (Gen 1, 2, 3) to gacha') }}</li>
+          <li>{{ t('Starters Gen 2/3 passés en rareté Épique (violet)', 'Gen 2/3 Starters upgraded to Epic rarity (purple)') }}</li>
+          <li>{{ t('Filtre par région dans l\'inventaire (Kanto/Johto/Hoenn)', 'Region filter in inventory (Kanto/Johto/Hoenn)') }}</li>
+          <li>{{ t('Message de félicitation animé au déblocage d\'une nouvelle région', 'Animated congratulations message when unlocking new region') }}</li>
+          <li>{{ t('Sprites des items d\'évolution ajoutés (King\'s Rock, Shed Shell, etc.)', 'Evolution item sprites added (King\'s Rock, Shed Shell, etc.)') }}</li>
+          <li>{{ t('Rééquilibrage difficulté : XP dresseur augmentée (75*level^1.9)', 'Difficulty rebalance: trainer XP increased (75*level^1.9)') }}</li>
+          <li>{{ t('Bonus d\'or réduit : 0.5% par niveau au lieu de 1%', 'Gold bonus reduced: 0.5% per level instead of 1%') }}</li>
+          <li>{{ t('Évolutions branches multiples : Roigada, Tarpaud, Kapoera, Munja', 'Multi-branch evolutions: Slowking, Politoed, Hitmontop, Shedinja') }}</li>
+          <li>{{ t('Nouveaux items : Roche Royale, Carapace Mue', 'New items: King\'s Rock, Shed Shell') }}</li>
+          <li>{{ t('Table des types ajoutée au guide', 'Type chart added to guide') }}</li>
+        </ul>
+      </article>
 
       <article class="rounded-xl border border-gray-700/50 bg-gray-800/40 p-5">
         <h3 class="text-sm font-bold text-amber-400">v0.3.0 — 13/02/2026</h3>

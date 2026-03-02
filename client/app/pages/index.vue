@@ -82,15 +82,56 @@ function pokemonXpPercent(poke: { level: number; xp: number }): number {
 
 <template>
   <div class="flex flex-col items-center gap-5 select-none">
-    <!-- Region Unlock Message -->
-    <Transition name="slide-down">
-      <div
-        v-if="player.regionUnlockMessage"
-        class="fixed top-20 left-1/2 -translate-x-1/2 z-50 rounded-xl border-2 border-yellow-500 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 px-6 py-4 shadow-2xl backdrop-blur-sm"
-      >
-        <p class="text-lg font-bold text-yellow-300">{{ player.regionUnlockMessage }}</p>
-      </div>
-    </Transition>
+    <!-- Region Unlock Modal -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div
+          v-if="player.regionUnlockMessage"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+          @click="player.regionUnlockMessage = null"
+        >
+          <div
+            class="relative w-full max-w-lg rounded-2xl border-2 border-amber-500 bg-gradient-to-br from-amber-900/95 to-orange-900/95 p-8 shadow-2xl"
+            @click.stop
+          >
+            <div class="text-center">
+              <div class="mb-4 text-6xl">🎉</div>
+              <h2 class="mb-2 text-3xl font-bold text-amber-300">{{ t('Félicitations !', 'Congratulations!') }}</h2>
+              <p class="mb-6 text-xl text-amber-100">{{ player.regionUnlockMessage }}</p>
+              
+              <div class="mb-6 rounded-xl bg-black/30 p-4 text-left">
+                <h3 class="mb-3 text-sm font-bold uppercase text-amber-400">{{ t('Nouveau contenu débloqué', 'New content unlocked') }}</h3>
+                <ul class="space-y-2 text-sm text-gray-200">
+                  <li class="flex items-center gap-2">
+                    <span class="text-green-400">✓</span>
+                    <span>{{ t('Nouvelle région à explorer', 'New region to explore') }}</span>
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <span class="text-green-400">✓</span>
+                    <span>{{ t('Nouveaux Pokémon disponibles au Gacha', 'New Pokémon available in Gacha') }}</span>
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <span class="text-green-400">✓</span>
+                    <span>{{ t('Nouvelles zones et boss à vaincre', 'New zones and bosses to defeat') }}</span>
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <span class="text-green-400">✓</span>
+                    <span>{{ t('Évolutions exclusives à cette génération', 'Exclusive evolutions for this generation') }}</span>
+                  </li>
+                </ul>
+              </div>
+
+              <button
+                class="w-full rounded-lg bg-amber-500 py-3 font-bold text-black transition-all hover:bg-amber-400 active:scale-95"
+                @click="player.regionUnlockMessage = null"
+              >
+                {{ t('Continuer l\'aventure', 'Continue adventure') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
 
     <!-- Stage Info -->
     <div class="w-full max-w-md text-center">
@@ -294,17 +335,21 @@ function pokemonXpPercent(poke: { level: number; xp: number }): number {
 </template>
 
 <style scoped>
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all 0.5s ease;
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s ease;
 }
 
-.slide-down-enter-from {
-  transform: translate(-50%, -120%);
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 
-.slide-down-leave-to {
-  opacity: 0;
+.fade-enter-from .relative {
+  transform: scale(0.9);
+}
+
+.fade-leave-to .relative {
+  transform: scale(0.9);
 }
 </style>

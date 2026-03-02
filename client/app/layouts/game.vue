@@ -2,6 +2,7 @@
 import { Swords, Backpack, User, Star, ShoppingBag, Globe, Trophy, LogOut, LogIn, BookOpen, Award, Egg, HelpCircle, Bug } from 'lucide-vue-next'
 import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useAuthStore } from '~/stores/useAuthStore'
+import { useInventoryStore } from '~/stores/useInventoryStore'
 import { useLocale } from '~/composables/useLocale'
 import { useAfkReward } from '~/composables/useAfkReward'
 import { useSpeciesCache } from '~/composables/useSpeciesCache'
@@ -9,6 +10,7 @@ import { useCombatLoop } from '~/composables/useCombatLoop'
 
 const player = usePlayerStore()
 const auth = useAuthStore()
+const inventory = useInventoryStore()
 const { locale, setLocale, t } = useLocale()
 const { showPopup, afkResult, checkAfkRewards, dismissPopup } = useAfkReward()
 const { loadSpecies } = useSpeciesCache()
@@ -25,6 +27,9 @@ function saveOnUnload() {
 onMounted(() => {
   // Auth + species cache handled by auth.global middleware
   initCombat()
+
+  // Migrate rarities for existing Pokemon (starters Gen 2/3 rare → epic)
+  inventory.migrateRarities()
 
   autoSaveInterval = setInterval(() => {
     if (auth.isAuthenticated) {
