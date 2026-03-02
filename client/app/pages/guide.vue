@@ -7,6 +7,7 @@ import { HATCH_DAMAGE, FIVE_STAR_SHINY_CHANCE } from '~/stores/useDaycareStore'
 import { STAR_DPS_MULT, STAR_DPS_MULT_SHINY } from '~/data/gacha'
 import { getSpriteUrl, getTrainerSpriteUrl } from '~/utils/showdown'
 import { TYPES, getEffectiveness } from '~/data/types'
+import type { PokemonType } from '~/data/types'
 
 definePageMeta({
   layout: 'game',
@@ -16,6 +17,35 @@ const { t } = useLocale()
 
 const activeTab = ref<'wiki' | 'patchnotes'>('wiki')
 const expandedGen = ref<number | null>(1)
+const selectedType = ref<PokemonType | null>(null)
+
+function getTypeMatchups(type: PokemonType) {
+  // Defense: what damages this type
+  const weakTo: PokemonType[] = []
+  const resistsTo: PokemonType[] = []
+  const immuneTo: PokemonType[] = []
+  
+  for (const attacker of TYPES) {
+    const effectiveness = getEffectiveness(attacker.id, type)
+    if (effectiveness === 2) weakTo.push(attacker.id)
+    else if (effectiveness === 0.5) resistsTo.push(attacker.id)
+    else if (effectiveness === 0) immuneTo.push(attacker.id)
+  }
+  
+  // Attack: what this type damages
+  const strongAgainst: PokemonType[] = []
+  const weakAgainst: PokemonType[] = []
+  const noEffectAgainst: PokemonType[] = []
+  
+  for (const defender of TYPES) {
+    const effectiveness = getEffectiveness(type, defender.id)
+    if (effectiveness === 2) strongAgainst.push(defender.id)
+    else if (effectiveness === 0.5) weakAgainst.push(defender.id)
+    else if (effectiveness === 0) noEffectAgainst.push(defender.id)
+  }
+  
+  return { weakTo, resistsTo, immuneTo, strongAgainst, weakAgainst, noEffectAgainst }
+}
 
 function toggleGen(id: number) {
   expandedGen.value = expandedGen.value === id ? null : id
@@ -213,51 +243,191 @@ function toggleGen(id: number) {
         </h2>
         <div class="text-sm text-gray-300 mb-4">
           <p>{{ t(
-            'Tableau des efficacités : lignes = attaquant, colonnes = défenseur. Super efficace = x2 (vert), Peu efficace = x0.5 (orange), Sans effet = x0 (rouge).',
-            'Type effectiveness chart: rows = attacker, columns = defender. Super effective = x2 (green), Not very effective = x0.5 (orange), No effect = x0 (red).'
+            'Sélectionnez un type pour voir ses forces et faiblesses en attaque et en défense.',
+            'Select a type to see its offensive and defensive matchups.'
           ) }}</p>
         </div>
-        <div class="overflow-x-auto -mx-5 px-5">
-          <table class="border-collapse text-[10px] w-max">
-            <thead>
-              <tr>
-                <th class="sticky left-0 z-10 border border-gray-600 bg-gray-900 px-1 py-0.5 min-w-[60px]"></th>
-                <th v-for="defender in TYPES" :key="'def-' + defender.id" class="border border-gray-600 px-1 py-0.5 min-w-[45px]" :style="{ backgroundColor: defender.color + '30' }">
-                  <span class="font-bold text-[9px]" :style="{ color: defender.color }">{{ t(defender.nameFr, defender.nameEn) }}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="attacker in TYPES" :key="'att-' + attacker.id">
-                <th class="sticky left-0 z-10 border border-gray-600 bg-gray-900 px-1 py-0.5 text-left min-w-[60px]" :style="{ backgroundColor: attacker.color + '30' }">
-                  <span class="font-bold text-[9px]" :style="{ color: attacker.color }">{{ t(attacker.nameFr, attacker.nameEn) }}</span>
-                </th>
-                <td
-                  v-for="defender in TYPES"
-                  :key="'cell-' + attacker.id + '-' + defender.id"
-                  class="border border-gray-700 p-1 text-center"
-                  :class="{
-                    'bg-green-900/40': getEffectiveness(attacker.id, defender.id) === 2,
-                    'bg-orange-900/40': getEffectiveness(attacker.id, defender.id) === 0.5,
-                    'bg-red-900/40': getEffectiveness(attacker.id, defender.id) === 0,
-                    'bg-gray-800/20': getEffectiveness(attacker.id, defender.id) === 1
-                  }"
-                >
+
+        <!-- Type Selection Grid -->
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 mb-6">
+          <button
+            v-for="type in TYPES"
+            :key="type.id"
+            class="rounded-lg border-2 px-3 py-2 text-sm font-bold transition-all hover:scale-105"
+            :class="selectedType === type.id ? 'ring-2 ring-white' : ''"
+            :style="{
+              borderColor: type.color,
+              backgroundColor: selectedType === type.id ? type.color + '40' : type.color + '20',
+              color: type.color
+            }"
+            @click="selectedType = type.id"
+          >
+            {{ t(type.nameFr, type.nameEn) }}
+          </button>
+        </div>
+
+        <!-- Type Matchup Details -->
+        <div v-if="selectedType" class="space-y-4">
+          <div class="text-center mb-4">
+            <h3 class="text-2xl font-bold" :style="{ color: TYPES.find(t => t.id === selectedType)!.color }">
+              {{ t(TYPES.find(t => t.id === selectedType)!.nameFr, TYPES.find(t => t.id === selectedType)!.nameEn) }}
+            </h3>
+          </div>
+
+          <!-- Defense Section -->
+          <div class="rounded-lg border border-gray-700 bg-gray-900/50 p-4">
+            <h4 class="mb-3 text-lg font-bold text-blue-400">
+              🛡️ {{ t('Défense', 'Defense') }}
+            </h4>
+            
+            <div class="space-y-3">
+              <!-- Weaknesses -->
+              <div v-if="getTypeMatchups(selectedType).weakTo.length > 0">
+                <p class="mb-2 text-sm font-semibold text-red-400">
+                  {{ t('Faible contre (×2)', 'Weak to (×2)') }}
+                </p>
+                <div class="flex flex-wrap gap-2">
                   <span
-                    :class="{
-                      'text-green-300 font-bold': getEffectiveness(attacker.id, defender.id) === 2,
-                      'text-orange-300': getEffectiveness(attacker.id, defender.id) === 0.5,
-                      'text-red-300 font-bold': getEffectiveness(attacker.id, defender.id) === 0,
-                      'text-gray-500': getEffectiveness(attacker.id, defender.id) === 1
+                    v-for="typeId in getTypeMatchups(selectedType).weakTo"
+                    :key="'weak-' + typeId"
+                    class="rounded px-2 py-1 text-xs font-bold"
+                    :style="{
+                      backgroundColor: TYPES.find(t => t.id === typeId)!.color + '30',
+                      color: TYPES.find(t => t.id === typeId)!.color,
+                      borderColor: TYPES.find(t => t.id === typeId)!.color,
+                      borderWidth: '1px'
                     }"
                   >
-                    {{ getEffectiveness(attacker.id, defender.id) === 1 ? '—' : '×' + getEffectiveness(attacker.id, defender.id) }}
+                    {{ t(TYPES.find(t => t.id === typeId)!.nameFr, TYPES.find(t => t.id === typeId)!.nameEn) }}
                   </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+              </div>
+
+              <!-- Resistances -->
+              <div v-if="getTypeMatchups(selectedType).resistsTo.length > 0">
+                <p class="mb-2 text-sm font-semibold text-green-400">
+                  {{ t('Résiste à (×0.5)', 'Resists (×0.5)') }}
+                </p>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    v-for="typeId in getTypeMatchups(selectedType).resistsTo"
+                    :key="'resist-' + typeId"
+                    class="rounded px-2 py-1 text-xs font-bold"
+                    :style="{
+                      backgroundColor: TYPES.find(t => t.id === typeId)!.color + '30',
+                      color: TYPES.find(t => t.id === typeId)!.color,
+                      borderColor: TYPES.find(t => t.id === typeId)!.color,
+                      borderWidth: '1px'
+                    }"
+                  >
+                    {{ t(TYPES.find(t => t.id === typeId)!.nameFr, TYPES.find(t => t.id === typeId)!.nameEn) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Immunities -->
+              <div v-if="getTypeMatchups(selectedType).immuneTo.length > 0">
+                <p class="mb-2 text-sm font-semibold text-purple-400">
+                  {{ t('Immunisé contre (×0)', 'Immune to (×0)') }}
+                </p>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    v-for="typeId in getTypeMatchups(selectedType).immuneTo"
+                    :key="'immune-' + typeId"
+                    class="rounded px-2 py-1 text-xs font-bold"
+                    :style="{
+                      backgroundColor: TYPES.find(t => t.id === typeId)!.color + '30',
+                      color: TYPES.find(t => t.id === typeId)!.color,
+                      borderColor: TYPES.find(t => t.id === typeId)!.color,
+                      borderWidth: '1px'
+                    }"
+                  >
+                    {{ t(TYPES.find(t => t.id === typeId)!.nameFr, TYPES.find(t => t.id === typeId)!.nameEn) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attack Section -->
+          <div class="rounded-lg border border-gray-700 bg-gray-900/50 p-4">
+            <h4 class="mb-3 text-lg font-bold text-orange-400">
+              ⚔️ {{ t('Attaque', 'Attack') }}
+            </h4>
+            
+            <div class="space-y-3">
+              <!-- Super Effective -->
+              <div v-if="getTypeMatchups(selectedType).strongAgainst.length > 0">
+                <p class="mb-2 text-sm font-semibold text-green-400">
+                  {{ t('Super efficace contre (×2)', 'Super effective against (×2)') }}
+                </p>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    v-for="typeId in getTypeMatchups(selectedType).strongAgainst"
+                    :key="'strong-' + typeId"
+                    class="rounded px-2 py-1 text-xs font-bold"
+                    :style="{
+                      backgroundColor: TYPES.find(t => t.id === typeId)!.color + '30',
+                      color: TYPES.find(t => t.id === typeId)!.color,
+                      borderColor: TYPES.find(t => t.id === typeId)!.color,
+                      borderWidth: '1px'
+                    }"
+                  >
+                    {{ t(TYPES.find(t => t.id === typeId)!.nameFr, TYPES.find(t => t.id === typeId)!.nameEn) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Not Very Effective -->
+              <div v-if="getTypeMatchups(selectedType).weakAgainst.length > 0">
+                <p class="mb-2 text-sm font-semibold text-orange-400">
+                  {{ t('Peu efficace contre (×0.5)', 'Not very effective against (×0.5)') }}
+                </p>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    v-for="typeId in getTypeMatchups(selectedType).weakAgainst"
+                    :key="'weak-against-' + typeId"
+                    class="rounded px-2 py-1 text-xs font-bold"
+                    :style="{
+                      backgroundColor: TYPES.find(t => t.id === typeId)!.color + '30',
+                      color: TYPES.find(t => t.id === typeId)!.color,
+                      borderColor: TYPES.find(t => t.id === typeId)!.color,
+                      borderWidth: '1px'
+                    }"
+                  >
+                    {{ t(TYPES.find(t => t.id === typeId)!.nameFr, TYPES.find(t => t.id === typeId)!.nameEn) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- No Effect -->
+              <div v-if="getTypeMatchups(selectedType).noEffectAgainst.length > 0">
+                <p class="mb-2 text-sm font-semibold text-red-400">
+                  {{ t('Sans effet contre (×0)', 'No effect against (×0)') }}
+                </p>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    v-for="typeId in getTypeMatchups(selectedType).noEffectAgainst"
+                    :key="'no-effect-' + typeId"
+                    class="rounded px-2 py-1 text-xs font-bold"
+                    :style="{
+                      backgroundColor: TYPES.find(t => t.id === typeId)!.color + '30',
+                      color: TYPES.find(t => t.id === typeId)!.color,
+                      borderColor: TYPES.find(t => t.id === typeId)!.color,
+                      borderWidth: '1px'
+                    }"
+                  >
+                    {{ t(TYPES.find(t => t.id === typeId)!.nameFr, TYPES.find(t => t.id === typeId)!.nameEn) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <p v-else class="py-8 text-center text-gray-500">
+          {{ t('Sélectionnez un type ci-dessus pour voir les détails', 'Select a type above to see details') }}
+        </p>
       </section>
 
       <!-- ═══════════════ ZONES & BOSSES ═══════════════ -->
