@@ -10,6 +10,7 @@ export interface Evolution {
   itemRequired?: string
 }
 
+
 export interface EvoItem {
   id: string
   nameFr: string
