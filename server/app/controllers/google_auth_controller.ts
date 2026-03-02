@@ -36,9 +36,10 @@ export default class GoogleAuthController {
   async callback({ request, response, auth }: HttpContext) {
     const code = request.input('code')
     const error = request.input('error')
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
 
     if (error || !code) {
-      return response.redirect('http://localhost:3000/login?error=google_denied')
+      return response.redirect(`${frontendUrl}/login?error=google_denied`)
     }
 
     const clientId = process.env.GOOGLE_CLIENT_ID!
@@ -59,7 +60,7 @@ export default class GoogleAuthController {
     })
 
     if (!tokenRes.ok) {
-      return response.redirect('http://localhost:3000/login?error=google_token')
+      return response.redirect(`${frontendUrl}/login?error=google_token`)
     }
 
     const tokenData = (await tokenRes.json()) as { access_token: string }
@@ -71,7 +72,7 @@ export default class GoogleAuthController {
     })
 
     if (!userRes.ok) {
-      return response.redirect('http://localhost:3000/login?error=google_userinfo')
+      return response.redirect(`${frontendUrl}/login?error=google_userinfo`)
     }
 
     const googleUser = (await userRes.json()) as {
@@ -117,6 +118,6 @@ export default class GoogleAuthController {
     await user.save()
 
     // Redirect to the client app
-    return response.redirect('http://localhost:3000/')
+    return response.redirect(frontendUrl)
   }
 }
