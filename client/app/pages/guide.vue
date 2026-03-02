@@ -207,7 +207,7 @@ function toggleGen(id: number) {
       </section>
 
       <!-- ── Table des Types ── -->
-      <section class="rounded-xl border border-gray-700/50 bg-gray-800/40 p-5 max-w-full">
+      <section class="rounded-xl border border-gray-700/50 bg-gray-800/40 p-5">
         <h2 class="mb-3 text-lg font-bold text-white">
           {{ t('Table des Types', 'Type Chart') }}
         </h2>
@@ -217,20 +217,20 @@ function toggleGen(id: number) {
             'Type effectiveness chart: rows = attacker, columns = defender. Super effective = x2 (green), Not very effective = x0.5 (orange), No effect = x0 (red).'
           ) }}</p>
         </div>
-        <div class="overflow-x-auto max-w-full">
-          <table class="w-full border-collapse text-xs min-w-max">
+        <div class="overflow-x-auto -mx-5 px-5">
+          <table class="border-collapse text-[10px] w-max">
             <thead>
               <tr>
-                <th class="sticky left-0 z-10 border border-gray-600 bg-gray-900 p-1"></th>
-                <th v-for="defender in TYPES" :key="'def-' + defender.id" class="border border-gray-600 p-1" :style="{ backgroundColor: defender.color + '30' }">
-                  <span class="font-bold" :style="{ color: defender.color }">{{ t(defender.nameFr, defender.nameEn) }}</span>
+                <th class="sticky left-0 z-10 border border-gray-600 bg-gray-900 px-1 py-0.5 min-w-[60px]"></th>
+                <th v-for="defender in TYPES" :key="'def-' + defender.id" class="border border-gray-600 px-1 py-0.5 min-w-[45px]" :style="{ backgroundColor: defender.color + '30' }">
+                  <span class="font-bold text-[9px]" :style="{ color: defender.color }">{{ t(defender.nameFr, defender.nameEn) }}</span>
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="attacker in TYPES" :key="'att-' + attacker.id">
-                <th class="sticky left-0 z-10 border border-gray-600 bg-gray-900 p-1" :style="{ backgroundColor: attacker.color + '30' }">
-                  <span class="font-bold" :style="{ color: attacker.color }">{{ t(attacker.nameFr, attacker.nameEn) }}</span>
+                <th class="sticky left-0 z-10 border border-gray-600 bg-gray-900 px-1 py-0.5 text-left min-w-[60px]" :style="{ backgroundColor: attacker.color + '30' }">
+                  <span class="font-bold text-[9px]" :style="{ color: attacker.color }">{{ t(attacker.nameFr, attacker.nameEn) }}</span>
                 </th>
                 <td
                   v-for="defender in TYPES"

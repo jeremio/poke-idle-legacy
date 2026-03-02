@@ -60,6 +60,20 @@ function deleteSavedTeam(name: string) {
   inventory.deleteTeam(name)
 }
 
+function clearTeam() {
+  for (const p of inventory.collection) {
+    if (p.teamSlot !== null) {
+      inventory.removeFromTeam(p.id)
+    }
+  }
+}
+
+function handlePokemonRightClick(event: MouseEvent, pokemon: OwnedPokemon) {
+  event.preventDefault()
+  if (isInDaycare(pokemon)) return
+  toggleTeam(pokemon.id)
+}
+
 function getPokemonGen(slug: string): number {
   return POKEDEX.find(p => p.slug === slug)?.gen ?? 1
 }
@@ -205,6 +219,13 @@ function getDetailStats(poke: OwnedPokemon) {
           <span class="ml-2 text-xs text-cyan-400">DPS: {{ inventory.teamDps }}</span>
         </h3>
         <div class="ml-auto flex gap-2">
+          <button
+            v-if="inventory.team.length > 0"
+            class="rounded-lg bg-red-600 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-red-500"
+            @click="clearTeam"
+          >
+            🗑️ {{ t('Vider', 'Clear') }}
+          </button>
           <button
             v-if="inventory.team.length > 0"
             class="rounded-lg bg-cyan-600 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-cyan-500"
@@ -355,6 +376,7 @@ function getDetailStats(poke: OwnedPokemon) {
           ? 'border-cyan-500/50 bg-cyan-500/10'
           : 'border-gray-700 bg-gray-800 hover:border-gray-500'"
         @click="openDetail(pokemon)"
+        @contextmenu="handlePokemonRightClick($event, pokemon)"
       >
         <span
           v-if="pokemon.isShiny"
