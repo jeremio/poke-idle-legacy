@@ -56,6 +56,7 @@ interface PlayerState {
   clickDamageBonus: number
   teamDpsBonus: number
   badges: number
+  defeatedBosses: string[] // Boss slugs defeated (unique)
   isLoggedIn: boolean
   candies: Record<CandySize, number>
   regionUnlockMessage: string | null
@@ -78,6 +79,7 @@ export const usePlayerStore = defineStore('player', {
       clickDamageBonus: saved.clickDamageBonus,
       teamDpsBonus: saved.teamDpsBonus,
       badges: 0,
+      defeatedBosses: [],
       isLoggedIn: false,
       candies: { S: 0, M: 0, L: 0, XL: 0 },
       regionUnlockMessage: null,
@@ -167,9 +169,18 @@ export const usePlayerStore = defineStore('player', {
         this.currentStage++
       } else {
         this.currentStage = 1
-        this.badges++
-        // Check if there are more zones in the current generation
+        
+        // Add badge only if boss is defeated for the first time
         const gen = GENERATIONS.find((g) => g.id === this.currentGeneration)
+        const zone = gen?.zones[this.currentZone - 1]
+        const bossSlug = zone?.boss.slug
+        
+        if (bossSlug && !this.defeatedBosses.includes(bossSlug)) {
+          this.defeatedBosses.push(bossSlug)
+          this.badges++
+        }
+        
+        // Check if there are more zones in the current generation
         if (gen && this.currentZone >= gen.zones.length) {
           // Move to next generation
           const nextGen = GENERATIONS.find((g) => g.id === this.currentGeneration + 1)
@@ -178,7 +189,7 @@ export const usePlayerStore = defineStore('player', {
             this.currentZone = 1
             // Show congratulations message
             const newRegionName = GENERATION_NAMES[this.currentGeneration] ?? 'Unknown'
-            this.regionUnlockMessage = `\ud83c\udf89 F\u00e9licitations ! Vous avez d\u00e9bloqu\u00e9 la r\u00e9gion ${newRegionName} !`
+            this.regionUnlockMessage = `🎉 Félicitations ! Vous avez débloqué la région ${newRegionName} !`
             setTimeout(() => { this.regionUnlockMessage = null }, 5000)
           } else {
             // Last generation — stay at last zone

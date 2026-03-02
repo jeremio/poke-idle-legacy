@@ -6,7 +6,7 @@ import { RARITY_DPS_MULT } from '~/data/gacha'
 import { HATCH_DAMAGE, FIVE_STAR_SHINY_CHANCE } from '~/stores/useDaycareStore'
 import { STAR_DPS_MULT, STAR_DPS_MULT_SHINY } from '~/data/gacha'
 import { getSpriteUrl, getTrainerSpriteUrl } from '~/utils/showdown'
-import { TYPES } from '~/data/types'
+import { TYPES, getEffectiveness } from '~/data/types'
 
 definePageMeta({
   layout: 'game',
@@ -211,16 +211,52 @@ function toggleGen(id: number) {
         <h2 class="mb-3 text-lg font-bold text-white">
           {{ t('Table des Types', 'Type Chart') }}
         </h2>
-        <div class="text-sm text-gray-300 mb-3">
+        <div class="text-sm text-gray-300 mb-4">
           <p>{{ t(
-            'Les types influencent les dégâts en combat. Super efficace = x2, Peu efficace = x0.5.',
-            'Types affect combat damage. Super effective = x2, Not very effective = x0.5.'
+            'Tableau des efficacités : lignes = attaquant, colonnes = défenseur. Super efficace = x2 (vert), Peu efficace = x0.5 (orange), Sans effet = x0 (rouge).',
+            'Type effectiveness chart: rows = attacker, columns = defender. Super effective = x2 (green), Not very effective = x0.5 (orange), No effect = x0 (red).'
           ) }}</p>
         </div>
-        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-          <div v-for="type in TYPES" :key="type.id" class="rounded-lg border px-3 py-2 text-center" :style="{ borderColor: type.color, backgroundColor: type.color + '15' }">
-            <p class="text-sm font-bold" :style="{ color: type.color }">{{ t(type.nameFr, type.nameEn) }}</p>
-          </div>
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse text-xs">
+            <thead>
+              <tr>
+                <th class="sticky left-0 z-10 border border-gray-600 bg-gray-900 p-1"></th>
+                <th v-for="defender in TYPES" :key="'def-' + defender.id" class="border border-gray-600 p-1" :style="{ backgroundColor: defender.color + '30' }">
+                  <span class="font-bold" :style="{ color: defender.color }">{{ t(defender.nameFr, defender.nameEn) }}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="attacker in TYPES" :key="'att-' + attacker.id">
+                <th class="sticky left-0 z-10 border border-gray-600 bg-gray-900 p-1" :style="{ backgroundColor: attacker.color + '30' }">
+                  <span class="font-bold" :style="{ color: attacker.color }">{{ t(attacker.nameFr, attacker.nameEn) }}</span>
+                </th>
+                <td
+                  v-for="defender in TYPES"
+                  :key="'cell-' + attacker.id + '-' + defender.id"
+                  class="border border-gray-700 p-1 text-center"
+                  :class="{
+                    'bg-green-900/40': getEffectiveness(attacker.id, defender.id) === 2,
+                    'bg-orange-900/40': getEffectiveness(attacker.id, defender.id) === 0.5,
+                    'bg-red-900/40': getEffectiveness(attacker.id, defender.id) === 0,
+                    'bg-gray-800/20': getEffectiveness(attacker.id, defender.id) === 1
+                  }"
+                >
+                  <span
+                    :class="{
+                      'text-green-300 font-bold': getEffectiveness(attacker.id, defender.id) === 2,
+                      'text-orange-300': getEffectiveness(attacker.id, defender.id) === 0.5,
+                      'text-red-300 font-bold': getEffectiveness(attacker.id, defender.id) === 0,
+                      'text-gray-500': getEffectiveness(attacker.id, defender.id) === 1
+                    }"
+                  >
+                    {{ getEffectiveness(attacker.id, defender.id) === 1 ? '—' : '×' + getEffectiveness(attacker.id, defender.id) }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 

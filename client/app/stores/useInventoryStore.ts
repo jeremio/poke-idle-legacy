@@ -18,9 +18,15 @@ export interface OwnedPokemon {
   teamSlot: number | null
 }
 
+interface SavedTeam {
+  name: string
+  pokemonIds: number[]
+}
+
 interface InventoryState {
   collection: OwnedPokemon[]
   nextId: number
+  savedTeams: SavedTeam[]
 }
 
 export const MAX_STARS = 5
@@ -30,6 +36,7 @@ export const useInventoryStore = defineStore('inventory', {
   state: (): InventoryState => ({
     collection: [],
     nextId: 1,
+    savedTeams: [],
   }),
 
   getters: {
@@ -189,12 +196,50 @@ export const useInventoryStore = defineStore('inventory', {
         xp: 0,
         stars: 1,
         isShiny: pokemon.isShiny,
-        rarity: pokemon.rarity,
+        rarity: getRarity(evo.toSlug),
         teamSlot: pokemon.teamSlot,
       }
       // Remove original from team, put evolved in its slot
       pokemon.teamSlot = null
       this.collection.push(evolved)
+    },
+
+    // Team management
+    saveTeam(name: string) {
+      const currentTeam = this.team.map(p => p.id)
+      if (currentTeam.length === 0) return
+      
+      const existingIndex = this.savedTeams.findIndex(t => t.name === name)
+      if (existingIndex >= 0) {
+        const existing = this.savedTeams[existingIndex]
+        if (existing) {
+          existing.pokemonIds = currentTeam
+        }
+      } else {
+        this.savedTeams.push({ name, pokemonIds: currentTeam })
+      }
+    },
+
+    loadTeam(name: string) {
+      const saved = this.savedTeams.find(t => t.name === name)
+      if (!saved) return
+      
+      // Clear current team
+      for (const p of this.collection) {
+        p.teamSlot = null
+      }
+      
+      // Load saved team
+      saved.pokemonIds.forEach((id, index) => {
+        const pokemon = this.collection.find(p => p.id === id)
+        if (pokemon) {
+          pokemon.teamSlot = index + 1
+        }
+      })
+    },
+
+    deleteTeam(name: string) {
+      this.savedTeams = this.savedTeams.filter(t => t.name !== name)
     },
   },
 })
