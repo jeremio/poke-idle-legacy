@@ -24,9 +24,11 @@ services:
     ports:
       - "3005:3333"
     environment:
+      TZ: ${TZ:-UTC}
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: 3333
+      LOG_LEVEL: ${LOG_LEVEL:-info}
       APP_KEY: ${APP_KEY}
       DB_HOST: postgres
       DB_PORT: 5432
@@ -34,6 +36,9 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_DATABASE: ${POSTGRES_DB}
       SESSION_DRIVER: cookie
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-https://pokemon.jeremyduc.dev/auth/google/callback}
     depends_on:
       postgres:
         condition: service_healthy
