@@ -6,7 +6,7 @@ import { registerValidator, loginValidator } from '#validators/auth'
 export default class AuthController {
   async register({ request, response, auth }: HttpContext) {
     const data = await request.validateUsing(registerValidator)
-    const user = await User.create(data)
+    const user = await User.create({ ...data, role: 'user' })
     await auth.use('web').login(user)
     return response.created(user)
   }

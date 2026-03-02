@@ -108,6 +108,7 @@ export default class GoogleAuthController {
           email: googleUser.email,
           password: randomPassword,
           googleId: googleUser.id,
+          role: 'user',
         })
       }
     }
