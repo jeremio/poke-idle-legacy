@@ -98,7 +98,7 @@ const ITEM_SPRITES: Record<string, string> = {
   'thunder-stone': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png',
   'leaf-stone': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png',
   'moon-stone': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png',
-  'link-cable': 'https://archives.bulbagarden.net/media/upload/7/7c/Dream_Link_Cable_Sprite.png',
+  'link-cable': 'https://wiki.cobblemon.com/images/3/33/Link_Cable.png?v=2',
   'kings-rock': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/kings-rock.png',
   'prism-scale': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/prism-scale.png',
   'razor-claw': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/razor-claw.png',

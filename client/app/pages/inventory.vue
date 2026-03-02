@@ -39,6 +39,27 @@ const filterShiny = ref<boolean | null>(null)
 const filterTeam = ref<boolean | null>(null)
 const filterGen = ref<number | null>(null)
 
+// Team save/load
+const showSaveTeamModal = ref(false)
+const showLoadTeamModal = ref(false)
+const newTeamName = ref('')
+
+function saveCurrentTeam() {
+  if (!newTeamName.value.trim()) return
+  inventory.saveTeam(newTeamName.value.trim())
+  newTeamName.value = ''
+  showSaveTeamModal.value = false
+}
+
+function loadSavedTeam(name: string) {
+  inventory.loadTeam(name)
+  showLoadTeamModal.value = false
+}
+
+function deleteSavedTeam(name: string) {
+  inventory.deleteTeam(name)
+}
+
 function getPokemonGen(slug: string): number {
   return POKEDEX.find(p => p.slug === slug)?.gen ?? 1
 }
@@ -177,11 +198,29 @@ function getDetailStats(poke: OwnedPokemon) {
 
     <!-- Team -->
     <div>
-      <h3 class="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-400">
-        <Shield class="h-4 w-4" />
-        {{ t('Équipe active', 'Active Team') }} ({{ inventory.team.length }}/6)
-        <span class="ml-auto text-xs text-cyan-400">DPS: {{ inventory.teamDps }}</span>
-      </h3>
+      <div class="mb-2 flex items-center gap-2">
+        <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-400">
+          <Shield class="h-4 w-4" />
+          {{ t('Équipe active', 'Active Team') }} ({{ inventory.team.length }}/6)
+          <span class="ml-2 text-xs text-cyan-400">DPS: {{ inventory.teamDps }}</span>
+        </h3>
+        <div class="ml-auto flex gap-2">
+          <button
+            v-if="inventory.team.length > 0"
+            class="rounded-lg bg-cyan-600 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-cyan-500"
+            @click="showSaveTeamModal = true"
+          >
+            💾 {{ t('Sauvegarder', 'Save') }}
+          </button>
+          <button
+            v-if="inventory.savedTeams.length > 0"
+            class="rounded-lg bg-purple-600 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-purple-500"
+            @click="showLoadTeamModal = true"
+          >
+            📂 {{ t('Charger', 'Load') }}
+          </button>
+        </div>
+      </div>
       <div class="grid grid-cols-6 gap-2">
         <div
           v-for="slot in 6"
@@ -505,6 +544,97 @@ function getDetailStats(poke: OwnedPokemon) {
           </div>
         </div>
       </div>
+    </Teleport>
+
+    <!-- Save Team Modal -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div
+          v-if="showSaveTeamModal"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+          @click="showSaveTeamModal = false"
+        >
+          <div
+            class="w-full max-w-md rounded-2xl border-2 border-cyan-500 bg-gray-900 p-6"
+            @click.stop
+          >
+            <h3 class="mb-4 text-xl font-bold text-cyan-400">💾 {{ t('Sauvegarder l\'équipe', 'Save Team') }}</h3>
+            <input
+              v-model="newTeamName"
+              type="text"
+              :placeholder="t('Nom de l\'équipe', 'Team name')"
+              class="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white placeholder-gray-500 focus:border-cyan-500 focus:outline-none"
+              @keyup.enter="saveCurrentTeam"
+            />
+            <div class="mt-4 flex gap-2">
+              <button
+                class="flex-1 rounded-lg bg-gray-700 py-2 font-bold text-white transition-colors hover:bg-gray-600"
+                @click="showSaveTeamModal = false"
+              >
+                {{ t('Annuler', 'Cancel') }}
+              </button>
+              <button
+                class="flex-1 rounded-lg bg-cyan-600 py-2 font-bold text-white transition-colors hover:bg-cyan-500 disabled:opacity-50"
+                :disabled="!newTeamName.trim()"
+                @click="saveCurrentTeam"
+              >
+                {{ t('Sauvegarder', 'Save') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- Load Team Modal -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div
+          v-if="showLoadTeamModal"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+          @click="showLoadTeamModal = false"
+        >
+          <div
+            class="w-full max-w-md rounded-2xl border-2 border-purple-500 bg-gray-900 p-6"
+            @click.stop
+          >
+            <h3 class="mb-4 text-xl font-bold text-purple-400">📂 {{ t('Charger une équipe', 'Load Team') }}</h3>
+            <div class="max-h-96 space-y-2 overflow-y-auto">
+              <div
+                v-for="team in inventory.savedTeams"
+                :key="team.name"
+                class="flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 p-3 transition-colors hover:border-purple-500"
+              >
+                <div class="flex-1">
+                  <p class="font-bold text-white">{{ team.name }}</p>
+                  <p class="text-xs text-gray-400">{{ team.pokemonIds.length }} {{ t('Pokémon', 'Pokémon') }}</p>
+                </div>
+                <button
+                  class="rounded bg-purple-600 px-3 py-1 text-sm font-bold text-white transition-colors hover:bg-purple-500"
+                  @click="loadSavedTeam(team.name)"
+                >
+                  {{ t('Charger', 'Load') }}
+                </button>
+                <button
+                  class="rounded bg-red-600 px-3 py-1 text-sm font-bold text-white transition-colors hover:bg-red-500"
+                  @click="deleteSavedTeam(team.name)"
+                >
+                  🗑️
+                </button>
+              </div>
+              <p v-if="inventory.savedTeams.length === 0" class="py-8 text-center text-gray-500">
+                {{ t('Aucune équipe sauvegardée', 'No saved teams') }}
+              </p>
+            </div>
+            <button
+              class="mt-4 w-full rounded-lg bg-gray-700 py-2 font-bold text-white transition-colors hover:bg-gray-600"
+              @click="showLoadTeamModal = false"
+            >
+              {{ t('Fermer', 'Close') }}
+            </button>
+          </div>
+        </div>
+      </Transition>
     </Teleport>
   </div>
 </template>

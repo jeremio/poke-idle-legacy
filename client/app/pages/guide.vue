@@ -207,7 +207,7 @@ function toggleGen(id: number) {
       </section>
 
       <!-- ── Table des Types ── -->
-      <section class="rounded-xl border border-gray-700/50 bg-gray-800/40 p-5">
+      <section class="rounded-xl border border-gray-700/50 bg-gray-800/40 p-5 max-w-full">
         <h2 class="mb-3 text-lg font-bold text-white">
           {{ t('Table des Types', 'Type Chart') }}
         </h2>
@@ -217,8 +217,8 @@ function toggleGen(id: number) {
             'Type effectiveness chart: rows = attacker, columns = defender. Super effective = x2 (green), Not very effective = x0.5 (orange), No effect = x0 (red).'
           ) }}</p>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full border-collapse text-xs">
+        <div class="overflow-x-auto max-w-full">
+          <table class="w-full border-collapse text-xs min-w-max">
             <thead>
               <tr>
                 <th class="sticky left-0 z-10 border border-gray-600 bg-gray-900 p-1"></th>
