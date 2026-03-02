@@ -34,7 +34,7 @@ const KILLS_PER_STAGE = 10
 
 function xpForLevel(level: number): number {
   if (level <= 1) return 0
-  return Math.floor(50 * Math.pow(level, 1.8))
+  return Math.floor(75 * Math.pow(level, 1.9))
 }
 
 export type CandySize = 'S' | 'M' | 'L' | 'XL'

@@ -204,6 +204,13 @@ const JOHTO_POOL: GachaPokemon[] = [
   { nameFr: 'Lugia', nameEn: 'Lugia', slug: 'lugia', rarity: 'legendary', shinyRate: 0.05 },
   { nameFr: 'Ho-Oh', nameEn: 'Ho-Oh', slug: 'hooh', rarity: 'legendary', shinyRate: 0.05 },
   { nameFr: 'Celebi', nameEn: 'Celebi', slug: 'celebi', rarity: 'legendary', shinyRate: 0.05 },
+  // Mega Evolutions (Johto base Pokémon)
+  { nameFr: 'Méga-Pharamp', nameEn: 'Mega Ampharos', slug: 'ampharos-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Steelix', nameEn: 'Mega Steelix', slug: 'steelix-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Cizayox', nameEn: 'Mega Scizor', slug: 'scizor-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Scarhino', nameEn: 'Mega Heracross', slug: 'heracross-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Démolosse', nameEn: 'Mega Houndoom', slug: 'houndoom-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Tyranocif', nameEn: 'Mega Tyranitar', slug: 'tyranitar-mega', rarity: 'legendary', shinyRate: 0.05 },
 ]
 
 // === Gen 3 Hoenn Pool ===
@@ -288,6 +295,27 @@ const HOENN_POOL: GachaPokemon[] = [
   { nameFr: 'Rayquaza', nameEn: 'Rayquaza', slug: 'rayquaza', rarity: 'legendary', shinyRate: 0.05 },
   { nameFr: 'Jirachi', nameEn: 'Jirachi', slug: 'jirachi', rarity: 'legendary', shinyRate: 0.05 },
   { nameFr: 'Deoxys', nameEn: 'Deoxys', slug: 'deoxys', rarity: 'legendary', shinyRate: 0.05 },
+  // Mega Evolutions (Hoenn base Pokémon)
+  { nameFr: 'Méga-Jungko', nameEn: 'Mega Sceptile', slug: 'sceptile-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Braségali', nameEn: 'Mega Blaziken', slug: 'blaziken-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Laggron', nameEn: 'Mega Swampert', slug: 'swampert-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Gardevoir', nameEn: 'Mega Gardevoir', slug: 'gardevoir-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Ténéfix', nameEn: 'Mega Sableye', slug: 'sableye-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Mysdibule', nameEn: 'Mega Mawile', slug: 'mawile-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Galeking', nameEn: 'Mega Aggron', slug: 'aggron-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Charmina', nameEn: 'Mega Medicham', slug: 'medicham-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Élecsprint', nameEn: 'Mega Manectric', slug: 'manectric-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Sharpedo', nameEn: 'Mega Sharpedo', slug: 'sharpedo-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Camérupt', nameEn: 'Mega Camerupt', slug: 'camerupt-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Altaria', nameEn: 'Mega Altaria', slug: 'altaria-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Branette', nameEn: 'Mega Banette', slug: 'banette-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Absol', nameEn: 'Mega Absol', slug: 'absol-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Oniglali', nameEn: 'Mega Glalie', slug: 'glalie-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Drattak', nameEn: 'Mega Salamence', slug: 'salamence-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Métalosse', nameEn: 'Mega Metagross', slug: 'metagross-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Latias', nameEn: 'Mega Latias', slug: 'latias-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Latios', nameEn: 'Mega Latios', slug: 'latios-mega', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Méga-Rayquaza', nameEn: 'Mega Rayquaza', slug: 'rayquaza-mega', rarity: 'legendary', shinyRate: 0.05 },
 ]
 
 export const BANNERS: Banner[] = [
