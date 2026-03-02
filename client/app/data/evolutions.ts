@@ -354,6 +354,10 @@ export const EVOLUTIONS: Evolution[] = [
   { fromSlug: 'skitty', toSlug: 'delcatty', toNameFr: 'Delcatty', toNameEn: 'Delcatty', method: 'stone', itemRequired: 'moon-stone' },
 
   // NOTE: Gen 4+ evolutions (locked until player reaches Gen 4)
+  // Baby → Gen 3 base form
+  { fromSlug: 'budew', toSlug: 'roselia', toNameFr: 'Rosélia', toNameEn: 'Roselia', method: 'happiness', itemRequired: 'soothe-bell' },
+  
+  // Future Gen 4+ evolutions:
   // Roselia → Roserade requires Shiny Stone (Gen 4)
   // Togetic → Togekiss requires Shiny Stone (Gen 4)
   // Murkrow → Honchkrow moved to Gen 4 with Dusk Stone (already added above in Gen 2)
@@ -458,7 +462,7 @@ export const EVO_ITEMS: EvoItem[] = [
     descFr: 'Fait évoluer un Pokémon lié par le bonheur',
     descEn: 'Evolves a Pokémon that evolves through happiness',
     icon: '🔔',
-    applicableTo: ['pichu', 'cleffa', 'igglybuff', 'togepi', 'golbat', 'chansey', 'tyrogue', 'smoochum', 'elekid', 'magby', 'feebas'],
+    applicableTo: ['pichu', 'cleffa', 'igglybuff', 'togepi', 'golbat', 'chansey', 'tyrogue', 'smoochum', 'elekid', 'magby', 'feebas', 'azurill', 'budew'],
   },
   {
     id: 'sun-stone',
