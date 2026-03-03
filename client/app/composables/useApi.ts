@@ -13,7 +13,7 @@ async function api<T = unknown>(path: string, options: ApiOptions = {}): Promise
       'Content-Type': 'application/json',
       Accept: 'application/json',
     },
-    credentials: 'same-origin',
+    credentials: 'include',
     body: body ? JSON.stringify(body) : undefined,
     keepalive,
   })
