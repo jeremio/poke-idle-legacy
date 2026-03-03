@@ -203,71 +203,108 @@ function pokemonXpPercent(poke: { level: number; xp: number }): number {
     <!-- Enemy Display -->
     <div
       v-if="combat.enemy"
-      class="pk-card flex w-full max-w-md flex-col items-center gap-4 p-6"
-      :class="{ 'pk-card-boss': combat.isBossFight }"
+      class="relative w-full max-w-md overflow-hidden rounded-2xl border-4 shadow-2xl"
+      :class="combat.isBossFight ? 'border-red-500/50 bg-gradient-to-b from-red-950/40 to-slate-900' : 'border-blue-500/50 bg-gradient-to-b from-blue-950/40 to-slate-900'"
+      style="background-image: radial-gradient(rgba(255,255,255,0.03) 1.5px, transparent 1.5px); background-size: 30px 30px;"
     >
-      <!-- Enemy Name Tag -->
-      <div class="flex items-center gap-2">
-        <span class="font-pixel text-xs" :class="combat.isBossFight ? 'text-red-400' : 'text-blue-300'">
-          {{ t(combat.enemy.nameFr, combat.enemy.nameEn) }}
-        </span>
-        <TypeBadge :type="combat.enemy.type" size="sm" />
-        <span class="rounded-md bg-white/10 px-2 py-0.5 text-xs font-medium text-slate-400">Lv.{{ combat.enemy.level }}</span>
+      <!-- Enemy Info Box (top-right style des jeux) -->
+      <div class="absolute right-4 top-4 z-10 rounded-xl border-3 border-slate-800 bg-gradient-to-br from-slate-800/95 to-slate-900/95 p-3 shadow-lg" style="min-width: 200px">
+        <div class="mb-2 flex items-center justify-between">
+          <span class="font-pixel text-sm font-bold" :class="combat.isBossFight ? 'text-red-400' : 'text-blue-400'">
+            {{ t(combat.enemy.nameFr, combat.enemy.nameEn) }}
+          </span>
+          <TypeBadge :type="combat.enemy.type" size="sm" />
+        </div>
+        <div class="mb-2 flex items-center gap-2">
+          <span class="rounded-md bg-yellow-500/20 px-2 py-0.5 text-xs font-bold text-yellow-400">Lv{{ combat.enemy.level }}</span>
+          <span v-if="combat.isBossFight" class="rounded-md bg-red-500/20 px-2 py-0.5 text-[10px] font-bold uppercase text-red-400">BOSS</span>
+        </div>
+        <!-- HP Bar stylisée -->
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+            <span>HP</span>
+            <span class="ml-auto text-slate-400">{{ Math.ceil(combat.enemy.currentHp) }}/{{ combat.enemy.maxHp }}</span>
+          </div>
+          <!-- Barre HP segmentée -->
+          <div class="relative h-2.5 overflow-hidden rounded-full" style="background: linear-gradient(to bottom, #1e293b 0%, #0f172a 100%); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5)">
+            <div
+              class="h-full transition-all duration-200"
+              :style="{
+                width: `${combat.enemyHpPercent}%`,
+                background: combat.enemyHpPercent > 50 
+                  ? 'linear-gradient(to right, #10b981, #34d399)'
+                  : combat.enemyHpPercent > 20
+                    ? 'linear-gradient(to right, #f59e0b, #fbbf24)'
+                    : 'linear-gradient(to right, #dc2626, #ef4444)',
+                boxShadow: combat.enemyHpPercent > 50
+                  ? '0 0 10px rgba(16,185,129,0.6)'
+                  : combat.enemyHpPercent > 20
+                    ? '0 0 10px rgba(245,158,11,0.6)'
+                    : '0 0 10px rgba(220,38,38,0.6)'
+              }"
+            >
+              <!-- Segments de la barre HP -->
+              <div class="absolute inset-0 flex">
+                <div v-for="i in 20" :key="i" class="flex-1 border-r border-slate-900/30" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Boss Team Preview -->
-      <div v-if="combat.isBossFight && zone?.boss" class="flex gap-1.5">
+      <div v-if="combat.isBossFight && zone?.boss" class="absolute left-4 top-4 z-10 flex gap-1.5">
         <img
           v-for="(p, i) in zone.boss.team"
           :key="i"
           :src="getSpriteUrl(p.slug)"
           :alt="t(p.nameFr, p.nameEn)"
-          class="h-9 w-9 rounded-lg bg-white/5 object-contain p-0.5 opacity-70"
+          class="h-10 w-10 rounded-lg border-2 border-slate-700 bg-slate-800/90 object-contain p-1 shadow-lg transition-transform hover:scale-110"
           :title="t(p.nameFr, p.nameEn)"
         />
       </div>
 
-      <!-- Enemy Sprite (clickable) -->
-      <button
-        class="group relative cursor-pointer rounded-full p-4 transition-transform active:scale-90"
-        @click="handleClick($event)"
-      >
-        <div class="absolute inset-0 rounded-full opacity-30"
-          :style="{ background: combat.isBossFight
-            ? 'radial-gradient(circle, rgba(239,68,68,0.3) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(59,76,202,0.25) 0%, transparent 70%)' }"
-        />
-        <img
-          :src="combat.enemy.spriteUrl"
-          :alt="t(combat.enemy.nameFr, combat.enemy.nameEn)"
-          class="relative h-36 w-36 object-contain transition-transform group-hover:scale-110"
-          style="image-rendering: pixelated;"
-        />
-      </button>
-
-      <!-- HP Bar -->
-      <div class="w-full rounded-xl bg-[#0f172a] p-3">
-        <div class="mb-1.5 flex items-center justify-between">
-          <span class="text-xs font-bold uppercase tracking-widest" :class="combat.isBossFight ? 'text-red-400' : 'text-green-400'">HP</span>
-          <span class="text-xs text-slate-400">{{ Math.ceil(combat.enemy.currentHp) }} / {{ combat.enemy.maxHp }}</span>
-        </div>
-        <div class="h-3.5 w-full overflow-hidden rounded-full bg-[#1e293b] ring-1 ring-white/5">
-          <div
-            class="h-full rounded-full transition-all duration-150"
-            :class="combat.enemyHpPercent > 50
-              ? 'bg-gradient-to-r from-green-500 to-green-400'
-              : combat.enemyHpPercent > 20
-                ? 'bg-gradient-to-r from-yellow-500 to-yellow-400'
-                : 'bg-gradient-to-r from-red-600 to-red-400'"
-            :style="{ width: `${combat.enemyHpPercent}%` }"
+      <!-- Zone de combat centrale -->
+      <div class="flex flex-col items-center gap-6 px-6 pb-8 pt-32">
+        <!-- Plateforme de combat -->
+        <div class="relative">
+          <div class="absolute -bottom-4 left-1/2 h-6 w-48 -translate-x-1/2 rounded-full opacity-30"
+            :style="{ background: combat.isBossFight
+              ? 'radial-gradient(ellipse, rgba(239,68,68,0.5) 0%, transparent 70%)'
+              : 'radial-gradient(ellipse, rgba(59,130,246,0.5) 0%, transparent 70%)' }"
           />
+          <!-- Enemy Sprite (clickable) -->
+          <button
+            class="group relative cursor-pointer transition-transform active:scale-90"
+            @click="handleClick($event)"
+          >
+            <img
+              :src="combat.enemy.spriteUrl"
+              :alt="t(combat.enemy.nameFr, combat.enemy.nameEn)"
+              class="relative h-40 w-40 object-contain transition-all group-hover:scale-110 group-hover:drop-shadow-[0_0_20px_rgba(59,130,246,0.6)]"
+              style="image-rendering: pixelated; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));"
+            />
+          </button>
         </div>
-      </div>
 
-      <!-- Rewards Preview -->
-      <div class="flex gap-5 text-sm">
-        <span class="flex items-center gap-1 font-medium text-yellow-500">🪙 +{{ combat.enemy.goldReward }}</span>
-        <span class="flex items-center gap-1 font-medium text-blue-400">✦ +{{ combat.enemy.xpReward }} xp</span>
+        <!-- Rewards Preview -->
+        <div class="flex gap-4 rounded-xl border-2 border-slate-700/50 bg-slate-800/80 px-6 py-3 shadow-lg backdrop-blur-sm">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🪙</span>
+            <div class="text-left">
+              <p class="text-xs text-slate-400">{{ t('Or', 'Gold') }}</p>
+              <p class="font-bold text-yellow-400">+{{ combat.enemy.goldReward }}</p>
+            </div>
+          </div>
+          <div class="h-10 w-px bg-slate-700" />
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">✦</span>
+            <div class="text-left">
+              <p class="text-xs text-slate-400">XP</p>
+              <p class="font-bold text-blue-400">+{{ combat.enemy.xpReward }}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -279,74 +316,110 @@ function pokemonXpPercent(poke: { level: number; xp: number }): number {
 
     <!-- Stats Row -->
     <div class="flex gap-3">
-      <div class="flex items-center gap-2 rounded-xl bg-[#1e293b] px-4 py-2.5 ring-1 ring-slate-700">
-        <Swords class="h-4 w-4 text-orange-400" />
-        <div class="text-center">
-          <p class="text-sm font-bold text-white">{{ combat.clickDamage }}</p>
-          <p class="text-xs uppercase tracking-wider text-slate-500">{{ t('Click', 'Click') }}</p>
+      <div class="flex items-center gap-3 rounded-xl border-2 border-orange-500/30 bg-gradient-to-br from-orange-950/50 to-slate-900 px-5 py-3 shadow-lg">
+        <div class="rounded-lg bg-orange-500/20 p-2">
+          <Swords class="h-5 w-5 text-orange-400" />
+        </div>
+        <div class="text-left">
+          <p class="text-xs font-medium uppercase tracking-wider text-orange-300/70">{{ t('Click', 'Click') }}</p>
+          <p class="text-lg font-bold text-orange-400">{{ combat.clickDamage }}</p>
         </div>
       </div>
-      <div class="flex items-center gap-2 rounded-xl bg-[#1e293b] px-4 py-2.5 ring-1 ring-slate-700">
-        <Zap class="h-4 w-4 text-cyan-400" />
-        <div class="text-center">
-          <p class="text-sm font-bold text-white">{{ effectiveDps }}</p>
-          <p class="text-xs uppercase tracking-wider text-slate-500">DPS</p>
+      <div class="flex items-center gap-3 rounded-xl border-2 border-cyan-500/30 bg-gradient-to-br from-cyan-950/50 to-slate-900 px-5 py-3 shadow-lg">
+        <div class="rounded-lg bg-cyan-500/20 p-2">
+          <Zap class="h-5 w-5 text-cyan-400" />
+        </div>
+        <div class="text-left">
+          <p class="text-xs font-medium uppercase tracking-wider text-cyan-300/70">DPS</p>
+          <p class="text-lg font-bold text-cyan-400">{{ effectiveDps }}</p>
         </div>
       </div>
-      <div class="flex items-center gap-2 rounded-xl bg-[#1e293b] px-4 py-2.5 ring-1 ring-slate-700">
-        <Skull class="h-4 w-4 text-red-400" />
-        <div class="text-center">
-          <p class="text-sm font-bold text-white">{{ combat.totalKills }}</p>
-          <p class="text-xs uppercase tracking-wider text-slate-500">Kills</p>
+      <div class="flex items-center gap-3 rounded-xl border-2 border-red-500/30 bg-gradient-to-br from-red-950/50 to-slate-900 px-5 py-3 shadow-lg">
+        <div class="rounded-lg bg-red-500/20 p-2">
+          <Skull class="h-5 w-5 text-red-400" />
+        </div>
+        <div class="text-left">
+          <p class="text-xs font-medium uppercase tracking-wider text-red-300/70">Kills</p>
+          <p class="text-lg font-bold text-red-400">{{ combat.totalKills }}</p>
         </div>
       </div>
     </div>
 
     <!-- Team DPS Breakdown -->
     <div v-if="teamBreakdown.length > 0" class="w-full max-w-2xl">
-      <h3 class="mb-3 text-center text-sm font-bold uppercase tracking-widest text-slate-500">
-        {{ t('Mon équipe', 'My Team') }}
-      </h3>
-      <div class="flex flex-col gap-2">
+      <div class="mb-4 flex items-center justify-center gap-2">
+        <div class="h-px flex-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+        <h3 class="text-sm font-bold uppercase tracking-widest text-blue-400">
+          {{ t('Mon équipe', 'My Team') }}
+        </h3>
+        <div class="h-px flex-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+      </div>
+      <div class="flex flex-col gap-3">
         <div
           v-for="poke in teamBreakdown"
           :key="poke.id"
-          class="flex items-center gap-3 rounded-xl bg-[#1e293b] px-3 py-2 ring-1 ring-slate-700"
+          class="relative overflow-hidden rounded-xl border-2 bg-gradient-to-br from-slate-800/80 to-slate-900/80 shadow-lg transition-all hover:scale-[1.02]"
+          :class="poke.isShiny ? 'border-yellow-500/50' : 'border-slate-700/50'"
         >
-          <!-- Sprite -->
-          <img
-            :src="poke.isShiny ? getShinySpriteUrl(poke.slug) : getSpriteUrl(poke.slug)"
-            :alt="t(poke.nameFr, poke.nameEn)"
-            class="h-12 w-12 shrink-0 object-contain"
-            style="image-rendering: pixelated;"
-          />
-          <!-- Info -->
-          <div class="flex min-w-0 flex-1 flex-col gap-1">
-            <div class="flex items-center gap-1.5">
-              <span v-if="poke.isShiny" class="text-xs">✨</span>
-              <p class="truncate text-xs font-medium text-slate-200">{{ t(poke.nameFr, poke.nameEn) }}</p>
-              <TypeBadge :type="poke.pokeType" />
-              <span class="ml-auto shrink-0 text-[10px] text-slate-500">Lv.{{ poke.level }}</span>
-            </div>
-            <!-- XP Bar -->
-            <div class="h-1.5 w-full overflow-hidden rounded-full bg-[#0f172a]">
-              <div
-                class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-400 transition-all duration-300"
-                :style="{ width: `${pokemonXpPercent(poke)}%` }"
+          <!-- Background pattern -->
+          <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 20px 20px;" />
+          
+          <div class="relative flex items-center gap-3 p-3">
+            <!-- Sprite avec fond -->
+            <div class="relative shrink-0">
+              <div class="absolute inset-0 rounded-lg" :class="poke.isShiny ? 'bg-gradient-to-br from-yellow-500/20 to-amber-500/20' : 'bg-slate-700/30'" />
+              <img
+                :src="poke.isShiny ? getShinySpriteUrl(poke.slug) : getSpriteUrl(poke.slug)"
+                :alt="t(poke.nameFr, poke.nameEn)"
+                class="relative h-14 w-14 object-contain"
+                style="image-rendering: pixelated; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"
               />
+              <div v-if="poke.isShiny" class="absolute -right-1 -top-1 text-lg">✨</div>
             </div>
-            <!-- DPS detail -->
-            <div class="flex items-center gap-2 text-[10px]">
-              <span class="text-slate-500">{{ t('Base', 'Base') }}: <span class="font-medium text-slate-300">{{ poke.baseDps }}</span></span>
-              <span v-if="poke.typeMult !== 1" class="font-medium" :class="poke.typeMult > 1 ? 'text-green-400' : 'text-red-400'">
-                {{ t('Type', 'Type') }} x{{ poke.typeMult }}
-              </span>
-              <span v-if="poke.isShiny" class="font-medium text-yellow-400">
-                Shiny x1.5
-              </span>
-              <span class="ml-auto font-bold" :class="poke.typeMult > 1 ? 'text-green-400' : poke.typeMult < 1 ? 'text-red-400' : 'text-white'">
-                {{ poke.effectiveDps }} DPS
-              </span>
+            
+            <!-- Info -->
+            <div class="flex min-w-0 flex-1 flex-col gap-1.5">
+              <div class="flex items-center gap-2">
+                <p class="truncate font-pixel text-xs font-bold text-slate-100">{{ t(poke.nameFr, poke.nameEn) }}</p>
+                <TypeBadge :type="poke.pokeType" />
+                <span class="ml-auto shrink-0 rounded-md bg-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-400">Lv{{ poke.level }}</span>
+              </div>
+              
+              <!-- XP Bar améliorée -->
+              <div class="relative h-2 overflow-hidden rounded-full" style="background: linear-gradient(to bottom, #1e293b, #0f172a); box-shadow: inset 0 1px 3px rgba(0,0,0,0.5)">
+                <div
+                  class="h-full transition-all duration-300"
+                  style="background: linear-gradient(to right, #06b6d4, #3b82f6); box-shadow: 0 0 8px rgba(59,130,246,0.5)"
+                  :style="{ width: `${pokemonXpPercent(poke)}%` }"
+                >
+                  <div class="absolute inset-0 flex">
+                    <div v-for="i in 10" :key="i" class="flex-1 border-r border-slate-900/30" />
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Stats DPS -->
+              <div class="flex items-center gap-3 text-[10px]">
+                <div class="flex items-center gap-1">
+                  <span class="text-slate-400">{{ t('Base', 'Base') }}:</span>
+                  <span class="font-bold text-slate-200">{{ poke.baseDps }}</span>
+                </div>
+                <div v-if="poke.typeMult !== 1" class="flex items-center gap-1">
+                  <span class="text-slate-400">{{ t('Type', 'Type') }}:</span>
+                  <span class="font-bold" :class="poke.typeMult > 1 ? 'text-green-400' : 'text-red-400'">
+                    x{{ poke.typeMult }}
+                  </span>
+                </div>
+                <div v-if="poke.isShiny" class="flex items-center gap-1">
+                  <span class="font-bold text-yellow-400">Shiny x1.5</span>
+                </div>
+                <div class="ml-auto flex items-center gap-1 rounded-md px-2 py-1" :class="poke.typeMult > 1 ? 'bg-green-500/20' : poke.typeMult < 1 ? 'bg-red-500/20' : 'bg-slate-700/50'">
+                  <span class="text-[9px] font-medium text-slate-400">DPS</span>
+                  <span class="font-bold" :class="poke.typeMult > 1 ? 'text-green-400' : poke.typeMult < 1 ? 'text-red-400' : 'text-white'">
+                    {{ poke.effectiveDps }}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
