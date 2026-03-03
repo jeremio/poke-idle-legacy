@@ -207,15 +207,17 @@ function pokemonXpPercent(poke: { level: number; xp: number }): number {
       :class="combat.isBossFight ? 'border-red-500/50 bg-gradient-to-b from-red-950/40 to-slate-900' : 'border-blue-500/50 bg-gradient-to-b from-blue-950/40 to-slate-900'"
       style="background-image: radial-gradient(rgba(255,255,255,0.03) 1.5px, transparent 1.5px); background-size: 30px 30px;"
     >
-      <!-- Enemy Info Box (top-right style des jeux) -->
-      <div class="absolute right-4 top-4 z-10 rounded-xl border-3 border-slate-800 bg-gradient-to-br from-slate-800/95 to-slate-900/95 p-3 shadow-lg" style="min-width: 200px">
-        <div class="mb-2 flex items-center justify-between">
-          <span class="font-pixel text-sm font-bold" :class="combat.isBossFight ? 'text-red-400' : 'text-blue-400'">
+      <!-- Enemy Info Box (centré en haut) -->
+      <div class="absolute left-4 right-4 top-4 z-10 mx-auto rounded-xl border-3 border-slate-800 bg-gradient-to-br from-slate-800/95 to-slate-900/95 p-4 shadow-lg">
+        <div class="mb-2 flex flex-col gap-1.5">
+          <span class="text-center font-pixel text-sm font-bold" :class="combat.isBossFight ? 'text-red-400' : 'text-blue-400'">
             {{ t(combat.enemy.nameFr, combat.enemy.nameEn) }}
           </span>
-          <TypeBadge :type="combat.enemy.type" size="sm" />
+          <div class="flex items-center justify-center">
+            <TypeBadge :type="combat.enemy.type" size="sm" />
+          </div>
         </div>
-        <div class="mb-2 flex items-center gap-2">
+        <div class="mb-3 flex items-center justify-center gap-2">
           <span class="rounded-md bg-yellow-500/20 px-2 py-0.5 text-xs font-bold text-yellow-400">Lv{{ combat.enemy.level }}</span>
           <span v-if="combat.isBossFight" class="rounded-md bg-red-500/20 px-2 py-0.5 text-[10px] font-bold uppercase text-red-400">BOSS</span>
         </div>
