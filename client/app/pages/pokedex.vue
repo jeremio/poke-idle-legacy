@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Search, Sparkles, EyeOff, X, Star } from 'lucide-vue-next'
 import { getSpriteUrl, getStaticSpriteUrl, getShinySpriteUrl, getStaticShinySpriteUrl, getPokeApiSpriteUrl } from '~/utils/showdown'
-import { getPokemonType, getTypeInfo } from '~/data/types'
+import { getPokemonType, getPokemonTypes, getTypeInfo } from '~/data/types'
 import { useLocale } from '~/composables/useLocale'
 import { useInventoryStore } from '~/stores/useInventoryStore'
 import { POKEDEX, GEN_NAMES, getAllGens } from '~/data/pokedex'
@@ -251,8 +251,10 @@ watch(showShiny, () => {
           ?
         </div>
 
-        <!-- Type -->
-        <TypeBadge :type="getPokemonType(p.slug)" />
+        <!-- Type(s) -->
+        <div class="flex gap-0.5">
+          <TypeBadge v-for="type in getPokemonTypes(p.slug)" :key="type" :type="type" size="xs" />
+        </div>
 
         <!-- Name -->
         <p class="max-w-full truncate text-[10px] font-medium text-slate-300">
@@ -309,7 +311,9 @@ watch(showShiny, () => {
               <h3 class="text-lg font-bold text-white">{{ t(selectedPokemon.nameFr, selectedPokemon.nameEn) }}</h3>
               <p class="text-xs text-slate-400">{{ selectedPokemon.nameEn }}</p>
               <div class="flex items-center gap-2">
-                <TypeBadge :type="getPokemonType(selectedPokemon.slug)" />
+                <div class="flex gap-1">
+                  <TypeBadge v-for="type in getPokemonTypes(selectedPokemon.slug)" :key="type" :type="type" />
+                </div>
                 <span class="text-[10px] text-slate-500">Gen {{ selectedPokemon.gen }} — {{ t(GEN_NAMES[selectedPokemon.gen]?.fr ?? '', GEN_NAMES[selectedPokemon.gen]?.en ?? '') }}</span>
               </div>
             </div>
