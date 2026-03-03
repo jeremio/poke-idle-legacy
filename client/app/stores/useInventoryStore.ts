@@ -196,7 +196,7 @@ export const useInventoryStore = defineStore('inventory', {
         xp: 0,
         stars: 1,
         isShiny: pokemon.isShiny,
-        rarity: getRarity(evo.toSlug),
+        rarity: pokemon.rarity, // Inherit rarity from original pokemon
         teamSlot: pokemon.teamSlot,
       }
       // Remove original from team, put evolved in its slot

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Coins, Gem, Sparkles, FlaskConical, X, Candy, Zap } from 'lucide-vue-next'
+import { Coins, FlaskConical, X, Candy, Zap } from 'lucide-vue-next'
 import { usePlayerStore, CANDY_XP, CANDY_COST } from '~/stores/usePlayerStore'
 import type { CandySize } from '~/stores/usePlayerStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
@@ -25,21 +25,10 @@ function flash(id: string) {
   setTimeout(() => (purchaseFlash.value = null), 600)
 }
 
-// Evolution items cost by generation
-function getEvoItemCost(itemId: string): number {
-  const item = EVO_ITEMS.find(i => i.id === itemId)
-  if (!item || item.applicableTo.length === 0) return 5000
-  
-  // Find the lowest gen pokemon that uses this item
-  let minGen = 9
-  for (const slug of item.applicableTo) {
-    const gen = getGenForSlug(slug)
-    if (gen < minGen) minGen = gen
-  }
-  
-  // Price based on generation: 5000/7500/10000/20000
+// Evolution items cost based on CURRENT player generation
+function getEvoItemCost(): number {
   const prices: Record<number, number> = { 1: 5000, 2: 7500, 3: 10000, 4: 20000 }
-  return prices[minGen] ?? 20000
+  return prices[player.currentGeneration] ?? 20000
 }
 
 // --- Evolution picker modal ---
@@ -82,7 +71,7 @@ function closeEvoPicker() {
 function confirmEvolve(pokemon: OwnedPokemon) {
   const itemId = pickerItemId.value
   if (!itemId) return
-  const cost = getEvoItemCost(itemId)
+  const cost = getEvoItemCost()
   if (!player.spendGold(cost)) return
 
   const count = inventory.evolveAllWithItem(pokemon.slug, itemId, player.currentGeneration)
@@ -97,13 +86,6 @@ function confirmEvolve(pokemon: OwnedPokemon) {
     player.addGold(cost) // Refund
   }
   closeEvoPicker()
-}
-
-function buyGems(amount: number, goldCost: number) {
-  if (player.spendGold(goldCost)) {
-    player.addGems(amount)
-    flash(`gems-${amount}`)
-  }
 }
 
 // PokeAPI item sprite URLs
@@ -124,12 +106,6 @@ const ITEM_SPRITES: Record<string, string> = {
   'sun-stone': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png',
   'dusk-stone': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-stone.png',
 }
-
-const gemExchanges = [
-  { gems: 1, gold: 100 },
-  { gems: 5, gold: 450 },
-  { gems: 10, gold: 800 },
-]
 
 const candySizes: CandySize[] = ['S', 'M', 'L', 'XL']
 const CANDY_COLORS: Record<CandySize, string> = { S: '#4ade80', M: '#60a5fa', L: '#c084fc', XL: '#fbbf24' }
@@ -229,37 +205,6 @@ const boostsByGen = computed(() => {
   <div class="flex flex-col gap-8">
     <h2 class="text-2xl font-bold">{{ t('Boutique', 'Shop') }}</h2>
 
-    <!-- Gem Exchange -->
-    <section>
-      <h3 class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-400">
-        <Gem class="h-4 w-4 text-purple-400" />
-        {{ t('Échange Or → Gemmes', 'Gold → Gems Exchange') }}
-      </h3>
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <button
-          v-for="ex in gemExchanges"
-          :key="ex.gems"
-          class="flex items-center justify-between rounded-xl border border-gray-700 bg-gray-800 p-4 transition-all hover:border-purple-500/50 hover:bg-gray-750 active:scale-[0.98] disabled:opacity-40"
-          :class="{ 'ring-2 ring-purple-500/50': purchaseFlash === `gems-${ex.gems}` }"
-          :disabled="player.gold < ex.gold"
-          @click="buyGems(ex.gems, ex.gold)"
-        >
-          <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20">
-              <Sparkles class="h-5 w-5 text-purple-400" />
-            </div>
-            <div class="text-left">
-              <p class="font-bold text-purple-300">{{ ex.gems }} {{ t('gemme(s)', 'gem(s)') }}</p>
-            </div>
-          </div>
-          <span class="flex items-center gap-1 text-sm font-bold text-yellow-400">
-            🪙 {{ ex.gold.toLocaleString() }}
-          </span>
-        </button>
-      </div>
-    </section>
-
-
     <!-- Click Damage Boosts -->
     <section>
       <h3 class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-400">
@@ -357,7 +302,7 @@ const boostsByGen = computed(() => {
           :key="item.id"
           class="flex flex-col gap-2 rounded-xl border border-gray-700 bg-gray-800 p-4 text-left transition-all hover:border-green-500/30 active:scale-[0.98] disabled:opacity-40"
           :class="{ 'ring-2 ring-green-500/50': purchaseFlash === `evo-${item.id}` }"
-          :disabled="player.gold < getEvoItemCost(item.id)"
+          :disabled="player.gold < getEvoItemCost()"
           @click="openEvoPicker(item.id)"
         >
           <div class="flex items-center gap-3">
@@ -380,7 +325,7 @@ const boostsByGen = computed(() => {
               {{ getEvoCandidates(item.id).length }} {{ t('Pokémon éligibles', 'eligible Pokémon') }}
             </span>
             <span class="flex items-center gap-1 text-sm font-bold text-yellow-400">
-              🪙 {{ getEvoItemCost(item.id).toLocaleString() }}
+              🪙 {{ getEvoItemCost().toLocaleString() }}
             </span>
           </div>
         </button>
@@ -391,9 +336,6 @@ const boostsByGen = computed(() => {
     <div class="flex gap-6 rounded-xl border border-gray-700 bg-gray-800/50 p-4 text-sm">
       <span class="flex items-center gap-1.5 text-yellow-400">
         <Coins class="h-4 w-4" /> {{ player.formattedGold }} {{ t('PokéDollar', 'PokéDollar') }}
-      </span>
-      <span class="flex items-center gap-1.5 text-purple-400">
-        <Gem class="h-4 w-4" /> {{ player.formattedGems }} {{ t('gemmes', 'gems') }}
       </span>
     </div>
 
@@ -423,7 +365,7 @@ const boostsByGen = computed(() => {
                 <p class="font-bold text-white">{{ t(poke.nameFr, poke.nameEn) }}</p>
                 <p class="text-xs text-gray-500">Lv.{{ poke.level }} — ★{{ poke.stars }}</p>
               </div>
-              <span class="text-sm font-bold text-yellow-400">🪙 {{ pickerItemId ? getEvoItemCost(pickerItemId) : 0 }}</span>
+              <span class="text-sm font-bold text-yellow-400">🪙 {{ getEvoItemCost().toLocaleString() }}</span>
             </button>
           </div>
           <p v-if="pickerCandidates.length === 0" class="py-6 text-center text-sm text-gray-500">

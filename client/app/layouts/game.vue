@@ -102,8 +102,6 @@ const navItems = computed(() => {
         </div>
         <div class="mt-1 hidden w-full flex-col gap-0.5 text-[9px] text-slate-400 lg:flex">
           <div class="flex items-center justify-between"><span>{{ t('XP', 'XP') }}</span><span class="font-bold text-blue-300">{{ player.xp }}/{{ player.xpToNextLevel }}</span></div>
-          <div class="flex items-center justify-between"><span>{{ t('DPS', 'DPS') }}</span><span class="font-bold text-emerald-400">×{{ player.teamDpsMult.toFixed(2) }}</span></div>
-          <div class="flex items-center justify-between"><span>{{ t('PokéDollar+', 'PokéDollar+') }}</span><span class="font-bold text-yellow-400">+{{ Math.round((player.goldBonusMult - 1) * 100) }}%</span></div>
         </div>
       </div>
 
@@ -172,10 +170,6 @@ const navItems = computed(() => {
           <div class="flex items-center gap-1.5 rounded-lg px-3 py-1.5" style="background: rgba(255,204,0,0.08)">
             <span class="text-base">🪙</span>
             <span class="font-bold" style="color: #ffcc00">{{ player.formattedGold }}</span>
-          </div>
-          <div class="flex items-center gap-1.5 rounded-lg px-3 py-1.5" style="background: rgba(168,85,247,0.08)">
-            <span class="text-base">💎</span>
-            <span class="font-bold text-purple-400">{{ player.formattedGems }}</span>
           </div>
         </div>
       </header>
