@@ -76,7 +76,7 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const api = useApi()
-        const response = await api.post<LoginResponse>('/auth/register', { username, email, password })
+        const response = await api.post<LoginResponse>('/api/auth/register', { username, email, password })
         this.user = response
         this.isAuthenticated = true
         await this.loadGameState()
@@ -93,7 +93,7 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const api = useApi()
-        const response = await api.post<LoginResponse>('/auth/login', { email, password })
+        const response = await api.post<LoginResponse>('/api/auth/login', { email, password })
         this.user = response
         this.isAuthenticated = true
         await this.loadGameState()
@@ -123,7 +123,7 @@ export const useAuthStore = defineStore('auth', {
     async checkAuth() {
       try {
         const api = useApi()
-        const response = await api.get<LoginResponse>('/auth/me')
+        const response = await api.get<LoginResponse>('/api/auth/me')
         this.user = response
         this.isAuthenticated = true
         await this.loadGameState()
@@ -164,7 +164,7 @@ export const useAuthStore = defineStore('auth', {
       
       try {
         const api = useApi()
-        const data = await api.get<LoadGameResponse>('/game/load')
+        const data = await api.get<LoadGameResponse>('/api/game/load')
         const player = usePlayerStore()
         const inventory = useInventoryStore()
 
