@@ -229,7 +229,7 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
         <div class="space-y-1">
           <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
             <span>HP</span>
-            <span class="ml-auto text-slate-400">{{ Math.ceil(combat.enemy.currentHp) }}/{{ combat.enemy.maxHp }}</span>
+            <span class="ml-auto text-slate-400">{{ Math.round(combat.enemy.currentHp) }}/{{ Math.round(combat.enemy.maxHp) }}</span>
           </div>
           <!-- Barre HP segmentée -->
           <div class="relative h-2.5 overflow-hidden rounded-full" style="background: linear-gradient(to bottom, #1e293b 0%, #0f172a 100%); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5)">
@@ -258,8 +258,8 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
         </div>
       </div>
 
-      <!-- Boss Team Preview -->
-      <div v-if="combat.isBossFight && zone?.boss" class="absolute left-4 top-4 z-10 flex gap-1.5">
+      <!-- Boss Team Preview (positionné sous l'info box) -->
+      <div v-if="combat.isBossFight && zone?.boss" class="absolute bottom-4 right-4 z-0 flex gap-1.5">
         <img
           v-for="(p, i) in zone.boss.team"
           :key="i"
