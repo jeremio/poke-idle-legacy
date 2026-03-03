@@ -246,8 +246,6 @@ export const useInventoryStore = defineStore('inventory', {
     checkAllEvolutions(currentGeneration?: number) {
       const maxGen = currentGeneration ?? 9
       for (const pokemon of this.collection) {
-        if (pokemon.level >= MAX_LEVEL) continue
-        
         // Check level-based evolution
         const evo = canEvolveByLevel(pokemon.slug, pokemon.level)
         if (evo && evo.levelRequired && pokemon.level >= evo.levelRequired) {
