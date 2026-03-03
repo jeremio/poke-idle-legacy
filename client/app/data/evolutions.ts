@@ -394,6 +394,31 @@ export const EVOLUTIONS: Evolution[] = [
   // Baby → Gen 3 base form
   { fromSlug: 'budew', toSlug: 'roselia', toNameFr: 'Rosélia', toNameEn: 'Roselia', method: 'happiness', itemRequired: 'soothe-bell' },
 
+  // Gen 1-3 Pokémon → Gen 4 evolutions (débloquées en Gen 4)
+  { fromSlug: 'roselia', toSlug: 'roserade', toNameFr: 'Roserade', toNameEn: 'Roserade', method: 'stone', itemRequired: 'shiny-stone' },
+  { fromSlug: 'aipom', toSlug: 'ambipom', toNameFr: 'Capidextre', toNameEn: 'Ambipom', method: 'level', levelRequired: 33 },
+  { fromSlug: 'misdreavus', toSlug: 'mismagius', toNameFr: 'Magirêve', toNameEn: 'Mismagius', method: 'stone', itemRequired: 'dusk-stone' },
+  { fromSlug: 'murkrow', toSlug: 'honchkrow', toNameFr: 'Corboss', toNameEn: 'Honchkrow', method: 'stone', itemRequired: 'dusk-stone' },
+  { fromSlug: 'sneasel', toSlug: 'weavile', toNameFr: 'Dimoret', toNameEn: 'Weavile', method: 'level', levelRequired: 30 },
+  { fromSlug: 'magneton', toSlug: 'magnezone', toNameFr: 'Magnézone', toNameEn: 'Magnezone', method: 'level', levelRequired: 30 },
+  { fromSlug: 'lickitung', toSlug: 'lickilicky', toNameFr: 'Coudlangue', toNameEn: 'Lickilicky', method: 'level', levelRequired: 33 },
+  { fromSlug: 'rhydon', toSlug: 'rhyperior', toNameFr: 'Rhinastoc', toNameEn: 'Rhyperior', method: 'stone', itemRequired: 'protector' },
+  { fromSlug: 'tangela', toSlug: 'tangrowth', toNameFr: 'Bouldeneu', toNameEn: 'Tangrowth', method: 'level', levelRequired: 33 },
+  { fromSlug: 'electabuzz', toSlug: 'electivire', toNameFr: 'Élekable', toNameEn: 'Electivire', method: 'stone', itemRequired: 'electirizer' },
+  { fromSlug: 'magmar', toSlug: 'magmortar', toNameFr: 'Maganon', toNameEn: 'Magmortar', method: 'stone', itemRequired: 'magmarizer' },
+  { fromSlug: 'togetic', toSlug: 'togekiss', toNameFr: 'Togekiss', toNameEn: 'Togekiss', method: 'stone', itemRequired: 'shiny-stone' },
+  { fromSlug: 'yanma', toSlug: 'yanmega', toNameFr: 'Yanméga', toNameEn: 'Yanmega', method: 'level', levelRequired: 33 },
+  { fromSlug: 'eevee', toSlug: 'leafeon', toNameFr: 'Phyllali', toNameEn: 'Leafeon', method: 'stone', itemRequired: 'leaf-stone' },
+  { fromSlug: 'eevee', toSlug: 'glaceon', toNameFr: 'Givrali', toNameEn: 'Glaceon', method: 'stone', itemRequired: 'ice-stone' },
+  { fromSlug: 'gligar', toSlug: 'gliscor', toNameFr: 'Scorvol', toNameEn: 'Gliscor', method: 'level', levelRequired: 30 },
+  { fromSlug: 'swinub', toSlug: 'piloswine', toNameFr: 'Cochignon', toNameEn: 'Piloswine', method: 'level', levelRequired: 33 },
+  { fromSlug: 'piloswine', toSlug: 'mamoswine', toNameFr: 'Mammochon', toNameEn: 'Mamoswine', method: 'level', levelRequired: 40 },
+  { fromSlug: 'porygon2', toSlug: 'porygonz', toNameFr: 'Porygon-Z', toNameEn: 'Porygon-Z', method: 'stone', itemRequired: 'dubious-disc' },
+  { fromSlug: 'kirlia', toSlug: 'gallade', toNameFr: 'Gallame', toNameEn: 'Gallade', method: 'stone', itemRequired: 'dawn-stone' },
+  { fromSlug: 'nosepass', toSlug: 'probopass', toNameFr: 'Tarinorme', toNameEn: 'Probopass', method: 'level', levelRequired: 30 },
+  { fromSlug: 'dusclops', toSlug: 'dusknoir', toNameFr: 'Noctunoir', toNameEn: 'Dusknoir', method: 'stone', itemRequired: 'reaper-cloth' },
+  { fromSlug: 'snorunt', toSlug: 'froslass', toNameFr: 'Momartik', toNameEn: 'Froslass', method: 'stone', itemRequired: 'dawn-stone' },
+
   // ══════════════ Gen 4 Sinnoh ══════════════
   // Starters
   { fromSlug: 'turtwig', toSlug: 'grotle', toNameFr: 'Boskara', toNameEn: 'Grotle', method: 'level', levelRequired: 18 },

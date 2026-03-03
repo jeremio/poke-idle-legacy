@@ -45,8 +45,8 @@ export const GENERATIONS: Generation[] = [
     zones: [
       {
         id: 1,
-        nameFr: 'Route 1',
-        nameEn: 'Route 1',
+        nameFr: 'Route 1 — Pierre',
+        nameEn: 'Route 1 — Brock',
         types: ['normal', 'bug'],
         wild: [
           { nameFr: 'Rattata', nameEn: 'Rattata', slug: 'rattata', type: 'normal', baseHp: 30, baseAtk: 6 },
@@ -67,8 +67,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 2,
-        nameFr: 'Mont Sélénite',
-        nameEn: 'Mt. Moon',
+        nameFr: 'Mont Sélénite — Ondine',
+        nameEn: 'Mt. Moon — Misty',
         types: ['poison', 'rock', 'fairy'],
         wild: [
           { nameFr: 'Nosferapti', nameEn: 'Zubat', slug: 'zubat', type: 'poison', baseHp: 40, baseAtk: 5 },
@@ -89,8 +89,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 3,
-        nameFr: 'Route 24 — Pont Pépite',
-        nameEn: 'Route 24 — Nugget Bridge',
+        nameFr: 'Route 24 — Major Bob',
+        nameEn: 'Route 24 — Lt. Surge',
         types: ['grass', 'poison', 'fighting'],
         wild: [
           { nameFr: 'Mystherbe', nameEn: 'Oddish', slug: 'oddish', type: 'grass', baseHp: 45, baseAtk: 6 },
@@ -112,8 +112,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 4,
-        nameFr: 'Forêt de Jade',
-        nameEn: 'Viridian Forest',
+        nameFr: 'Forêt de Jade — Érika',
+        nameEn: 'Viridian Forest — Erika',
         types: ['bug', 'grass'],
         wild: [
           { nameFr: 'Insécateur', nameEn: 'Scyther', slug: 'scyther', type: 'bug', baseHp: 50, baseAtk: 11 },
@@ -135,8 +135,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 5,
-        nameFr: 'Tour Pokémon',
-        nameEn: 'Pokémon Tower',
+        nameFr: 'Tour Pokémon — Koga',
+        nameEn: 'Pokémon Tower — Koga',
         types: ['ghost', 'poison'],
         wild: [
           { nameFr: 'Fantominus', nameEn: 'Gastly', slug: 'gastly', type: 'ghost', baseHp: 30, baseAtk: 10 },
@@ -159,8 +159,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 6,
-        nameFr: 'Îles Écume',
-        nameEn: 'Seafoam Islands',
+        nameFr: 'Îles Écume — Morgane',
+        nameEn: 'Seafoam Islands — Sabrina',
         types: ['water', 'ice'],
         wild: [
           { nameFr: 'Tentacool', nameEn: 'Tentacool', slug: 'tentacool', type: 'water', baseHp: 40, baseAtk: 5 },
@@ -183,8 +183,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 7,
-        nameFr: 'Manoir Pokémon',
-        nameEn: 'Pokémon Mansion',
+        nameFr: 'Manoir Pokémon — Auguste',
+        nameEn: 'Pokémon Mansion — Blaine',
         types: ['fire', 'poison'],
         wild: [
           { nameFr: 'Caninos', nameEn: 'Growlithe', slug: 'growlithe', type: 'fire', baseHp: 55, baseAtk: 7 },
@@ -207,8 +207,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 8,
-        nameFr: 'Route Victoire',
-        nameEn: 'Victory Road',
+        nameFr: 'Route Victoire — Giovanni',
+        nameEn: 'Victory Road — Giovanni',
         types: ['fighting', 'rock', 'ground'],
         wild: [
           { nameFr: 'Machopeur', nameEn: 'Machoke', slug: 'machoke', type: 'fighting', baseHp: 70, baseAtk: 10 },
@@ -366,8 +366,8 @@ export const GENERATIONS: Generation[] = [
     zones: [
       {
         id: 1,
-        nameFr: 'Route 30 — Mauville',
-        nameEn: 'Route 30 — Violet City',
+        nameFr: 'Route 30 — Albert',
+        nameEn: 'Route 30 — Falkner',
         types: ['normal', 'flying'],
         wild: [
           { nameFr: 'Fouinette', nameEn: 'Sentret', slug: 'sentret', type: 'normal', baseHp: 35, baseAtk: 5 },
@@ -388,8 +388,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 2,
-        nameFr: 'Bois aux Chênes',
-        nameEn: 'Azalea Town',
+        nameFr: 'Bois aux Chênes — Hector',
+        nameEn: 'Azalea Town — Bugsy',
         types: ['bug', 'grass'],
         wild: [
           { nameFr: 'Mimigal', nameEn: 'Spinarak', slug: 'spinarak', type: 'bug', baseHp: 30, baseAtk: 6 },
@@ -411,8 +411,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 3,
-        nameFr: 'Doublonville',
-        nameEn: 'Goldenrod City',
+        nameFr: 'Doublonville — Blanche',
+        nameEn: 'Goldenrod City — Whitney',
         types: ['normal', 'fairy'],
         wild: [
           { nameFr: 'Snubbull', nameEn: 'Snubbull', slug: 'snubbull', type: 'fairy', baseHp: 50, baseAtk: 8 },
@@ -433,8 +433,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 4,
-        nameFr: 'Rosalia',
-        nameEn: 'Ecruteak City',
+        nameFr: 'Rosalia — Mortimer',
+        nameEn: 'Ecruteak City — Morty',
         types: ['ghost', 'fire'],
         wild: [
           { nameFr: 'Fantominus', nameEn: 'Gastly', slug: 'gastly', type: 'ghost', baseHp: 30, baseAtk: 10 },
@@ -457,8 +457,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 5,
-        nameFr: 'Ironto',
-        nameEn: 'Cianwood City',
+        nameFr: 'Ironto — Chuck',
+        nameEn: 'Cianwood City — Chuck',
         types: ['fighting'],
         wild: [
           { nameFr: 'Machoc', nameEn: 'Machop', slug: 'machop', type: 'fighting', baseHp: 50, baseAtk: 7 },
@@ -479,8 +479,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 6,
-        nameFr: 'Oliville',
-        nameEn: 'Olivine City',
+        nameFr: 'Oliville — Jasmine',
+        nameEn: 'Olivine City — Jasmine',
         types: ['steel', 'electric'],
         wild: [
           { nameFr: 'Magnéti', nameEn: 'Magnemite', slug: 'magnemite', type: 'electric', baseHp: 25, baseAtk: 10 },
@@ -502,8 +502,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 7,
-        nameFr: 'Acajou',
-        nameEn: 'Mahogany Town',
+        nameFr: 'Acajou — Frédo',
+        nameEn: 'Mahogany Town — Pryce',
         types: ['ice', 'water'],
         wild: [
           { nameFr: 'Marcacrin', nameEn: 'Swinub', slug: 'swinub', type: 'ice', baseHp: 40, baseAtk: 6 },
@@ -525,8 +525,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 8,
-        nameFr: 'Ébènelle',
-        nameEn: 'Blackthorn City',
+        nameFr: 'Ébènelle — Sandra',
+        nameEn: 'Blackthorn City — Clair',
         types: ['dragon', 'flying'],
         wild: [
           { nameFr: 'Draco', nameEn: 'Dragonair', slug: 'dragonair', type: 'dragon', baseHp: 60, baseAtk: 8 },
@@ -549,8 +549,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 9,
-        nameFr: 'Ligue — Clément',
-        nameEn: 'League — Will',
+        nameFr: 'Clément (Conseil 4)',
+        nameEn: 'Will (Elite Four)',
         types: ['psychic'],
         wild: [
           { nameFr: 'Natu', nameEn: 'Natu', slug: 'natu', type: 'psychic', baseHp: 30, baseAtk: 7 },
@@ -574,8 +574,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 10,
-        nameFr: 'Ligue — Koga',
-        nameEn: 'League — Koga',
+        nameFr: 'Koga (Conseil 4)',
+        nameEn: 'Koga (Elite Four)',
         types: ['poison'],
         wild: [
           { nameFr: 'Arbok', nameEn: 'Arbok', slug: 'arbok', type: 'poison', baseHp: 60, baseAtk: 9 },
@@ -599,8 +599,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 11,
-        nameFr: 'Ligue — Aldo',
-        nameEn: 'League — Bruno',
+        nameFr: 'Aldo (Conseil 4)',
+        nameEn: 'Bruno (Elite Four)',
         types: ['fighting'],
         wild: [
           { nameFr: 'Kapoera', nameEn: 'Hitmontop', slug: 'hitmontop', type: 'fighting', baseHp: 50, baseAtk: 10 },
@@ -624,8 +624,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 12,
-        nameFr: 'Ligue — Marion',
-        nameEn: 'League — Karen',
+        nameFr: 'Marion (Conseil 4)',
+        nameEn: 'Karen (Elite Four)',
         types: ['dark'],
         wild: [
           { nameFr: 'Noctali', nameEn: 'Umbreon', slug: 'umbreon', type: 'dark', baseHp: 70, baseAtk: 7 },
@@ -684,8 +684,8 @@ export const GENERATIONS: Generation[] = [
     zones: [
       {
         id: 1,
-        nameFr: 'Route 101',
-        nameEn: 'Route 101',
+        nameFr: 'Route 101 — Roxanne',
+        nameEn: 'Route 101 — Roxanne',
         types: ['normal', 'grass'],
         wild: [
           { nameFr: 'Zigzaton', nameEn: 'Zigzagoon', slug: 'zigzagoon', type: 'normal', baseHp: 30, baseAtk: 4 },
@@ -707,8 +707,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 2,
-        nameFr: 'Île de Myokara',
-        nameEn: 'Dewford Town',
+        nameFr: 'Île de Myokara — Bastien',
+        nameEn: 'Dewford Town — Brawly',
         types: ['fighting', 'dark'],
         wild: [
           { nameFr: 'Machoc', nameEn: 'Machop', slug: 'machop', type: 'fighting', baseHp: 50, baseAtk: 7 },
@@ -730,8 +730,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 3,
-        nameFr: 'Lavandia',
-        nameEn: 'Mauville City',
+        nameFr: 'Lavandia — Voltère',
+        nameEn: 'Mauville City — Wattson',
         types: ['electric'],
         wild: [
           { nameFr: 'Magnéti', nameEn: 'Magnemite', slug: 'magnemite', type: 'electric', baseHp: 25, baseAtk: 10 },
@@ -754,8 +754,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 4,
-        nameFr: 'Vermilava',
-        nameEn: 'Lavaridge Town',
+        nameFr: 'Vermilava — Adriane',
+        nameEn: 'Lavaridge Town — Flannery',
         types: ['fire', 'ground'],
         wild: [
           { nameFr: 'Chamallot', nameEn: 'Numel', slug: 'numel', type: 'fire', baseHp: 50, baseAtk: 6 },
@@ -778,8 +778,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 5,
-        nameFr: 'Clémenti-Ville',
-        nameEn: 'Petalburg City',
+        nameFr: 'Clémenti-Ville — Norman',
+        nameEn: 'Petalburg City — Norman',
         types: ['normal'],
         wild: [
           { nameFr: 'Parecool', nameEn: 'Slakoth', slug: 'slakoth', type: 'normal', baseHp: 50, baseAtk: 6 },
@@ -801,8 +801,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 6,
-        nameFr: 'Cimetronelle',
-        nameEn: 'Fortree City',
+        nameFr: 'Cimetronelle — Alizée',
+        nameEn: 'Fortree City — Winona',
         types: ['flying', 'grass'],
         wild: [
           { nameFr: 'Nirondelle', nameEn: 'Taillow', slug: 'taillow', type: 'flying', baseHp: 30, baseAtk: 6 },
@@ -825,8 +825,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 7,
-        nameFr: 'Algatia',
-        nameEn: 'Mossdeep City',
+        nameFr: 'Algatia — Lévy & Tatia',
+        nameEn: 'Mossdeep City — Tate & Liza',
         types: ['psychic'],
         wild: [
           { nameFr: 'Spoink', nameEn: 'Spoink', slug: 'spoink', type: 'psychic', baseHp: 40, baseAtk: 5 },
@@ -847,8 +847,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 8,
-        nameFr: 'Atalanopolis',
-        nameEn: 'Sootopolis City',
+        nameFr: 'Atalanopolis — Marc',
+        nameEn: 'Sootopolis City — Wallace',
         types: ['water'],
         wild: [
           { nameFr: 'Wailmer', nameEn: 'Wailmer', slug: 'wailmer', type: 'water', baseHp: 90, baseAtk: 5 },
@@ -872,8 +872,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 9,
-        nameFr: 'Ligue — Damien',
-        nameEn: 'League — Sidney',
+        nameFr: 'Damien (Conseil 4)',
+        nameEn: 'Sidney (Elite Four)',
         types: ['dark'],
         wild: [
           { nameFr: 'Grahyèna', nameEn: 'Mightyena', slug: 'mightyena', type: 'dark', baseHp: 55, baseAtk: 9 },
@@ -897,8 +897,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 10,
-        nameFr: 'Ligue — Spectra',
-        nameEn: 'League — Phoebe',
+        nameFr: 'Spectra (Conseil 4)',
+        nameEn: 'Phoebe (Elite Four)',
         types: ['ghost'],
         wild: [
           { nameFr: 'Polichombr', nameEn: 'Shuppet', slug: 'shuppet', type: 'ghost', baseHp: 35, baseAtk: 8 },
@@ -922,8 +922,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 11,
-        nameFr: 'Ligue — Glacia',
-        nameEn: 'League — Glacia',
+        nameFr: 'Glacia (Conseil 4)',
+        nameEn: 'Glacia (Elite Four)',
         types: ['ice'],
         wild: [
           { nameFr: 'Obalie', nameEn: 'Spheal', slug: 'spheal', type: 'ice', baseHp: 55, baseAtk: 4 },
@@ -947,8 +947,8 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 12,
-        nameFr: 'Ligue — Aragon',
-        nameEn: 'League — Drake',
+        nameFr: 'Aragon (Conseil 4)',
+        nameEn: 'Drake (Elite Four)',
         types: ['dragon'],
         wild: [
           { nameFr: 'Draby', nameEn: 'Bagon', slug: 'bagon', type: 'dragon', baseHp: 35, baseAtk: 8 },
