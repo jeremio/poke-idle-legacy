@@ -34,7 +34,8 @@ const KILLS_PER_STAGE = 10
 
 function xpForLevel(level: number): number {
   if (level <= 1) return 0
-  return Math.floor(75 * Math.pow(level, 1.9))
+  // Augmentation: 75 → 120 (×1.6) + exposant 1.9 → 2.0
+  return Math.floor(120 * Math.pow(level, 2.0))
 }
 
 export type CandySize = 'S' | 'M' | 'L' | 'XL'
@@ -151,7 +152,8 @@ export const usePlayerStore = defineStore('player', {
       while (this.xp >= xpForLevel(this.level + 1)) {
         this.level++
       }
-      this.clickDamage = Math.floor(1 + this.level * 2 + this.badges * 10) + this.clickDamageBonus
+      // Réduction dégâts clics: niveau×2 → niveau×1, badges×10 → badges×5
+      this.clickDamage = Math.floor(1 + this.level * 1 + this.badges * 5) + this.clickDamageBonus
     },
 
     addStageKill(): boolean {

@@ -555,13 +555,13 @@ export function canEvolveByItem(slug: string, itemId: string): Evolution | null 
 
 export function pokemonXpForLevel(level: number, rarity?: string): number {
   if (level <= 1) return 0
-  // Courbe de base
-  let baseXp = Math.floor(20 * Math.pow(level, 1.6))
+  // Courbe de base augmentée: 20→35 (×1.75) + exposant 1.6→1.7
+  let baseXp = Math.floor(35 * Math.pow(level, 1.7))
   
   // À partir du niveau 50, augmenter progressivement l'XP nécessaire
   if (level >= 50) {
     const excessLevels = level - 49
-    const scalingFactor = 1 + (excessLevels * 0.03) // +3% par niveau au-dessus de 50
+    const scalingFactor = 1 + (excessLevels * 0.05) // +5% par niveau au-dessus de 50 (était 3%)
     baseXp = Math.floor(baseXp * scalingFactor)
   }
   

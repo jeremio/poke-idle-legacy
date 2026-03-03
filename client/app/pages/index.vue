@@ -204,14 +204,14 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
       <span class="font-pixel text-base text-red-400">{{ combat.bossTimeRemaining }}s</span>
     </div>
 
-    <!-- Boss Team Preview (colonne gauche HORS carte) -->
-    <div v-if="combat.enemy && combat.isBossFight && zone?.boss" class="flex flex-col gap-2">
+    <!-- Boss Team Preview (ligne au-dessus de la carte) -->
+    <div v-if="combat.enemy && combat.isBossFight && zone?.boss" class="flex items-center justify-center gap-2">
       <img
         v-for="(p, i) in zone.boss.team"
         :key="i"
         :src="getSpriteUrl(p.slug)"
         :alt="t(p.nameFr, p.nameEn)"
-        class="h-16 w-16 rounded-xl border-2 border-slate-700 bg-slate-800/90 object-contain p-2 shadow-lg transition-transform hover:scale-110"
+        class="h-14 w-14 rounded-xl border-2 border-slate-700 bg-slate-800/90 object-contain p-2 shadow-lg transition-transform hover:scale-110"
         :title="t(p.nameFr, p.nameEn)"
       />
     </div>
