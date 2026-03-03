@@ -351,7 +351,6 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
           </div>
         </div>
       </div>
-      </div>
 
       <!-- Colonne Droite: Team (desktop) / Bas (mobile) -->
       <div v-if="teamBreakdown.length > 0" class="w-full lg:w-96">
