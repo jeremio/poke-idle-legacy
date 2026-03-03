@@ -29,9 +29,18 @@ export function useCombatLoop() {
     const rarityMult = poke.rarity ? getRarityDpsMult(poke.slug) : 1.0
     const shinyMult = poke.isShiny ? 1.2 : 1.0
     const starMult = getStarDpsMult(poke.stars, poke.isShiny)
-    const pokeType = getPokemonType(poke.slug)
-    // Calculer effectiveness contre tous les types défenseurs (multiplicatif)
-    const typeMult = enemyTypes && enemyTypes.length > 0 ? getTypeEffectiveness(pokeType, enemyTypes) : 1
+    
+    // Pour un Pokémon avec doubles types, utiliser le MEILLEUR type offensif
+    // (le Pokémon choisit intelligemment ses attaques)
+    const attackerTypes = getPokemonTypes(poke.slug)
+    let typeMult = 1
+    if (enemyTypes && enemyTypes.length > 0) {
+      // Calculer effectiveness pour CHAQUE type offensif, prendre le meilleur
+      typeMult = Math.max(...attackerTypes.map(atkType => 
+        getTypeEffectiveness(atkType, enemyTypes)
+      ))
+    }
+    
     const permanentDps = Math.floor(baseDmg * evoMult * rarityMult * shinyMult * starMult)
     return {
       baseDmg,
