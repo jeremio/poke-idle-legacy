@@ -28,7 +28,18 @@ export default class AdminController {
     const limit = request.input('limit', 50)
 
     const users = await User.query()
-      .select('id', 'username', 'email', 'role', 'gold', 'gems', 'level', 'badges', 'created_at', 'last_login_at')
+      .select(
+        'id',
+        'username',
+        'email',
+        'role',
+        'gold',
+        'gems',
+        'level',
+        'badges',
+        'created_at',
+        'last_login_at'
+      )
       .orderBy('id', 'desc')
       .paginate(page, limit)
 
@@ -103,9 +114,7 @@ export default class AdminController {
    * List all pokemon for a user
    */
   async listUserPokemons({ params, response }: HttpContext) {
-    const pokemons = await UserPokemon.query()
-      .where('user_id', params.id)
-      .orderBy('id', 'desc')
+    const pokemons = await UserPokemon.query().where('user_id', params.id).orderBy('id', 'desc')
 
     return response.ok(pokemons)
   }
