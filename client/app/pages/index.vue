@@ -4,10 +4,12 @@ import { getSpriteUrl, getShinySpriteUrl } from '~/utils/showdown'
 import { useCombatStore } from '~/stores/useCombatStore'
 import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
+import { useAuthStore } from '~/stores/useAuthStore'
 import { useLocale } from '~/composables/useLocale'
 import { useCombatLoop } from '~/composables/useCombatLoop'
 import { getPokemonType, getTypeInfo } from '~/data/types'
 import { pokemonXpForLevel } from '~/data/evolutions'
+import GuestModeModal from '~/components/GuestModeModal.vue'
 
 definePageMeta({
   layout: 'game',
@@ -16,8 +18,34 @@ definePageMeta({
 const combat = useCombatStore()
 const player = usePlayerStore()
 const inventory = useInventoryStore()
+const auth = useAuthStore()
 const { t } = useLocale()
 const { spawnEnemy, checkEnemyDeath, getEffectiveDps, getPokeDps, currentZone } = useCombatLoop()
+
+const showGuestModal = ref(false)
+
+onMounted(() => {
+  if (!auth.isAuthenticated) {
+    const hasSeenGuestModal = localStorage.getItem('poke-idle-guest-modal-seen')
+    if (!hasSeenGuestModal) {
+      setTimeout(() => {
+        showGuestModal.value = true
+      }, 1000)
+    }
+    auth.loadGuestGameState()
+  }
+})
+
+function closeGuestModal() {
+  showGuestModal.value = false
+  localStorage.setItem('poke-idle-guest-modal-seen', 'true')
+}
+
+function goToRegister() {
+  showGuestModal.value = false
+  localStorage.setItem('poke-idle-guest-modal-seen', 'true')
+  navigateTo('/login?register=1')
+}
 
 watch(() => player.clickDamage, (dmg) => {
   combat.clickDamage = dmg
@@ -82,6 +110,9 @@ function pokemonXpPercent(poke: { level: number; xp: number }): number {
 
 <template>
   <div class="flex flex-col items-center gap-5 select-none">
+    <!-- Guest Mode Modal -->
+    <GuestModeModal :show="showGuestModal" @close="closeGuestModal" @create-account="goToRegister" />
+
     <!-- Region Unlock Modal -->
     <Teleport to="body">
       <Transition name="fade">

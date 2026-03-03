@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { useApi } from '~/composables/useApi'
 import { useSpeciesCache } from '~/composables/useSpeciesCache'
+import { useLocalStorage } from '~/composables/useLocalStorage'
 import type { CandySize } from '~/stores/usePlayerStore'
 import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
@@ -132,7 +133,33 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    loadGuestGameState() {
+      const { loadGuestData } = useLocalStorage()
+      const guestData = loadGuestData()
+      
+      if (!guestData) return
+      
+      const player = usePlayerStore()
+      const inventory = useInventoryStore()
+      const daycare = useDaycareStore()
+      
+      player.setPlayer({
+        ...guestData.player,
+        isLoggedIn: false,
+      })
+      
+      inventory.collection = guestData.inventory.collection
+      inventory.nextId = guestData.inventory.nextId
+      daycare.slots = guestData.daycare.slots
+    },
+
     async loadGameState() {
+      // Mode invité : charger depuis localStorage
+      if (!this.isAuthenticated) {
+        this.loadGuestGameState()
+        return null
+      }
+      
       try {
         const api = useApi()
         const data = await api.get<LoadGameResponse>('/game/load')
@@ -184,8 +211,48 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    saveGuestGameState() {
+      if (this.isAuthenticated) return
+      
+      const { saveGuestData } = useLocalStorage()
+      const player = usePlayerStore()
+      const inventory = useInventoryStore()
+      const daycare = useDaycareStore()
+      
+      saveGuestData({
+        player: {
+          username: player.username || 'Invité',
+          gold: player.gold,
+          gems: player.gems,
+          xp: player.xp,
+          level: player.level,
+          currentGeneration: player.currentGeneration,
+          currentZone: player.currentZone,
+          currentStage: player.currentStage,
+          clickDamage: player.clickDamage,
+          clickDamageBonus: player.clickDamageBonus,
+          teamDpsBonus: player.teamDpsBonus,
+          badges: player.badges,
+          candies: player.candies,
+          defeatedBosses: player.defeatedBosses,
+        },
+        inventory: {
+          collection: inventory.collection,
+          nextId: inventory.nextId,
+        },
+        daycare: {
+          slots: daycare.slots,
+        },
+        lastSaved: Date.now(),
+      })
+    },
+
     async saveGameState(keepalive = false) {
-      if (!this.isAuthenticated) return
+      // Mode invité : sauvegarder dans localStorage
+      if (!this.isAuthenticated) {
+        this.saveGuestGameState()
+        return
+      }
 
       try {
         const api = useApi()

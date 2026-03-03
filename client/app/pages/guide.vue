@@ -486,6 +486,114 @@ function toggleGen(id: number) {
     <!-- ═══════════════ PATCH NOTES TAB ═══════════════ -->
     <div v-if="activeTab === 'patchnotes'" class="flex flex-col gap-4">
 
+      <article class="rounded-xl border border-emerald-500/50 bg-emerald-900/20 p-5">
+        <h3 class="mb-3 text-lg font-bold text-emerald-300">🚀 v1.0.0 — Release Officielle — Mars 2026</h3>
+        
+        <p class="mb-4 text-sm text-gray-300 italic">
+          {{ t('Première version stable de Poke-Idle Legacy avec toutes les fonctionnalités principales !', 'First stable release of Poke-Idle Legacy with all core features!') }}
+        </p>
+
+        <div class="space-y-4">
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🎮 {{ t('Système de Combat', 'Combat System') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Combat automatique idle avec DPS d\'équipe calculé en temps réel', 'Automatic idle combat with real-time team DPS calculation') }}</li>
+              <li>{{ t('Système de clics manuels avec bonus de dégâts personnalisables', 'Manual click system with customizable damage bonuses') }}</li>
+              <li>{{ t('Efficacité de type complète (18 types × 18 défenses)', 'Full type effectiveness (18 types × 18 defenses)') }}</li>
+              <li>{{ t('Barre de progression HP des ennemis avec timer pour les boss', 'Enemy HP progress bar with boss timers') }}</li>
+              <li>{{ t('Système de zones avec 10 étapes chacune (9 sauvages + 1 boss)', 'Zone system with 10 stages each (9 wilds + 1 boss)') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">✨ {{ t('Système Gacha', 'Gacha System') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('4 raretés : Commun (×1), Rare (×1.5), Épique (×2), Légendaire (×4)', '4 rarities: Common (×1), Rare (×1.5), Epic (×2), Legendary (×4)') }}</li>
+              <li>{{ t('Système de doublons : 5 étoiles maximum (×1 à ×1.8)', 'Duplicate system: 5 stars maximum (×1 to ×1.8)') }}</li>
+              <li>{{ t('Shiny 1/1000 avec multiplicateur ×2 des étoiles normales', 'Shiny 1/1000 with ×2 multiplier of normal stars') }}</li>
+              <li>{{ t('Bannières de génération avec pool de Pokémon exclusifs', 'Generation banners with exclusive Pokémon pools') }}</li>
+              <li>{{ t('Coûts évolutifs : 500/2000/8000 or par invocation', 'Scaling costs: 500/2000/8000 gold per summon') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🔄 {{ t('Évolutions', 'Evolutions') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Évolutions par niveau avec seuils spécifiques', 'Level-based evolutions with specific thresholds') }}</li>
+              <li>{{ t('Évolutions par pierre (Feu, Eau, Plante, Foudre, Lune, Soleil)', 'Stone evolutions (Fire, Water, Leaf, Thunder, Moon, Sun)') }}</li>
+              <li>{{ t('Évolutions par objets spéciaux (Roche Royale, Carapace Mue)', 'Special item evolutions (King\'s Rock, Shed Shell)') }}</li>
+              <li>{{ t('26 Mega Évolutions disponibles (Gen 1-3)', '26 Mega Evolutions available (Gen 1-3)') }}</li>
+              <li>{{ t('Branches multiples : Roigada, Tarpaud, Kapoera, Munja', 'Multi-branch: Slowking, Politoed, Hitmontop, Shedinja') }}</li>
+              <li>{{ t('Multiplicateurs d\'évolution : ×1.5 (stade 1) → ×2.5 (stade 2) → ×4.5 (Mega)', 'Evolution multipliers: ×1.5 (stage 1) → ×2.5 (stage 2) → ×4.5 (Mega)') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🥚 {{ t('Pension (Daycare)', 'Daycare') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('5 slots de pension simultanés', '5 simultaneous daycare slots') }}</li>
+              <li>{{ t('Éclosion basée sur les dégâts infligés en combat', 'Hatching based on combat damage dealt') }}</li>
+              <li>{{ t('Seuils évolutifs : 1★ (50k) → 5★ (250M dégâts)', 'Scaling thresholds: 1★ (50k) → 5★ (250M damage)') }}</li>
+              <li>{{ t('Pokémon 5★ en pension : 1/50 chance de shiny', '5★ Pokémon in daycare: 1/50 shiny chance') }}</li>
+              <li>{{ t('Pokémon en pension retirés de l\'équipe automatiquement', 'Pokémon in daycare automatically removed from team') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🏪 {{ t('Boutique', 'Shop') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Améliorations permanentes : Click Damage (+10/20/30%) et Team DPS (+15/30/50%)', 'Permanent upgrades: Click Damage (+10/20/30%) and Team DPS (+15/30/50%)') }}</li>
+              <li>{{ t('Bonbons XP : S (100 XP), M (500), L (2k), XL (10k)', 'XP Candies: S (100 XP), M (500), L (2k), XL (10k)') }}</li>
+              <li>{{ t('Pierres d\'évolution achetables avec gemmes', 'Evolution stones purchasable with gems') }}</li>
+              <li>{{ t('Objets spéciaux rares disponibles', 'Rare special items available') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🗺️ {{ t('Contenu', 'Content') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('3 générations complètes : Kanto (13 zones), Johto (16 zones), Hoenn (24 zones)', '3 complete generations: Kanto (13 zones), Johto (16 zones), Hoenn (24 zones)') }}</li>
+              <li>{{ t('53 zones totales avec boss uniques et équipes thématiques', '53 total zones with unique bosses and themed teams') }}</li>
+              <li>{{ t('Tous les Pokémon de Gen 1-3 + formes alternatives', 'All Gen 1-3 Pokémon + alternate forms') }}</li>
+              <li>{{ t('Système de badges : 8 par génération + Ligue', 'Badge system: 8 per generation + League') }}</li>
+              <li>{{ t('Pokédex complet avec sprites officiels Showdown', 'Complete Pokédex with official Showdown sprites') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">👤 {{ t('Mode Invité & Sauvegarde', 'Guest Mode & Saves') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Mode invité avec sauvegarde localStorage complète', 'Guest mode with full localStorage save') }}</li>
+              <li>{{ t('Sauvegarde automatique toutes les 10 secondes', 'Auto-save every 10 seconds') }}</li>
+              <li>{{ t('Synchronisation cloud pour comptes authentifiés', 'Cloud sync for authenticated accounts') }}</li>
+              <li>{{ t('Système AFK : récompenses d\'or basées sur le temps d\'absence', 'AFK system: gold rewards based on time away') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🔐 {{ t('Authentification', 'Authentication') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Connexion email/mot de passe', 'Email/password login') }}</li>
+              <li>{{ t('OAuth Google pour connexion rapide', 'Google OAuth for quick login') }}</li>
+              <li>{{ t('Système de rôles (utilisateur/admin)', 'Role system (user/admin)') }}</li>
+              <li>{{ t('Dashboard admin avec gestion complète', 'Admin dashboard with full management') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🎨 {{ t('Interface', 'Interface') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Design moderne avec Tailwind CSS et composants shadcn/ui', 'Modern design with Tailwind CSS and shadcn/ui components') }}</li>
+              <li>{{ t('Filtres avancés : génération, rareté, type, équipe', 'Advanced filters: generation, rarity, type, team') }}</li>
+              <li>{{ t('Tri personnalisable : niveau, DPS, étoiles, alphabétique', 'Custom sorting: level, DPS, stars, alphabetical') }}</li>
+              <li>{{ t('Équipes sauvegardées (jusqu\'à 5 compositions)', 'Saved teams (up to 5 compositions)') }}</li>
+              <li>{{ t('Modal d\'information détaillée pour chaque Pokémon', 'Detailed info modal for each Pokémon') }}</li>
+              <li>{{ t('Table des types interactive dans le guide', 'Interactive type chart in guide') }}</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
       <article class="rounded-xl border border-amber-500/50 bg-amber-900/20 p-5">
         <h3 class="text-sm font-bold text-amber-300">🎉 v0.5.0 — Mars 2026</h3>
         <ul class="mt-2 space-y-1 text-sm text-gray-300 list-disc list-inside">
