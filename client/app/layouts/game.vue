@@ -29,12 +29,21 @@ onMounted(() => {
   // Migrate rarities for existing Pokemon (starters Gen 2/3 rare → epic)
   inventory.migrateRarities()
 
+  // Check evolutions on mount
+  inventory.checkAllEvolutions(player.currentGeneration)
+
   // Auto-save every 10s (works for both authenticated and guest mode)
   autoSaveInterval = setInterval(() => {
     auth.saveGameState()
   }, 10_000)
 
   window.addEventListener('beforeunload', saveOnUnload)
+})
+
+// Check evolutions on every page change
+const route = useRoute()
+watch(() => route.path, () => {
+  inventory.checkAllEvolutions(player.currentGeneration)
 })
 
 onUnmounted(() => {

@@ -241,5 +241,22 @@ export const useInventoryStore = defineStore('inventory', {
     deleteTeam(name: string) {
       this.savedTeams = this.savedTeams.filter(t => t.name !== name)
     },
+
+    // Check all possible evolutions for all Pokemon
+    checkAllEvolutions(currentGeneration?: number) {
+      const maxGen = currentGeneration ?? 9
+      for (const pokemon of this.collection) {
+        if (pokemon.level >= MAX_LEVEL) continue
+        
+        // Check level-based evolution
+        const evo = canEvolveByLevel(pokemon.slug, pokemon.level)
+        if (evo && evo.levelRequired && pokemon.level >= evo.levelRequired) {
+          const targetGen = getGenForSlug(evo.toSlug)
+          if (targetGen <= maxGen) {
+            this.applyEvolution(pokemon, evo)
+          }
+        }
+      }
+    },
   },
 })

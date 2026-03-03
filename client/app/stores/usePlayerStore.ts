@@ -119,10 +119,10 @@ export const usePlayerStore = defineStore('player', {
       return range > 0 ? Math.min(100, Math.max(0, (progress / range) * 100)) : 0
     },
     teamDpsMult(state): number {
-      return 1 + (state.level - 1) * 0.02
+      return 1
     },
     goldBonusMult(state): number {
-      return 1 + (state.level - 1) * 0.01
+      return 1
     },
   },
 

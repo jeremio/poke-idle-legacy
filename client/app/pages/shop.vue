@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Coins, Gem, Sparkles, FlaskConical, X, Candy } from 'lucide-vue-next'
+import { Coins, Gem, Sparkles, FlaskConical, X, Candy, Zap } from 'lucide-vue-next'
 import { usePlayerStore, CANDY_XP, CANDY_COST } from '~/stores/usePlayerStore'
 import type { CandySize } from '~/stores/usePlayerStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
@@ -25,8 +25,22 @@ function flash(id: string) {
   setTimeout(() => (purchaseFlash.value = null), 600)
 }
 
-// Evolution items cost
-const EVO_ITEM_COST = 1500
+// Evolution items cost by generation
+function getEvoItemCost(itemId: string): number {
+  const item = EVO_ITEMS.find(i => i.id === itemId)
+  if (!item || item.applicableTo.length === 0) return 5000
+  
+  // Find the lowest gen pokemon that uses this item
+  let minGen = 9
+  for (const slug of item.applicableTo) {
+    const gen = getGenForSlug(slug)
+    if (gen < minGen) minGen = gen
+  }
+  
+  // Price based on generation: 5000/7500/10000/20000
+  const prices: Record<number, number> = { 1: 5000, 2: 7500, 3: 10000, 4: 20000 }
+  return prices[minGen] ?? 20000
+}
 
 // --- Evolution picker modal ---
 const pickerItemId = ref<string | null>(null)
@@ -68,7 +82,8 @@ function closeEvoPicker() {
 function confirmEvolve(pokemon: OwnedPokemon) {
   const itemId = pickerItemId.value
   if (!itemId) return
-  if (!player.spendGold(EVO_ITEM_COST)) return
+  const cost = getEvoItemCost(itemId)
+  if (!player.spendGold(cost)) return
 
   const count = inventory.evolveAllWithItem(pokemon.slug, itemId, player.currentGeneration)
   if (count > 0) {
@@ -79,7 +94,7 @@ function confirmEvolve(pokemon: OwnedPokemon) {
     )
     setTimeout(() => (evoMessage.value = null), 3000)
   } else {
-    player.addGold(EVO_ITEM_COST) // Refund
+    player.addGold(cost) // Refund
   }
   closeEvoPicker()
 }
@@ -118,12 +133,96 @@ const gemExchanges = [
 
 const candySizes: CandySize[] = ['S', 'M', 'L', 'XL']
 const CANDY_COLORS: Record<CandySize, string> = { S: '#4ade80', M: '#60a5fa', L: '#c084fc', XL: '#fbbf24' }
+const CANDY_UNLOCK_LEVEL: Record<CandySize, number> = { S: 5, M: 15, L: 30, XL: 50 }
+
+function isCandyUnlocked(size: CandySize): boolean {
+  return player.level >= CANDY_UNLOCK_LEVEL[size]
+}
 
 function buyCandy(size: CandySize) {
+  if (!isCandyUnlocked(size)) return
   if (player.buyCandy(size)) {
     flash(`candy-${size}`)
   }
 }
+
+// Click Damage Boosts
+interface ClickBoost {
+  id: string
+  nameFr: string
+  nameEn: string
+  generation: number
+  unlockLevel: number
+  cost: number
+  damage: number
+}
+
+const CLICK_BOOSTS: ClickBoost[] = [
+  { id: 'click-kanto-1', nameFr: 'Boost Clics Kanto I', nameEn: 'Kanto Click Boost I', generation: 1, unlockLevel: 10, cost: 1000, damage: 5 },
+  { id: 'click-kanto-2', nameFr: 'Boost Clics Kanto II', nameEn: 'Kanto Click Boost II', generation: 1, unlockLevel: 20, cost: 5000, damage: 10 },
+  { id: 'click-kanto-3', nameFr: 'Boost Clics Kanto III', nameEn: 'Kanto Click Boost III', generation: 1, unlockLevel: 30, cost: 15000, damage: 20 },
+  
+  { id: 'click-johto-1', nameFr: 'Boost Clics Johto I', nameEn: 'Johto Click Boost I', generation: 2, unlockLevel: 35, cost: 25000, damage: 30 },
+  { id: 'click-johto-2', nameFr: 'Boost Clics Johto II', nameEn: 'Johto Click Boost II', generation: 2, unlockLevel: 45, cost: 50000, damage: 50 },
+  { id: 'click-johto-3', nameFr: 'Boost Clics Johto III', nameEn: 'Johto Click Boost III', generation: 2, unlockLevel: 55, cost: 100000, damage: 75 },
+  
+  { id: 'click-hoenn-1', nameFr: 'Boost Clics Hoenn I', nameEn: 'Hoenn Click Boost I', generation: 3, unlockLevel: 60, cost: 200000, damage: 100 },
+  { id: 'click-hoenn-2', nameFr: 'Boost Clics Hoenn II', nameEn: 'Hoenn Click Boost II', generation: 3, unlockLevel: 70, cost: 400000, damage: 150 },
+  { id: 'click-hoenn-3', nameFr: 'Boost Clics Hoenn III', nameEn: 'Hoenn Click Boost III', generation: 3, unlockLevel: 80, cost: 750000, damage: 200 },
+  
+  { id: 'click-sinnoh-1', nameFr: 'Boost Clics Sinnoh I', nameEn: 'Sinnoh Click Boost I', generation: 4, unlockLevel: 85, cost: 1000000, damage: 250 },
+  { id: 'click-sinnoh-2', nameFr: 'Boost Clics Sinnoh II', nameEn: 'Sinnoh Click Boost II', generation: 4, unlockLevel: 95, cost: 2000000, damage: 350 },
+  { id: 'click-sinnoh-3', nameFr: 'Boost Clics Sinnoh III', nameEn: 'Sinnoh Click Boost III', generation: 4, unlockLevel: 105, cost: 5000000, damage: 500 },
+]
+
+const purchasedBoosts = ref<Set<string>>(new Set())
+
+onMounted(() => {
+  // Load purchased boosts from player store
+  const savedBoosts = localStorage.getItem('poke-idle-click-boosts')
+  if (savedBoosts) {
+    try {
+      purchasedBoosts.value = new Set(JSON.parse(savedBoosts))
+      // Calculate total bonus
+      let totalBonus = 0
+      for (const boostId of purchasedBoosts.value) {
+        const boost = CLICK_BOOSTS.find(b => b.id === boostId)
+        if (boost) totalBonus += boost.damage
+      }
+      player.clickDamageBonus = totalBonus
+    } catch { /* ignore */ }
+  }
+})
+
+function isBoostUnlocked(boost: ClickBoost): boolean {
+  return player.level >= boost.unlockLevel
+}
+
+function isBoostPurchased(boostId: string): boolean {
+  return purchasedBoosts.value.has(boostId)
+}
+
+function buyClickBoost(boost: ClickBoost) {
+  if (!isBoostUnlocked(boost) || isBoostPurchased(boost.id)) return
+  if (!player.spendGold(boost.cost)) return
+  
+  purchasedBoosts.value.add(boost.id)
+  player.clickDamageBonus += boost.damage
+  player.saveBonuses()
+  
+  // Save to localStorage
+  localStorage.setItem('poke-idle-click-boosts', JSON.stringify([...purchasedBoosts.value]))
+  flash(`boost-${boost.id}`)
+}
+
+const boostsByGen = computed(() => {
+  const grouped: Record<number, ClickBoost[]> = {}
+  for (const boost of CLICK_BOOSTS) {
+    if (!grouped[boost.generation]) grouped[boost.generation] = []
+    grouped[boost.generation].push(boost)
+  }
+  return grouped
+})
 </script>
 
 <template>
@@ -161,6 +260,45 @@ function buyCandy(size: CandySize) {
     </section>
 
 
+    <!-- Click Damage Boosts -->
+    <section>
+      <h3 class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-400">
+        <Zap class="h-4 w-4 text-yellow-400" />
+        {{ t('Améliorations Dégâts Clics', 'Click Damage Upgrades') }}
+      </h3>
+      <div v-for="(boosts, gen) in boostsByGen" :key="gen" class="mb-4">
+        <p class="mb-2 text-xs font-bold text-slate-500">{{ t('Génération', 'Generation') }} {{ gen }}</p>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <button
+            v-for="boost in boosts"
+            :key="boost.id"
+            class="flex flex-col gap-2 rounded-xl border border-gray-700 bg-gray-800 p-3 transition-all hover:border-yellow-500/30 active:scale-[0.98] disabled:opacity-40"
+            :class="{ 
+              'ring-2 ring-yellow-500/50': purchaseFlash === `boost-${boost.id}`,
+              'border-green-500/50 bg-green-500/10': isBoostPurchased(boost.id)
+            }"
+            :disabled="!isBoostUnlocked(boost) || isBoostPurchased(boost.id) || player.gold < boost.cost"
+            @click="buyClickBoost(boost)"
+          >
+            <div class="flex items-center gap-2">
+              <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-500/20">
+                <Zap class="h-4 w-4 text-yellow-400" />
+              </div>
+              <div class="flex-1 text-left">
+                <p class="text-xs font-bold text-white">{{ t(boost.nameFr, boost.nameEn) }}</p>
+                <p class="text-[10px] text-gray-500">+{{ boost.damage }} {{ t('dégâts', 'damage') }}</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span v-if="!isBoostUnlocked(boost)" class="text-orange-400">🔒 Niv. {{ boost.unlockLevel }}</span>
+              <span v-else-if="isBoostPurchased(boost.id)" class="text-green-400">✓ {{ t('Acheté', 'Purchased') }}</span>
+              <span v-else class="text-yellow-400">🪙 {{ boost.cost.toLocaleString() }}</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </section>
+
     <!-- XP Candies -->
     <section>
       <h3 class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-400">
@@ -173,7 +311,7 @@ function buyCandy(size: CandySize) {
           :key="size"
           class="flex flex-col items-center gap-2 rounded-xl border border-gray-700 bg-gray-800 p-4 transition-all hover:border-green-500/30 active:scale-[0.98] disabled:opacity-40"
           :class="{ 'ring-2 ring-green-500/50': purchaseFlash === `candy-${size}` }"
-          :disabled="player.gold < CANDY_COST[size]"
+          :disabled="!isCandyUnlocked(size) || player.gold < CANDY_COST[size]"
           @click="buyCandy(size)"
         >
           <div
@@ -186,7 +324,10 @@ function buyCandy(size: CandySize) {
             <p class="text-xs font-bold" :style="{ color: CANDY_COLORS[size] }">
               {{ t('Bonbon', 'Candy') }} {{ size }}
             </p>
-            <p class="text-[10px] text-gray-500">+{{ CANDY_XP[size].toLocaleString() }} XP</p>
+            <p class="text-[10px] text-gray-500">
+              <span v-if="!isCandyUnlocked(size)" class="text-orange-400">🔒 Niv. {{ CANDY_UNLOCK_LEVEL[size] }}</span>
+              <span v-else>+{{ CANDY_XP[size].toLocaleString() }} XP</span>
+            </p>
           </div>
           <div class="flex items-center justify-between gap-2">
             <span class="rounded-full bg-gray-700/50 px-2 py-0.5 text-[10px] text-gray-400">
@@ -216,7 +357,7 @@ function buyCandy(size: CandySize) {
           :key="item.id"
           class="flex flex-col gap-2 rounded-xl border border-gray-700 bg-gray-800 p-4 text-left transition-all hover:border-green-500/30 active:scale-[0.98] disabled:opacity-40"
           :class="{ 'ring-2 ring-green-500/50': purchaseFlash === `evo-${item.id}` }"
-          :disabled="player.gold < EVO_ITEM_COST"
+          :disabled="player.gold < getEvoItemCost(item.id)"
           @click="openEvoPicker(item.id)"
         >
           <div class="flex items-center gap-3">
@@ -239,7 +380,7 @@ function buyCandy(size: CandySize) {
               {{ getEvoCandidates(item.id).length }} {{ t('Pokémon éligibles', 'eligible Pokémon') }}
             </span>
             <span class="flex items-center gap-1 text-sm font-bold text-yellow-400">
-              🪙 {{ EVO_ITEM_COST.toLocaleString() }}
+              🪙 {{ getEvoItemCost(item.id).toLocaleString() }}
             </span>
           </div>
         </button>
@@ -282,7 +423,7 @@ function buyCandy(size: CandySize) {
                 <p class="font-bold text-white">{{ t(poke.nameFr, poke.nameEn) }}</p>
                 <p class="text-xs text-gray-500">Lv.{{ poke.level }} — ★{{ poke.stars }}</p>
               </div>
-              <span class="text-sm font-bold text-yellow-400">🪙 {{ EVO_ITEM_COST.toLocaleString() }}</span>
+              <span class="text-sm font-bold text-yellow-400">🪙 {{ pickerItemId ? getEvoItemCost(pickerItemId) : 0 }}</span>
             </button>
           </div>
           <p v-if="pickerCandidates.length === 0" class="py-6 text-center text-sm text-gray-500">
