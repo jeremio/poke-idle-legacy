@@ -98,9 +98,9 @@ function handleClick(event?: MouseEvent) {
   checkEnemyDeath()
 }
 
-function pokemonXpPercent(poke: { level: number; xp: number }): number {
-  const current = pokemonXpForLevel(poke.level)
-  const next = pokemonXpForLevel(poke.level + 1)
+function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }): number {
+  const current = pokemonXpForLevel(poke.level, poke.rarity)
+  const next = pokemonXpForLevel(poke.level + 1, poke.rarity)
   const range = next - current
   if (range <= 0) return 0
   return Math.min(100, Math.max(0, ((poke.xp - current) / range) * 100))

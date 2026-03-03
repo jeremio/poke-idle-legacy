@@ -553,9 +553,36 @@ export function canEvolveByItem(slug: string, itemId: string): Evolution | null 
   ) ?? null
 }
 
-export function pokemonXpForLevel(level: number): number {
+export function pokemonXpForLevel(level: number, rarity?: string): number {
   if (level <= 1) return 0
-  return Math.floor(20 * Math.pow(level, 1.6))
+  // Courbe de base
+  let baseXp = Math.floor(20 * Math.pow(level, 1.6))
+  
+  // À partir du niveau 50, augmenter progressivement l'XP nécessaire
+  if (level >= 50) {
+    const excessLevels = level - 49
+    const scalingFactor = 1 + (excessLevels * 0.03) // +3% par niveau au-dessus de 50
+    baseXp = Math.floor(baseXp * scalingFactor)
+  }
+  
+  // Multiplicateur selon la rareté (Pokémon puissants = plus d'XP nécessaire)
+  if (rarity) {
+    const rarityMult = getRarityXpMult(rarity)
+    baseXp = Math.floor(baseXp * rarityMult)
+  }
+  
+  return baseXp
+}
+
+// Multiplicateur d'XP requis selon la rareté
+function getRarityXpMult(rarity: string): number {
+  switch (rarity) {
+    case 'common': return 1.0      // XP normale
+    case 'rare': return 1.2        // +20% XP
+    case 'epic': return 1.5        // +50% XP
+    case 'legendary': return 2.0   // +100% XP (2x plus lent)
+    default: return 1.0
+  }
 }
 
 // --- Evolution stage detection ---

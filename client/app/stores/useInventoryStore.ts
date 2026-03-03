@@ -146,7 +146,7 @@ export const useInventoryStore = defineStore('inventory', {
       if (!pokemon || pokemon.level >= MAX_LEVEL) return
       const levelBefore = pokemon.level
       pokemon.xp += amount
-      while (pokemon.level < MAX_LEVEL && pokemon.xp >= pokemonXpForLevel(pokemon.level + 1)) {
+      while (pokemon.level < MAX_LEVEL && pokemon.xp >= pokemonXpForLevel(pokemon.level + 1, pokemon.rarity)) {
         pokemon.level++
       }
       // After all level-ups, check if we crossed any evolution threshold
