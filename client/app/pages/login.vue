@@ -7,9 +7,11 @@ definePageMeta({
   layout: false,
 })
 
+const config = useRuntimeConfig()
 const auth = useAuthStore()
 const { t } = useLocale()
 const router = useRouter()
+const googleAuthUrl = `${config.public.apiBase.replace('/api', '')}/auth/google/redirect`
 
 const isRegister = ref(false)
 const username = ref('')
@@ -111,7 +113,7 @@ async function handleSubmit() {
           </div>
         </div>
         <a
-          href="http://localhost:3333/auth/google/redirect"
+          :href="googleAuthUrl"
           class="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-700 bg-gray-800 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-700"
         >
           <svg class="h-5 w-5" viewBox="0 0 24 24">
