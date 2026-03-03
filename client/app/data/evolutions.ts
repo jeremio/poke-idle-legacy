@@ -436,7 +436,7 @@ export const EVOLUTIONS: Evolution[] = [
   // Bug
   { fromSlug: 'kricketot', toSlug: 'kricketune', toNameFr: 'Mélokrik', toNameEn: 'Kricketune', method: 'level', levelRequired: 10 },
   { fromSlug: 'burmy', toSlug: 'wormadam', toNameFr: 'Cheniselle', toNameEn: 'Wormadam', method: 'level', levelRequired: 20 },
-  { fromSlug: 'burmy', toSlug: 'mothim', toNameFr: 'Papilord', toNameEn: 'Mothim', method: 'level', levelRequired: 20 },
+  { fromSlug: 'burmy', toSlug: 'mothim', toNameFr: 'Papilord', toNameEn: 'Mothim', method: 'stone', itemRequired: 'leaf-stone' },
   { fromSlug: 'combee', toSlug: 'vespiquen', toNameFr: 'Apireine', toNameEn: 'Vespiquen', method: 'level', levelRequired: 21 },
   
   // Electric
@@ -528,7 +528,7 @@ export const EVO_ITEMS: EvoItem[] = [
     descFr: 'Fait évoluer certains Pokémon de type Plante',
     descEn: 'Evolves certain Grass-type Pokémon',
     icon: '🍃',
-    applicableTo: ['gloom', 'weepinbell', 'exeggcute'],
+    applicableTo: ['gloom', 'weepinbell', 'exeggcute', 'burmy', 'eevee'],
   },
   {
     id: 'moon-stone',

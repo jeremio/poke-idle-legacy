@@ -9,6 +9,7 @@ export interface DaycareSlot {
   rarity: Rarity
   damageDealt: number
   damageRequired: number
+  isShinyResult?: boolean // Pre-determined shiny result (set when egg becomes ready)
 }
 
 export const MAX_DAYCARE_SLOTS = 5
@@ -70,7 +71,14 @@ export const useDaycareStore = defineStore('daycare', {
     // Called from combat loop when damage is dealt
     addDamage(amount: number) {
       for (const slot of this.slots) {
+        const wasReady = slot.damageDealt >= slot.damageRequired
         slot.damageDealt += amount
+        const isNowReady = slot.damageDealt >= slot.damageRequired
+        
+        // Pre-determine shiny result when egg becomes ready (prevents multi-tab exploit)
+        if (!wasReady && isNowReady && slot.isShinyResult === undefined) {
+          slot.isShinyResult = slot.stars >= 5 && Math.random() < FIVE_STAR_SHINY_CHANCE
+        }
       }
     },
 
@@ -81,7 +89,8 @@ export const useDaycareStore = defineStore('daycare', {
 
       for (const slot of this.slots) {
         if (slot.damageDealt >= slot.damageRequired) {
-          const isShiny = slot.stars >= 5 && Math.random() < FIVE_STAR_SHINY_CHANCE
+          // Use pre-determined result (prevents multi-tab exploit)
+          const isShiny = slot.isShinyResult ?? false
           hatched.push({ slot: { ...slot }, isShiny })
         } else {
           remaining.push(slot)

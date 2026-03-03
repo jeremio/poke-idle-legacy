@@ -86,6 +86,7 @@ export const useInventoryStore = defineStore('inventory', {
     addPokemon(pokemon: Omit<OwnedPokemon, 'id' | 'level' | 'xp' | 'teamSlot'>): {
       isNew: boolean
       isMaxed: boolean
+      wasAlreadyMaxed: boolean
       pokemon: OwnedPokemon
     } {
       const existing = this.collection.find(
@@ -93,11 +94,14 @@ export const useInventoryStore = defineStore('inventory', {
       )
 
       if (existing) {
-        if (existing.stars >= MAX_STARS) {
-          return { isNew: false, isMaxed: true, pokemon: existing }
-        }
+        const wasAlreadyMaxed = existing.stars >= MAX_STARS
         existing.stars = Math.min(existing.stars + 1, MAX_STARS)
-        return { isNew: false, isMaxed: existing.stars >= MAX_STARS, pokemon: existing }
+        return { 
+          isNew: false, 
+          isMaxed: existing.stars >= MAX_STARS, 
+          wasAlreadyMaxed,
+          pokemon: existing 
+        }
       }
 
       const newPokemon: OwnedPokemon = {
@@ -108,7 +112,7 @@ export const useInventoryStore = defineStore('inventory', {
         teamSlot: this.team.length < 6 ? this.team.length + 1 : null,
       }
       this.collection.push(newPokemon)
-      return { isNew: true, isMaxed: false, pokemon: newPokemon }
+      return { isNew: true, isMaxed: false, wasAlreadyMaxed: false, pokemon: newPokemon }
     },
 
     addPokemonRaw(pokemon: Omit<OwnedPokemon, 'id' | 'level' | 'xp' | 'teamSlot'>): OwnedPokemon {

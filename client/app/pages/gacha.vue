@@ -40,6 +40,8 @@ interface PullResultItem {
   isShiny: boolean
   isNew: boolean
   isMaxed: boolean
+  wasAlreadyMaxed: boolean
+  refundAmount: number
   stars: number
 }
 
@@ -134,8 +136,10 @@ async function doPull(currency: 'gold' | 'gems') {
 
   // Add all to inventory and build results
   const results: PullResultItem[] = []
+  const refundTotal = count * activeBanner.value!.costGold * 0.1 // 10% per pull
+  
   for (const { pokemon, isShiny } of rawPulls) {
-    const { isNew, isMaxed, pokemon: owned } = inventory.addPokemon({
+    const { isNew, isMaxed, wasAlreadyMaxed, pokemon: owned } = inventory.addPokemon({
       slug: pokemon.slug,
       nameFr: pokemon.nameFr,
       nameEn: pokemon.nameEn,
@@ -143,6 +147,13 @@ async function doPull(currency: 'gold' | 'gems') {
       isShiny,
       rarity: pokemon.rarity,
     })
+    
+    // Calculate refund for this specific pull if already maxed
+    const refundAmount = wasAlreadyMaxed ? refundTotal : 0
+    if (refundAmount > 0) {
+      player.addGold(refundAmount)
+    }
+    
     results.push({
       nameFr: pokemon.nameFr,
       nameEn: pokemon.nameEn,
@@ -151,6 +162,8 @@ async function doPull(currency: 'gold' | 'gems') {
       isShiny,
       isNew,
       isMaxed,
+      wasAlreadyMaxed,
+      refundAmount,
       stars: owned.stars,
     })
   }
@@ -313,11 +326,14 @@ function dismiss() {
         <p v-if="singleResult.isNew" class="text-sm font-bold text-green-400">
           {{ t('✨ Nouveau !', '✨ New!') }}
         </p>
+        <p v-else-if="singleResult.wasAlreadyMaxed" class="text-sm font-bold text-amber-400">
+          {{ t(`⭐ MAX ! Remboursé 10% (🪙 ${singleResult.refundAmount})`, `⭐ MAX! 10% Refund (🪙 ${singleResult.refundAmount})`) }}
+        </p>
         <p v-else-if="singleResult.isMaxed" class="text-sm font-bold text-amber-400">
-          {{ t('⭐ MAX ! Retiré du tirage', '⭐ MAX! Removed from pool') }}
+          {{ t('⭐ MAX atteint !', '⭐ MAX reached!') }}
         </p>
         <p v-else class="text-sm text-slate-400">
-          {{ t('Doublon → ★', 'Duplicate → ★') }}{{ singleResult.stars }}
+          ★ {{ singleResult.stars }} / {{ MAX_STARS }}
         </p>
 
         <button
@@ -385,6 +401,12 @@ function dismiss() {
             class="rounded-full bg-green-500/20 px-1.5 py-px text-[8px] font-bold text-green-400"
           >
             NEW
+          </span>
+          <span
+            v-else-if="r.wasAlreadyMaxed"
+            class="rounded-full bg-amber-500/20 px-1.5 py-px text-[8px] font-bold text-amber-400"
+          >
+            -10%
           </span>
           <span
             v-else-if="r.isMaxed"
