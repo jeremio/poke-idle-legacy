@@ -258,6 +258,24 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
         </div>
       </div>
 
+      <!-- Rewards Preview (gauche, en colonne) -->
+      <div class="absolute left-4 top-1/2 z-0 flex -translate-y-1/2 flex-col gap-3">
+        <div class="flex items-center gap-2 rounded-xl border-2 border-slate-700/50 bg-slate-800/95 px-3 py-2 shadow-lg backdrop-blur-sm">
+          <span class="text-xl">🪙</span>
+          <div class="text-left">
+            <p class="text-[10px] text-slate-400">{{ t('Or', 'Gold') }}</p>
+            <p class="text-sm font-bold text-yellow-400">+{{ combat.enemy.goldReward }}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 rounded-xl border-2 border-slate-700/50 bg-slate-800/95 px-3 py-2 shadow-lg backdrop-blur-sm">
+          <span class="text-xl">✦</span>
+          <div class="text-left">
+            <p class="text-[10px] text-slate-400">XP</p>
+            <p class="text-sm font-bold text-blue-400">+{{ combat.enemy.xpReward }}</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Boss Team Preview (positionné sous l'info box) -->
       <div v-if="combat.isBossFight && zone?.boss" class="absolute bottom-4 right-4 z-0 flex gap-1.5">
         <img
@@ -293,24 +311,6 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
           </button>
         </div>
 
-        <!-- Rewards Preview -->
-        <div class="flex gap-4 rounded-xl border-2 border-slate-700/50 bg-slate-800/80 px-6 py-3 shadow-lg backdrop-blur-sm">
-          <div class="flex items-center gap-2">
-            <span class="text-2xl">🪙</span>
-            <div class="text-left">
-              <p class="text-xs text-slate-400">{{ t('Or', 'Gold') }}</p>
-              <p class="font-bold text-yellow-400">+{{ combat.enemy.goldReward }}</p>
-            </div>
-          </div>
-          <div class="h-10 w-px bg-slate-700" />
-          <div class="flex items-center gap-2">
-            <span class="text-2xl">✦</span>
-            <div class="text-left">
-              <p class="text-xs text-slate-400">XP</p>
-              <p class="font-bold text-blue-400">+{{ combat.enemy.xpReward }}</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
