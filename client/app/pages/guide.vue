@@ -125,9 +125,9 @@ function toggleGen(id: number) {
         <h3 class="mt-3 mb-1 text-xs font-semibold text-gray-400 uppercase">{{ t('Probabilités de drop', 'Drop rates') }}</h3>
         <div class="flex flex-wrap gap-2 mb-3">
           <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-gray-300">Commun</span> <span class="font-bold text-white">70%</span></span>
-          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-blue-400">Rare</span> <span class="font-bold text-white">21%</span></span>
-          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-purple-400">Épique</span> <span class="font-bold text-white">8%</span></span>
-          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-amber-400">Légendaire</span> <span class="font-bold text-white">1%</span></span>
+          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-blue-400">Rare</span> <span class="font-bold text-white">23%</span></span>
+          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-purple-400">Épique</span> <span class="font-bold text-white">6.5%</span></span>
+          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-amber-400">Légendaire</span> <span class="font-bold text-white">0.5%</span></span>
           <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-yellow-400">✨ Shiny</span> <span class="font-bold text-white">0.1%</span></span>
         </div>
 
@@ -495,6 +495,79 @@ function toggleGen(id: number) {
     <!-- ═══════════════ PATCH NOTES TAB ═══════════════ -->
     <div v-if="activeTab === 'patchnotes'" class="flex flex-col gap-4">
 
+      <!-- v1.1.2 -->
+      <article class="rounded-xl border border-emerald-500/50 bg-emerald-900/20 p-5">
+        <h3 class="mb-3 text-lg font-bold text-emerald-300">v1.1.2 — Corrections & Gameplay — 3 Mars 2026</h3>
+        
+        <p class="mb-4 text-sm text-gray-300 italic">
+          {{ t('Corrections majeures des évolutions Gen 4, équilibrage gacha et améliorations UX !', 'Major Gen 4 evolution fixes, gacha balancing and UX improvements!') }}
+        </p>
+
+        <div class="space-y-4">
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🐛 {{ t('Corrections Critiques', 'Critical Fixes') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('FIX: Évolutions Gen 4 héritent maintenant de la rareté épique des starters', 'FIX: Gen 4 evolutions now inherit epic rarity from starters') }}</li>
+              <li>{{ t('FIX: Pokémon niveau 100 peuvent désormais évoluer (bug bloquant retiré)', 'FIX: Level 100 Pokémon can now evolve (blocking bug removed)') }}</li>
+              <li>{{ t('FIX: Bug pension multi-onglets corrigé (résultat shiny pré-déterminé)', 'FIX: Daycare multi-tab exploit fixed (shiny result pre-determined)') }}</li>
+              <li>{{ t('FIX: Migration automatique rareté pour évolutions existantes dans inventaire', 'FIX: Automatic rarity migration for existing evolutions in inventory') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">✨ {{ t('Items Évolution Gen 4', 'Gen 4 Evolution Items') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Ajout Pierre Éclat (Roserade, Togekiss)', 'Added Shiny Stone (Roserade, Togekiss)') }}</li>
+              <li>{{ t('Ajout Pierre Aube (Gallame, Momartik)', 'Added Dawn Stone (Gallade, Froslass)') }}</li>
+              <li>{{ t('Ajout Pierre Glace (Givrali)', 'Added Ice Stone (Glaceon)') }}</li>
+              <li>{{ t('Ajout Protecteur, Électriseur, Magmariseur (Rhinastoc, Élekable, Maganon)', 'Added Protector, Electirizer, Magmarizer (Rhyperior, Electivire, Magmortar)') }}</li>
+              <li>{{ t('Ajout CD Douteux, Tissu Fauche (Porygon-Z, Noctunoir)', 'Added Dubious Disc, Reaper Cloth (Porygon-Z, Dusknoir)') }}</li>
+              <li>{{ t('Papilord nécessite maintenant Pierre Plante (au lieu de niveau)', 'Mothim now requires Leaf Stone (instead of level)') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">💰 {{ t('Système Gacha Amélioré', 'Improved Gacha System') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('RETIRÉ: Gemmes complètement supprimées du système d\'invocation', 'REMOVED: Gems completely removed from summoning system') }}</li>
+              <li>{{ t('NOUVEAU: Remboursement 50% par invocation si Pokémon déjà 5★ (avant: blocage)', 'NEW: 50% refund per summon if Pokémon already 5★ (before: blocked)') }}</li>
+              <li>{{ t('Affichage visuel remboursement sur cartes gacha (badge -50%)', 'Visual refund display on gacha cards (-50% badge)') }}</li>
+              <li>{{ t('Taux ajustés : Legendary 1%→0.5%, Epic 8%→6.5%, Rare 21%→23%', 'Rates adjusted: Legendary 1%→0.5%, Epic 8%→6.5%, Rare 21%→23%') }}</li>
+              <li>{{ t('Légendaires 2× plus rares pour meilleur équilibrage', 'Legendaries 2× rarer for better balance') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🎯 {{ t('Boutique & Évolutions', 'Shop & Evolutions') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Prix items évolution uniformisés par génération actuelle joueur', 'Evolution item prices standardized by player\'s current generation') }}</li>
+              <li>{{ t('Gen 1: 5000, Gen 2: 7500, Gen 3: 10000, Gen 4: 20000 PokéDollar', 'Gen 1: 5000, Gen 2: 7500, Gen 3: 10000, Gen 4: 20000 PokéDollar') }}</li>
+              <li>{{ t('Vérification évolutions automatique à chaque changement d\'onglet', 'Automatic evolution check on every tab change') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🎨 {{ t('Interface & UX', 'Interface & UX') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('NOUVEAU: Clic droit sur équipe pour retirer un Pokémon rapidement', 'NEW: Right-click on team to quickly remove a Pokémon') }}</li>
+              <li>{{ t('Retiré affichage bonus niveau joueur (DPS/Gold) de la sidebar', 'Removed player level bonus display (DPS/Gold) from sidebar') }}</li>
+              <li>{{ t('Hover rouge sur slots équipe pour indiquer clic droit disponible', 'Red hover on team slots to indicate right-click available') }}</li>
+            </ul>
+          </div>
+
+          <div class="rounded-lg border border-emerald-600/30 bg-emerald-950/30 p-3">
+            <h4 class="mb-2 text-sm font-semibold text-emerald-300">🎯 {{ t('Points Clés', 'Key Points') }}</h4>
+            <ul class="space-y-1 text-xs text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('✅ Toutes les évolutions Gen 4 maintenant fonctionnelles avec items corrects', '✅ All Gen 4 evolutions now functional with correct items') }}</li>
+              <li>{{ t('✅ Système gacha plus équitable avec remboursement au lieu de blocage', '✅ Fairer gacha system with refund instead of blocking') }}</li>
+              <li>{{ t('✅ Légendaires vraiment rares maintenant (0.5% au lieu de 1%)', '✅ Legendaries truly rare now (0.5% instead of 1%)') }}</li>
+              <li>{{ t('✅ UX améliorée avec clic droit équipe et vérification auto évolutions', '✅ Improved UX with team right-click and auto evolution check') }}</li>
+              <li>{{ t('✅ Migration automatique pour joueurs existants', '✅ Automatic migration for existing players') }}</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
       <!-- v1.1.1 -->
       <article class="rounded-xl border border-purple-500/50 bg-purple-900/20 p-5">
         <h3 class="mb-3 text-lg font-bold text-purple-300">v1.1.1 — Sinnoh & Améliorations — 3 Mars 2026</h3>
@@ -531,9 +604,9 @@ function toggleGen(id: number) {
               <li>{{ t('Renommage : "Or" → "PokéDollar" partout dans le jeu', 'Renamed: "Gold" → "PokéDollar" throughout the game') }}</li>
               <li>{{ t('Probabilités gacha ajustées pour plus d\'équilibre :', 'Gacha probabilities adjusted for better balance:') }}</li>
               <li class="pl-4">{{ t('• Common : 60% → 70% (+10%)', '• Common: 60% → 70% (+10%)') }}</li>
-              <li class="pl-4">{{ t('• Rare : 25% → 21% (-4%)', '• Rare: 25% → 21% (-4%)') }}</li>
-              <li class="pl-4">{{ t('• Epic : 12% → 8% (-4%)', '• Epic: 12% → 8% (-4%)') }}</li>
-              <li class="pl-4">{{ t('• Legendary : 3% → 1% (-2%) - beaucoup plus rares !', '• Legendary: 3% → 1% (-2%) - much rarer!') }}</li>
+              <li class="pl-4">{{ t('• Rare : 25% → 23% (-2%)', '• Rare: 25% → 23% (-2%)') }}</li>
+              <li class="pl-4">{{ t('• Epic : 12% → 6.5% (-5.5%)', '• Epic: 12% → 6.5% (-5.5%)') }}</li>
+              <li class="pl-4">{{ t('• Legendary : 3% → 0.5% (-2.5%) - extrêmement rares !', '• Legendary: 3% → 0.5% (-2.5%) - extremely rare!') }}</li>
               <li>{{ t('XP premiers niveaux réduite : facteur 0.5→1.0 pour niveaux 1-20', 'Early level XP reduced: 0.5→1.0 factor for levels 1-20') }}</li>
             </ul>
           </div>
@@ -550,7 +623,7 @@ function toggleGen(id: number) {
             <h4 class="mb-2 text-sm font-semibold text-purple-300">🎯 {{ t('Points Clés', 'Key Points') }}</h4>
             <ul class="space-y-1 text-xs text-gray-300 list-disc list-inside pl-2">
               <li>{{ t('✅ Contenu Gen 4 complet : 13 nouvelles zones de combat', '✅ Full Gen 4 content: 13 new battle zones') }}</li>
-              <li>{{ t('✅ Légendaires beaucoup plus rares (divisés par 3)', '✅ Legendaries much rarer (divided by 3)') }}</li>
+              <li>{{ t('✅ Légendaires extrêmement rares (divisés par 6)', '✅ Legendaries extremely rare (divided by 6)') }}</li>
               <li>{{ t('✅ Onboarding amélioré : premiers niveaux plus rapides', '✅ Improved onboarding: faster early levels') }}</li>
               <li>{{ t('✅ Inventaire plus flexible avec 2 nouveaux tris', '✅ More flexible inventory with 2 new sorts') }}</li>
               <li>{{ t('✅ Terminologie cohérente avec l\'univers Pokémon', '✅ Terminology consistent with Pokémon universe') }}</li>

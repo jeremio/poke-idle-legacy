@@ -265,9 +265,11 @@ function getDetailStats(poke: OwnedPokemon) {
       </div>
       <div class="grid grid-cols-6 gap-2">
         <div
-          v-for="slot in 6"
+          v-for="slot in [1, 2, 3, 4, 5, 6]"
           :key="slot"
-          class="flex h-24 flex-col items-center justify-center rounded-xl border border-gray-700 bg-gray-800"
+          class="flex h-24 flex-col items-center justify-center rounded-xl border border-gray-700 bg-gray-800 transition-all"
+          :class="inventory.team.find((p) => p.teamSlot === slot) ? 'cursor-context-menu hover:border-red-500/50' : ''"
+          @contextmenu.prevent="inventory.team.find((p) => p.teamSlot === slot) ? inventory.removeFromTeam(inventory.team.find((p) => p.teamSlot === slot)!.id) : null"
         >
           <template v-if="inventory.team.find((p) => p.teamSlot === slot)">
             <img
