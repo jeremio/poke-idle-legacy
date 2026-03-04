@@ -15,7 +15,7 @@ export function useSpeciesCache() {
     if (loaded.value) return
     try {
       const api = useApi()
-      const species = await api.get<SpeciesEntry[]>('/pokedex')
+      const species = await api.get<SpeciesEntry[]>('/api/pokedex')
       const map = new Map<string, SpeciesEntry>()
       for (const s of species) {
         map.set(s.slug, s)
