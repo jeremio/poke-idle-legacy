@@ -216,6 +216,29 @@ function toggleGen(id: number) {
             'Bonbons XP : S (+100), M (+500), L (+2000), XL (+10000). Attention : un bonbon peut déclencher une évolution !',
             'XP Candies: S (+100), M (+500), L (+2000), XL (+10000). Warning: a candy can trigger evolution!'
           ) }}</p>
+          <p>{{ t(
+            'La boutique propose aussi des items d\'évolution (Pierre Feu, Pierre Eau, Pierre Plante, etc.) pour faire évoluer certains Pokémon.',
+            'The shop also offers evolution items (Fire Stone, Water Stone, Leaf Stone, etc.) to evolve certain Pokémon.'
+          ) }}</p>
+        </div>
+      </section>
+
+      <!-- ── Évolutions ── -->
+      <section class="rounded-xl border border-gray-700/50 bg-gray-800/40 p-5">
+        <h2 class="mb-3 flex items-center gap-2 text-lg font-bold text-purple-400">
+          <Sparkles class="h-5 w-5" /> {{ t('Évolutions', 'Evolutions') }}
+        </h2>
+        <div class="space-y-2 text-sm text-gray-300">
+          <p>{{ t(
+            'Certains Pokémon évoluent automatiquement en atteignant un niveau spécifique, d\'autres nécessitent un item d\'évolution (disponible dans la Boutique).',
+            'Some Pokémon evolve automatically upon reaching a specific level, others require an evolution item (available in the Shop).'
+          ) }}</p>
+          <p class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-2 text-amber-200">
+            <span class="font-bold">⚠️ Important :</span> {{ t(
+              'Quand un Pokémon évolue, l\'évolution commence au niveau 1 ! Pense à acheter des items d\'évolution dans la Boutique avant de faire évoluer tes meilleurs Pokémon.',
+              'When a Pokémon evolves, the evolution starts at level 1! Remember to buy evolution items from the Shop before evolving your best Pokémon.'
+            ) }}
+          </p>
         </div>
       </section>
 
