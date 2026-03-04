@@ -125,7 +125,7 @@ export function useCombatLoop() {
 
   function spawnBoss(boss: BossTrainer, localDiff: number, globalDiff: number, genMult: number) {
     const zone = player.activeCombatZone
-    const totalHp = boss.team.reduce((sum, p) => sum + Math.round(p.level * p.level), 0) * (1 + zone * 0.15)
+    const totalHp = boss.team.reduce((sum, p) => sum + Math.round(p.level * p.level), 0) * (2 + localDiff * 0.8)
     const bossTypes = getPokemonTypes(boss.team[0]?.slug ?? 'normal')
     combat.setEnemy({
       nameFr: `Boss : ${boss.nameFr}`,
