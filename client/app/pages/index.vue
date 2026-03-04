@@ -246,21 +246,23 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
             </div>
             <div class="py-1">
               <template v-for="g in GENERATIONS" :key="g.id">
-                <div v-if="g.id <= player.currentGeneration" class="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  {{ g.regionFr }}
-                </div>
-                <button
-                  v-for="z in g.zones.filter(z => g.id < player.currentGeneration || z.id <= player.currentZone)"
-                  :key="`${g.id}-${z.id}`"
-                  class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition-colors"
-                  :class="player.isFarming && player.combatGeneration === g.id && player.combatZone === z.id
-                    ? 'bg-amber-500/20 font-bold text-amber-400'
-                    : 'text-gray-300 hover:bg-slate-700/60 hover:text-white'"
-                  @click="selectRoute(g.id, z.id)"
-                >
-                  <span class="w-5 text-center text-[10px] text-slate-500">{{ z.id }}</span>
-                  {{ t(z.nameFr, z.nameEn) }}
-                </button>
+                <template v-if="completedRoutes.some(r => r.gen === g.id)">
+                  <div class="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    {{ g.regionFr }}
+                  </div>
+                  <button
+                    v-for="r in completedRoutes.filter(r => r.gen === g.id)"
+                    :key="`${r.gen}-${r.zone}`"
+                    class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition-colors"
+                    :class="player.isFarming && player.combatGeneration === r.gen && player.combatZone === r.zone
+                      ? 'bg-amber-500/20 font-bold text-amber-400'
+                      : 'text-gray-300 hover:bg-slate-700/60 hover:text-white'"
+                    @click="selectRoute(r.gen, r.zone)"
+                  >
+                    <span class="w-5 text-center text-[10px] text-slate-500">{{ r.zone }}</span>
+                    {{ r.zoneName }}
+                  </button>
+                </template>
               </template>
             </div>
           </div>

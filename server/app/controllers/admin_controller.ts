@@ -109,11 +109,14 @@ export default class AdminController {
     user.currentZone = 1
     user.currentStage = 1
     user.clickDamage = 1
+    user.clickDamageBonus = 0
+    user.teamDpsBonus = 0
     user.xp = 0
     user.level = 1
     user.badges = 0
     user.candies = {}
     user.daycare = []
+    user.defeatedBosses = []
     user.adminVersion = (user.adminVersion ?? 0) + 1
 
     await user.save()

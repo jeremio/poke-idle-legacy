@@ -181,6 +181,7 @@ export const useAuthStore = defineStore('auth', {
           clickDamageBonus: data.player.clickDamageBonus ?? 0,
           teamDpsBonus: data.player.teamDpsBonus ?? 0,
           badges: data.player.badges,
+          defeatedBosses: (data.player as any).defeatedBosses ?? [],
           candies: (data.player as any).candies ?? { S: 0, M: 0, L: 0, XL: 0 },
           adminVersion: (data.player as any).adminVersion ?? 0,
           isLoggedIn: true,
