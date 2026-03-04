@@ -255,13 +255,14 @@ export const usePlayerStore = defineStore('player', {
     buyCandy(size: CandySize, qty: number = 1): boolean {
       const cost = getCandyCost(size, this.currentGeneration) * qty
       if (!this.spendGold(cost)) return false
-      this.candies[size] += qty
+      this.candies[size] = (this.candies[size] || 0) + qty
       return true
     },
 
     useCandy(size: CandySize): boolean {
-      if (this.candies[size] <= 0) return false
-      this.candies[size]--
+      const count = this.candies[size] || 0
+      if (count <= 0) return false
+      this.candies[size] = count - 1
       return true
     },
 
@@ -271,6 +272,10 @@ export const usePlayerStore = defineStore('player', {
 
     setPlayer(data: Partial<PlayerState>) {
       Object.assign(this, data)
+      // Ensure candies always has all keys with numeric values
+      for (const k of ['S', 'M', 'L', 'XL'] as CandySize[]) {
+        if (typeof this.candies[k] !== 'number' || isNaN(this.candies[k])) this.candies[k] = 0
+      }
       this.saveBonuses()
     },
 
