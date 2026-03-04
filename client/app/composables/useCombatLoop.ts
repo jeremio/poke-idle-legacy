@@ -194,8 +194,7 @@ export function useCombatLoop() {
       if (!combat.enemy || combat.enemy.currentHp <= 0) return
       const baseDps = getEffectiveDps(combat.enemy.types)
       if (baseDps <= 0) return
-      const playerLevelMult = 1 + (player.level - 1) * 0.02
-      const effectiveDps = Math.round(baseDps * playerLevelMult)
+      const effectiveDps = baseDps
       combat.enemy.currentHp = Math.max(0, combat.enemy.currentHp - effectiveDps)
       daycare.addDamage(effectiveDps)
       checkEnemyDeath()
