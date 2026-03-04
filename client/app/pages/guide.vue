@@ -233,12 +233,6 @@ function toggleGen(id: number) {
             'Certains Pokémon évoluent automatiquement en atteignant un niveau spécifique, d\'autres nécessitent un item d\'évolution (disponible dans la Boutique).',
             'Some Pokémon evolve automatically upon reaching a specific level, others require an evolution item (available in the Shop).'
           ) }}</p>
-          <p class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-2 text-amber-200">
-            <span class="font-bold">⚠️ Important :</span> {{ t(
-              'Quand un Pokémon évolue, l\'évolution commence au niveau 1 ! Pense à acheter des items d\'évolution dans la Boutique avant de faire évoluer tes meilleurs Pokémon.',
-              'When a Pokémon evolves, the evolution starts at level 1! Remember to buy evolution items from the Shop before evolving your best Pokémon.'
-            ) }}
-          </p>
         </div>
       </section>
 

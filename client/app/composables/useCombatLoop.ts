@@ -3,7 +3,7 @@ import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
 import { useDaycareStore } from '~/stores/useDaycareStore'
 import { getSpriteUrl, getTrainerSpriteUrl } from '~/utils/showdown'
-import { getZone } from '~/data/zones'
+import { getZone, GENERATIONS } from '~/data/zones'
 import { getPokemonType, getPokemonTypes, getTypeEffectiveness } from '~/data/types'
 import { getRarityDpsMult, getStarDpsMult } from '~/data/gacha'
 import { getEvoStageMult } from '~/data/evolutions'
@@ -78,20 +78,31 @@ export function useCombatLoop() {
   function spawnEnemy() {
     const stage = player.currentStage
     const zone = player.currentZone
-    const difficulty = (zone - 1) * 10 + stage
+    const gen = player.currentGeneration
+
+    // Local difficulty for HP/level (resets per gen so new regions feel fresh)
+    const localDifficulty = (zone - 1) * 10 + stage
+
+    // Continuous difficulty for gold/XP (accumulates across all gens)
+    const prevZones = GENERATIONS
+      .filter((g) => g.id < gen)
+      .reduce((sum, g) => sum + g.zones.length, 0)
+    const globalDifficulty = (prevZones + zone - 1) * 10 + stage
+
+    // Generation multiplier so gold/XP keeps up with banner cost increases
+    const genMultiplier = gen
 
     if (player.isBossStage) {
       const boss = currentZone()?.boss
-      if (boss) spawnBoss(boss, difficulty)
+      if (boss) spawnBoss(boss, localDifficulty, globalDifficulty, genMultiplier)
     } else {
-      spawnWild(difficulty)
+      spawnWild(localDifficulty, globalDifficulty, genMultiplier)
     }
   }
 
-  function spawnWild(difficulty: number) {
+  function spawnWild(localDiff: number, globalDiff: number, genMult: number) {
     const poke = randomWild()
-    // Augmentation HP: 0.12 → 0.35 (~×3) pour plus de durabilité
-    const hp = Math.round(poke.baseHp * (1 + difficulty * 0.35))
+    const hp = Math.round(poke.baseHp * (1 + localDiff * 0.35))
     combat.setEnemy({
       nameFr: `${poke.nameFr} sauvage`,
       nameEn: `Wild ${poke.nameEn}`,
@@ -100,15 +111,15 @@ export function useCombatLoop() {
       spriteUrl: getSpriteUrl(poke.slug),
       maxHp: hp,
       currentHp: hp,
-      level: difficulty,
-      goldReward: 2 * difficulty,
-      xpReward: 3 * difficulty,
+      level: localDiff,
+      goldReward: 2 * globalDiff * genMult,
+      xpReward: 3 * globalDiff * genMult,
       isBoss: false,
       bossTimerSeconds: null,
     })
   }
 
-  function spawnBoss(boss: BossTrainer, difficulty: number) {
+  function spawnBoss(boss: BossTrainer, localDiff: number, globalDiff: number, genMult: number) {
     const zone = player.currentZone
     const totalHp = boss.team.reduce((sum, p) => sum + Math.round(p.level * p.level), 0) * (1 + zone * 0.1)
     const bossTypes = getPokemonTypes(boss.team[0]?.slug ?? 'normal')
@@ -121,8 +132,8 @@ export function useCombatLoop() {
       maxHp: totalHp,
       currentHp: totalHp,
       level: Math.max(...boss.team.map((p) => p.level)),
-      goldReward: 20 * difficulty,
-      xpReward: 20 * difficulty,
+      goldReward: 20 * globalDiff * genMult,
+      xpReward: 20 * globalDiff * genMult,
       isBoss: true,
       bossTimerSeconds: boss.timerSeconds,
     })

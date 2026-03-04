@@ -24,13 +24,6 @@ const availablePool = computed(() => {
   return activeBanner.value.pool.filter((p) => !maxed.has(p.slug))
 })
 
-const filteredBanner = computed((): Banner => ({
-  ...activeBanner.value,
-  pool: availablePool.value,
-}))
-
-const allMaxed = computed(() => availablePool.value.length === 0)
-
 // ── Pull state ──
 interface PullResultItem {
   nameFr: string
@@ -88,8 +81,7 @@ function totalCostGold(count: number): number {
 }
 
 async function doPull() {
-  if (allMaxed.value) return
-  const banner = filteredBanner.value
+  const banner = activeBanner.value
   if (!banner || banner.pool.length === 0) return
 
   const count = pullCount.value
@@ -101,12 +93,10 @@ async function doPull() {
   showResult.value = false
   pullResults.value = []
 
-  // Do all pulls first (so we know rarities for animation)
+  // Do all pulls first (always from full pool — 5★ dupes refund gold)
   const rawPulls = []
   for (let i = 0; i < count; i++) {
-    const currentBanner = filteredBanner.value
-    if (!currentBanner || currentBanner.pool.length === 0) break
-    rawPulls.push(pullFromBanner(currentBanner))
+    rawPulls.push(pullFromBanner(banner))
   }
 
   // Determine best rarity for ball color reveal
@@ -424,35 +414,30 @@ function dismiss() {
 
     <!-- ═══ Pull Buttons ═══ -->
     <div v-if="!isPulling && !showResult" class="flex flex-col items-center gap-4">
-      <div v-if="allMaxed" class="rounded-xl bg-green-500/10 px-6 py-3 text-center text-sm font-bold text-green-400">
-        {{ t('Tous les Pokémon sont au max !', 'All Pokémon are maxed out!') }} 🎉
-      </div>
-      <template v-else>
-        <!-- Pull count selector -->
-        <div class="flex items-center gap-1.5 rounded-xl bg-slate-800 p-1">
-          <button
-            v-for="n in ([1, 5, 10] as const)"
-            :key="n"
-            class="rounded-lg px-4 py-1.5 text-sm font-bold transition-all"
-            :class="pullCount === n
-              ? 'bg-yellow-500 text-black shadow-lg'
-              : 'text-slate-400 hover:text-white'"
-            @click="pullCount = n"
-          >
-            x{{ n }}
-          </button>
-        </div>
-
-        <!-- Gold button -->
+      <!-- Pull count selector -->
+      <div class="flex items-center gap-1.5 rounded-xl bg-slate-800 p-1">
         <button
-          class="flex items-center gap-2 rounded-xl bg-yellow-600 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-yellow-500 active:scale-95 disabled:opacity-40"
-          :disabled="player.gold < totalCostGold(pullCount)"
-          @click="doPull()"
+          v-for="n in ([1, 5, 10] as const)"
+          :key="n"
+          class="rounded-lg px-4 py-1.5 text-sm font-bold transition-all"
+          :class="pullCount === n
+            ? 'bg-yellow-500 text-black shadow-lg'
+            : 'text-slate-400 hover:text-white'"
+          @click="pullCount = n"
         >
-          <Coins class="h-5 w-5" />
-          {{ totalCostGold(pullCount) }} {{ t('PokéDollar', 'PokéDollar') }}
+          x{{ n }}
         </button>
-      </template>
+      </div>
+
+      <!-- Gold button -->
+      <button
+        class="flex items-center gap-2 rounded-xl bg-yellow-600 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-yellow-500 active:scale-95 disabled:opacity-40"
+        :disabled="player.gold < totalCostGold(pullCount)"
+        @click="doPull()"
+      >
+        <Coins class="h-5 w-5" />
+        {{ totalCostGold(pullCount) }} {{ t('PokéDollar', 'PokéDollar') }}
+      </button>
       <p class="text-xs text-slate-500">
         {{ availablePool.length }} / {{ activeBanner.pool.length }} {{ t('disponibles', 'available') }}
       </p>
