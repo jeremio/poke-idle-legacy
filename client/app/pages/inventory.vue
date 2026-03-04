@@ -424,7 +424,7 @@ function getDetailStats(poke: OwnedPokemon) {
           :alt="t(pokemon.nameFr, pokemon.nameEn)"
           class="h-14 w-14 object-contain"
         />
-        <div class="flex w-full justify-center gap-0.5 overflow-hidden">
+        <div class="flex w-full flex-wrap justify-center gap-0.5">
           <TypeBadge v-for="type in getPokemonTypes(pokemon.slug)" :key="type" :type="type" size="xs" />
         </div>
         <p class="w-full truncate text-center text-[10px] text-gray-300">
