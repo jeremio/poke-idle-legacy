@@ -305,7 +305,7 @@ function getDetailStats(poke: OwnedPokemon) {
       <!-- Sort dropdown -->
       <select
         v-model="sortBy"
-        class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-gray-300 outline-none transition-colors hover:bg-gray-700 focus:border-blue-500"
+        class="rounded-lg border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 px-3 py-2 text-xs text-gray-300 shadow-md outline-none transition-all hover:border-slate-600 hover:shadow-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
       >
         <option value="stars">⭐ {{ t('Étoiles', 'Stars') }}</option>
         <option value="level">Lv {{ t('Niveau', 'Level') }}</option>
@@ -317,10 +317,10 @@ function getDetailStats(poke: OwnedPokemon) {
 
       <!-- Shiny toggle -->
       <button
-        class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors"
+        class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium shadow-md transition-all hover:shadow-lg"
         :class="filterShiny === true
-          ? 'border-yellow-500 bg-yellow-500/20 text-yellow-400'
-          : 'border-slate-700 bg-slate-800 text-slate-400 hover:text-white'"
+          ? 'border-yellow-500 bg-gradient-to-br from-yellow-500/20 to-yellow-600/30 text-yellow-400 shadow-yellow-500/20'
+          : 'border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 text-slate-400 hover:border-slate-600 hover:text-white'"
         @click="filterShiny = filterShiny === true ? null : true"
       >
         <Sparkles class="h-3.5 w-3.5" />
@@ -329,10 +329,10 @@ function getDetailStats(poke: OwnedPokemon) {
 
       <!-- Team toggle -->
       <button
-        class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors"
+        class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium shadow-md transition-all hover:shadow-lg"
         :class="filterTeam === true
-          ? 'border-cyan-500 bg-cyan-500/20 text-cyan-400'
-          : 'border-slate-700 bg-slate-800 text-slate-400 hover:text-white'"
+          ? 'border-cyan-500 bg-gradient-to-br from-cyan-500/20 to-cyan-600/30 text-cyan-400 shadow-cyan-500/20'
+          : 'border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 text-slate-400 hover:border-slate-600 hover:text-white'"
         @click="filterTeam = filterTeam === true ? null : true"
       >
         <Shield class="h-3.5 w-3.5" />
@@ -342,7 +342,7 @@ function getDetailStats(poke: OwnedPokemon) {
       <!-- Gen/Region filter -->
       <select
         v-model="filterGen"
-        class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-gray-300 outline-none hover:bg-gray-700 focus:border-blue-500"
+        class="rounded-lg border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 px-3 py-2 text-xs text-gray-300 shadow-md outline-none transition-all hover:border-slate-600 hover:shadow-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
       >
         <option :value="null">{{ t('Toutes régions', 'All regions') }}</option>
         <option :value="1">Gen 1 - Kanto</option>
@@ -355,10 +355,10 @@ function getDetailStats(poke: OwnedPokemon) {
     <!-- Type filter row -->
     <div class="flex flex-wrap items-center gap-1">
       <button
-        class="rounded-lg border px-2.5 py-1 text-[10px] font-medium transition-colors"
+        class="rounded-lg border px-2.5 py-1 text-[10px] font-medium shadow-sm transition-all hover:shadow-md"
         :class="filterType === null
-          ? 'border-blue-500 bg-blue-500/20 text-blue-400'
-          : 'border-slate-700 bg-slate-800 text-slate-400 hover:text-white'"
+          ? 'border-blue-500 bg-gradient-to-br from-blue-500/20 to-blue-600/30 text-blue-400 shadow-blue-500/20'
+          : 'border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 text-slate-400 hover:border-slate-600 hover:text-white'"
         @click="filterType = null"
       >
         {{ t('Tous', 'All') }}
@@ -424,7 +424,7 @@ function getDetailStats(poke: OwnedPokemon) {
           :alt="t(pokemon.nameFr, pokemon.nameEn)"
           class="h-14 w-14 object-contain"
         />
-        <div class="flex gap-0.5">
+        <div class="flex w-full justify-center gap-0.5 overflow-hidden">
           <TypeBadge v-for="type in getPokemonTypes(pokemon.slug)" :key="type" :type="type" size="xs" />
         </div>
         <p class="w-full truncate text-center text-[10px] text-gray-300">

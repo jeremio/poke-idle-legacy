@@ -252,7 +252,7 @@ watch(showShiny, () => {
         </div>
 
         <!-- Type(s) -->
-        <div class="flex gap-0.5">
+        <div class="flex w-full justify-center gap-0.5 overflow-hidden">
           <TypeBadge v-for="type in getPokemonTypes(p.slug)" :key="type" :type="type" size="xs" />
         </div>
 

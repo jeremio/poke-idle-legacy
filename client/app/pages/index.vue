@@ -272,7 +272,7 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
 
 
       <!-- Zone de combat centrale -->
-      <div class="flex flex-col items-center gap-6 px-6 pb-8 pt-40">
+      <div class="flex flex-col items-center gap-6 px-6 pb-8 pt-48">
         <!-- Plateforme de combat -->
         <div class="relative">
           <div class="absolute -bottom-4 left-1/2 h-6 w-48 -translate-x-1/2 rounded-full opacity-30"
