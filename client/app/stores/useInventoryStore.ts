@@ -251,6 +251,39 @@ export const useInventoryStore = defineStore('inventory', {
       this.savedTeams = this.savedTeams.filter(t => t.name !== name)
     },
 
+    // Remove duplicate Pokemon (same slug + isShiny)
+    // Keep the one with most stars, then highest level
+    removeDuplicates() {
+      const seen = new Map<string, OwnedPokemon>()
+      const toRemove: number[] = []
+
+      for (const pokemon of this.collection) {
+        const key = `${pokemon.slug}-${pokemon.isShiny}`
+        const existing = seen.get(key)
+
+        if (!existing) {
+          seen.set(key, pokemon)
+        } else {
+          // Compare: keep the one with more stars, then higher level
+          const keepExisting = 
+            existing.stars > pokemon.stars || 
+            (existing.stars === pokemon.stars && existing.level >= pokemon.level)
+          
+          if (keepExisting) {
+            toRemove.push(pokemon.id)
+          } else {
+            toRemove.push(existing.id)
+            seen.set(key, pokemon)
+          }
+        }
+      }
+
+      if (toRemove.length > 0) {
+        console.log(`[Inventory] Removing ${toRemove.length} duplicate Pokemon:`, toRemove)
+        this.collection = this.collection.filter(p => !toRemove.includes(p.id))
+      }
+    },
+
     // Check all possible evolutions for all Pokemon
     checkAllEvolutions(currentGeneration?: number) {
       const maxGen = currentGeneration ?? 9

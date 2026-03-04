@@ -185,6 +185,9 @@ export const useAuthStore = defineStore('auth', {
           isLoggedIn: true,
         })
 
+        // Overwrite localStorage bonuses with server data to prevent guest mode leakage
+        player.saveBonuses()
+
         inventory.collection = data.pokemons.map((p, i) => ({
           id: i + 1,
           slug: p.slug,
