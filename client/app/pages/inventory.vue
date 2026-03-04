@@ -41,6 +41,10 @@ const filterGen = ref<number | null>(null)
 
 // Drag & drop state
 const draggedPokemon = ref<OwnedPokemon | null>(null)
+const dragOverSlot = ref<number | null>(null)
+
+// Drag & drop state
+const draggedPokemon = ref<OwnedPokemon | null>(null)
 const draggedSlot = ref<number | null>(null)
 
 // Team save/load
@@ -66,6 +70,55 @@ function deleteSavedTeam(name: string) {
 
 function clearTeam() {
   inventory.team.forEach(p => inventory.removeFromTeam(p.id))
+}
+
+// Drag & drop handlers for team
+function onDragStart(pokemon: OwnedPokemon, event: DragEvent) {
+  draggedPokemon.value = pokemon
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+  }
+}
+
+function onDragOver(slot: number, event: DragEvent) {
+  event.preventDefault()
+  dragOverSlot.value = slot
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+}
+
+function onDragLeave() {
+  dragOverSlot.value = null
+}
+
+function onDrop(targetSlot: number) {
+  if (!draggedPokemon.value) return
+  
+  const sourcePokemon = draggedPokemon.value
+  const targetPokemon = inventory.team.find(p => p.teamSlot === targetSlot)
+  
+  if (sourcePokemon.teamSlot !== null) {
+    // Dragging from team: swap positions
+    if (targetPokemon) {
+      inventory.setTeamSlot(targetPokemon.id, sourcePokemon.teamSlot)
+    }
+    inventory.setTeamSlot(sourcePokemon.id, targetSlot)
+  } else {
+    // Dragging from inventory: add to team
+    if (targetPokemon) {
+      inventory.removeFromTeam(targetPokemon.id)
+    }
+    inventory.setTeamSlot(sourcePokemon.id, targetSlot)
+  }
+  
+  draggedPokemon.value = null
+  dragOverSlot.value = null
+}
+
+function onDragEnd() {
+  draggedPokemon.value = null
+  dragOverSlot.value = null
 }
 
 // Drag & drop handlers
@@ -283,12 +336,13 @@ function getDetailStats(poke: OwnedPokemon) {
           :class="{
             'cursor-context-menu hover:border-red-500/50': inventory.team.find((p) => p.teamSlot === slot),
             'cursor-move': inventory.team.find((p) => p.teamSlot === slot),
-            'border-cyan-500 bg-cyan-500/10': draggedSlot === slot || (draggedPokemon && !draggedSlot && !inventory.team.find((p) => p.teamSlot === slot))
+            'border-cyan-500 bg-cyan-500/10 scale-105': dragOverSlot === slot
           }"
           draggable="true"
-          @dragstart="onDragStartTeam(slot, $event)"
-          @dragover="onDragOverTeam($event)"
-          @drop.prevent="draggedSlot !== null ? onDropTeam(slot) : onDropInventoryToTeam(slot)"
+          @dragstart="inventory.team.find((p) => p.teamSlot === slot) ? onDragStart(inventory.team.find((p) => p.teamSlot === slot)!, $event) : null"
+          @dragover="onDragOver(slot, $event)"
+          @dragleave="onDragLeave"
+          @drop.prevent="onDrop(slot)"
           @dragend="onDragEnd"
           @contextmenu.prevent="inventory.team.find((p) => p.teamSlot === slot) ? inventory.removeFromTeam(inventory.team.find((p) => p.teamSlot === slot)!.id) : null"
         >
@@ -327,10 +381,10 @@ function getDetailStats(poke: OwnedPokemon) {
         />
       </div>
 
-      <!-- Sort -->
+      <!-- Sort dropdown -->
       <select
         v-model="sortBy"
-        class="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-gray-300 outline-none transition-colors hover:bg-gray-700 focus:border-blue-500"
+        class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-gray-300 outline-none transition-colors hover:bg-gray-700 focus:border-blue-500"
       >
         <option value="stars">⭐ {{ t('Étoiles', 'Stars') }}</option>
         <option value="level">Lv {{ t('Niveau', 'Level') }}</option>
@@ -422,10 +476,15 @@ function getDetailStats(poke: OwnedPokemon) {
         :key="pokemon.id"
         class="group relative flex flex-col items-center gap-1 rounded-xl border p-2 transition-all hover:scale-105"
         :class="pokemon.teamSlot !== null
-          ? 'border-cyan-500/50 bg-cyan-500/10'
-          : 'border-gray-700 bg-gray-800 hover:border-gray-500'"
+          ? 'border-cyan-500 bg-cyan-500/10 cursor-move'
+          : isInDaycare(pokemon)
+            ? 'border-purple-500/50 bg-purple-500/5 cursor-not-allowed'
+            : 'border-gray-700 bg-gray-800 hover:border-blue-500'"
+        draggable="true"
+        @dragstart="onDragStart(pokemon, $event)"
+        @dragend="onDragEnd"
         @click="openDetail(pokemon)"
-        @contextmenu="handlePokemonRightClick($event, pokemon)"
+        @contextmenu.prevent="handlePokemonRightClick($event, pokemon)"
       >
         <span
           v-if="pokemon.isShiny"
