@@ -190,6 +190,11 @@ export const useAuthStore = defineStore('auth', {
         // Overwrite localStorage bonuses with server data to prevent guest mode leakage
         player.saveBonuses()
 
+        // If clickDamageBonus is 0 (e.g. after admin reset), clear purchased click boosts
+        if ((data.player.clickDamageBonus ?? 0) === 0) {
+          localStorage.removeItem('poke-idle-click-boosts')
+        }
+
         inventory.collection = data.pokemons.map((p, i) => ({
           id: i + 1,
           slug: p.slug,
