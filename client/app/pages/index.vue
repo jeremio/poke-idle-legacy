@@ -27,16 +27,13 @@ const { spawnEnemy, checkEnemyDeath, getEffectiveDps, getPokeDps, currentZone } 
 const showGuestModal = ref(false)
 const showRouteSelector = ref(false)
 
-// Build list of all completed zones for the route selector
+// Build list of all completed zones for the route selector (only zones whose boss was defeated)
 const completedRoutes = computed(() => {
   const routes: Array<{ gen: number; zone: number; genName: string; zoneName: string }> = []
   for (const g of GENERATIONS) {
-    if (g.id > player.currentGeneration) break
     for (const z of g.zones) {
-      // Include zone if it's before the current frontier
-      const isCurrent = g.id === player.currentGeneration && z.id === player.currentZone
-      const isPast = g.id < player.currentGeneration || (g.id === player.currentGeneration && z.id < player.currentZone)
-      if (isPast || isCurrent) {
+      // Only include zones whose boss has been defeated
+      if (player.defeatedBosses.includes(z.boss.slug)) {
         routes.push({
           gen: g.id,
           zone: z.id,
@@ -377,10 +374,11 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
               ? 'radial-gradient(ellipse, rgba(239,68,68,0.5) 0%, transparent 70%)'
               : 'radial-gradient(ellipse, rgba(59,130,246,0.5) 0%, transparent 70%)' }"
           />
-          <!-- Enemy Sprite (clickable) -->
+          <!-- Enemy Sprite (clickable, left + right click) -->
           <button
             class="group relative cursor-pointer transition-transform active:scale-90"
             @click="handleClick($event)"
+            @contextmenu.prevent="handleClick($event)"
           >
             <img
               :src="combat.enemy.spriteUrl"

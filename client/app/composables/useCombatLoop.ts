@@ -5,7 +5,7 @@ import { useDaycareStore } from '~/stores/useDaycareStore'
 import { getSpriteUrl, getTrainerSpriteUrl } from '~/utils/showdown'
 import { getZone, GENERATIONS } from '~/data/zones'
 import { getPokemonType, getPokemonTypes, getTypeEffectiveness } from '~/data/types'
-import { getRarityDpsMult, getStarDpsMult, getSlugGeneration } from '~/data/gacha'
+import { getRarityDpsMult, getStarDpsMult, getSlugGeneration, RARITY_DPS_MULT } from '~/data/gacha'
 import { getEvoStageMult } from '~/data/evolutions'
 import type { Rarity } from '~/data/gacha'
 import type { PokemonType } from '~/data/types'
@@ -26,7 +26,7 @@ export function useCombatLoop() {
   function getPokeDps(poke: { slug: string; level: number; stars: number; isShiny: boolean; rarity?: Rarity }, enemyTypes?: PokemonType[]) {
     const baseDmg = poke.level
     const evoMult = getEvoStageMult(poke.slug)
-    const rarityMult = poke.rarity ? getRarityDpsMult(poke.slug) : 1.0
+    const rarityMult = poke.rarity ? (RARITY_DPS_MULT[poke.rarity] ?? 1.0) : getRarityDpsMult(poke.slug)
     const shinyMult = poke.isShiny ? 1.2 : 1.0
     const starMult = getStarDpsMult(poke.stars, poke.isShiny)
 
@@ -106,7 +106,9 @@ export function useCombatLoop() {
 
   function spawnWild(localDiff: number, globalDiff: number, genMult: number) {
     const poke = randomWild()
-    const hp = Math.round(poke.baseHp * (1 + localDiff * 0.55))
+    // HP scales exponentially per generation so later regions are much harder
+    const genHpMult = Math.pow(2.5, genMult - 1)
+    const hp = Math.round(poke.baseHp * (1 + localDiff * 0.55) * genHpMult)
     combat.setEnemy({
       nameFr: `${poke.nameFr} sauvage`,
       nameEn: `Wild ${poke.nameEn}`,
@@ -125,7 +127,8 @@ export function useCombatLoop() {
 
   function spawnBoss(boss: BossTrainer, localDiff: number, globalDiff: number, genMult: number) {
     const zone = player.activeCombatZone
-    const totalHp = boss.team.reduce((sum, p) => sum + Math.round(p.level * p.level), 0) * (2 + localDiff * 0.8)
+    const genHpMult = Math.pow(2.5, genMult - 1)
+    const totalHp = boss.team.reduce((sum, p) => sum + Math.round(p.level * p.level), 0) * (2 + localDiff * 0.8) * genHpMult
     const bossTypes = getPokemonTypes(boss.team[0]?.slug ?? 'normal')
     combat.setEnemy({
       nameFr: `Boss : ${boss.nameFr}`,

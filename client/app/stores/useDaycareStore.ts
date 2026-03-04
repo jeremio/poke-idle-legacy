@@ -17,11 +17,11 @@ export const DAYCARE_COST = 500
 
 // Damage required to hatch based on the pokemon's current star count
 export const HATCH_DAMAGE: Record<number, number> = {
-  1: 2_000,
-  2: 6_000,
-  3: 20_000,
-  4: 60_000,
-  5: 200_000,
+  1: 10_000,
+  2: 50_000,
+  3: 250_000,
+  4: 1_250_000,
+  5: 6_250_000,
 }
 
 // 5-star pokemon have a 1/50 chance to hatch shiny

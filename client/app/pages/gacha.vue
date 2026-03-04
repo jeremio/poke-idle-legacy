@@ -41,12 +41,28 @@ interface PullResultItem {
 const isPulling = ref(false)
 const showResult = ref(false)
 const pullResults = ref<PullResultItem[]>([])
-const pullCount = ref<1 | 5 | 10>(1)
+const pullCount = ref<1 | 5 | 10 | 50>(1)
 
 const animPhase = ref<'idle' | 'shake' | 'color' | 'flash' | 'reveal'>('idle')
 const revealedRarity = ref<Rarity>('common')
 
 const singleResult = computed(() => pullResults.value.length === 1 ? pullResults.value[0]! : null)
+
+// Summary for x50 pulls
+const pullSummary = computed(() => {
+  if (pullResults.value.length <= 10) return null
+  const byRarity: Record<Rarity, number> = { legendary: 0, epic: 0, rare: 0, common: 0 }
+  let newCount = 0
+  let shinyCount = 0
+  let totalRefund = 0
+  for (const r of pullResults.value) {
+    byRarity[r.rarity]++
+    if (r.isNew) newCount++
+    if (r.isShiny) shinyCount++
+    totalRefund += r.refundAmount
+  }
+  return { byRarity, newCount, shinyCount, totalRefund, total: pullResults.value.length }
+})
 
 // Pokeball color scheme per rarity
 const BALL_COLORS: Record<Rarity, { top: string; band: string; glow: string }> = {
@@ -103,14 +119,14 @@ async function doPull() {
   const bestR = bestRarity(rawPulls.map((p) => ({ rarity: p.pokemon.rarity } as PullResultItem)))
   revealedRarity.value = bestR
 
-  // Animation: shake
+  // Animation: shake (shorter for x50)
   animPhase.value = 'shake'
-  const shakeTime = count === 1 ? 1400 : 1000
+  const shakeTime = count === 1 ? 1400 : count >= 50 ? 600 : 1000
   await sleep(shakeTime)
 
   // Animation: ball color change to rarity
   animPhase.value = 'color'
-  await sleep(count === 1 ? 800 : 500)
+  await sleep(count === 1 ? 800 : count >= 50 ? 300 : 500)
 
   // Animation: flash
   animPhase.value = 'flash'
@@ -327,9 +343,87 @@ function dismiss() {
       </div>
     </div>
 
-    <!-- ═══ MULTI Result Reveal ═══ -->
+    <!-- ═══ x50 SUMMARY Result ═══ -->
     <div
-      v-if="showResult && pullResults.length > 1"
+      v-if="showResult && pullSummary"
+      class="flex w-full max-w-lg flex-col items-center gap-4"
+    >
+      <h3 class="text-lg font-bold text-yellow-400">{{ t('Résumé x50', 'x50 Summary') }}</h3>
+
+      <!-- Rarity breakdown -->
+      <div class="w-full space-y-2 rounded-xl border border-slate-700 bg-slate-800/80 p-4">
+        <div v-if="pullSummary.byRarity.legendary > 0" class="flex items-center justify-between">
+          <span class="text-sm font-bold" :style="{ color: RARITY_COLORS.legendary }">{{ t('Légendaire', 'Legendary') }}</span>
+          <span class="text-sm font-bold text-yellow-400">x{{ pullSummary.byRarity.legendary }}</span>
+        </div>
+        <div v-if="pullSummary.byRarity.epic > 0" class="flex items-center justify-between">
+          <span class="text-sm font-bold" :style="{ color: RARITY_COLORS.epic }">{{ t('Épique', 'Epic') }}</span>
+          <span class="text-sm font-bold text-purple-400">x{{ pullSummary.byRarity.epic }}</span>
+        </div>
+        <div v-if="pullSummary.byRarity.rare > 0" class="flex items-center justify-between">
+          <span class="text-sm font-bold" :style="{ color: RARITY_COLORS.rare }">{{ t('Rare', 'Rare') }}</span>
+          <span class="text-sm font-bold text-blue-400">x{{ pullSummary.byRarity.rare }}</span>
+        </div>
+        <div v-if="pullSummary.byRarity.common > 0" class="flex items-center justify-between">
+          <span class="text-sm font-bold" :style="{ color: RARITY_COLORS.common }">{{ t('Commun', 'Common') }}</span>
+          <span class="text-sm font-bold text-gray-400">x{{ pullSummary.byRarity.common }}</span>
+        </div>
+        <div class="mt-2 border-t border-slate-700 pt-2 space-y-1">
+          <div v-if="pullSummary.newCount > 0" class="flex items-center justify-between text-sm">
+            <span class="text-green-400">{{ t('Nouveaux', 'New') }}</span>
+            <span class="font-bold text-green-400">{{ pullSummary.newCount }}</span>
+          </div>
+          <div v-if="pullSummary.shinyCount > 0" class="flex items-center justify-between text-sm">
+            <span class="text-yellow-300">✨ Shiny</span>
+            <span class="font-bold text-yellow-300">{{ pullSummary.shinyCount }}</span>
+          </div>
+          <div v-if="pullSummary.totalRefund > 0" class="flex items-center justify-between text-sm">
+            <span class="text-amber-400">{{ t('Remboursé', 'Refunded') }}</span>
+            <span class="font-bold text-amber-400">🪙 {{ pullSummary.totalRefund }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notable pulls (epic+) -->
+      <div v-if="pullResults.filter(r => r.rarity === 'legendary' || r.rarity === 'epic' || r.isShiny).length > 0" class="w-full">
+        <p class="mb-2 text-xs font-semibold text-slate-400">{{ t('Obtentions notables', 'Notable pulls') }}</p>
+        <div class="grid grid-cols-4 gap-2 sm:grid-cols-6">
+          <div
+            v-for="(r, i) in pullResults.filter(r => r.rarity === 'legendary' || r.rarity === 'epic' || r.isShiny)"
+            :key="i"
+            class="flex flex-col items-center gap-1 rounded-lg border p-1.5"
+            :style="{
+              borderColor: RARITY_COLORS[r.rarity] + '80',
+              backgroundColor: RARITY_COLORS[r.rarity] + '10',
+            }"
+          >
+            <div class="relative">
+              <img
+                :src="r.isShiny ? getShinySpriteUrl(r.slug) : getSpriteUrl(r.slug)"
+                :alt="t(r.nameFr, r.nameEn)"
+                class="h-10 w-10 object-contain"
+              />
+              <span v-if="r.isShiny" class="absolute -right-1 -top-1 text-[8px]">✨</span>
+            </div>
+            <p class="truncate text-center text-[9px] font-bold" :style="{ color: RARITY_COLORS[r.rarity] }">
+              {{ t(r.nameFr, r.nameEn) }}
+            </p>
+            <span v-if="r.isNew" class="text-[8px] font-bold text-green-400">NEW</span>
+          </div>
+        </div>
+      </div>
+
+      <button
+        class="rounded-lg bg-gray-700 px-8 py-2.5 text-sm font-medium transition-colors hover:bg-gray-600"
+        @click="dismiss"
+      >
+        OK
+      </button>
+    </div>
+
+    <!-- ═══ MULTI Result Reveal (x5, x10) ═══ -->
+    <div
+      v-if="showResult && pullResults.length > 1 && !pullSummary"
       class="flex w-full max-w-2xl flex-col items-center gap-4"
     >
       <div class="grid w-full gap-2 sm:gap-3" :class="pullResults.length <= 5 ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-3 sm:grid-cols-5'">
@@ -417,7 +511,7 @@ function dismiss() {
       <!-- Pull count selector -->
       <div class="flex items-center gap-1.5 rounded-xl bg-slate-800 p-1">
         <button
-          v-for="n in ([1, 5, 10] as const)"
+          v-for="n in ([1, 5, 10, 50] as const)"
           :key="n"
           class="rounded-lg px-4 py-1.5 text-sm font-bold transition-all"
           :class="pullCount === n
