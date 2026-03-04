@@ -116,10 +116,12 @@ export default class AdminController {
   async getUserDetails({ params, response }: HttpContext) {
     const user = await User.findOrFail(params.id)
     const pokemons = await UserPokemon.query().where('user_id', params.id).preload('species')
-    
-    const teamPokemons = pokemons.filter(p => p.teamSlot !== null).sort((a, b) => (a.teamSlot ?? 0) - (b.teamSlot ?? 0))
-    const shinyCount = pokemons.filter(p => p.isShiny).length
-    
+
+    const teamPokemons = pokemons
+      .filter((p) => p.teamSlot !== null)
+      .sort((a, b) => (a.teamSlot ?? 0) - (b.teamSlot ?? 0))
+    const shinyCount = pokemons.filter((p) => p.isShiny).length
+
     return response.ok({
       id: user.id,
       username: user.username,
@@ -139,7 +141,7 @@ export default class AdminController {
       defeatedBosses: user.defeatedBosses ?? [],
       pokemonCount: pokemons.length,
       shinyCount,
-      teamPokemons: teamPokemons.map(p => ({
+      teamPokemons: teamPokemons.map((p) => ({
         nameFr: p.species.nameFr,
         nameEn: p.species.nameEn,
         level: p.level,
