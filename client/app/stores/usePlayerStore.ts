@@ -61,6 +61,8 @@ interface PlayerState {
   isLoggedIn: boolean
   candies: Record<CandySize, number>
   regionUnlockMessage: string | null
+  combatGeneration: number | null
+  combatZone: number | null
 }
 
 export const usePlayerStore = defineStore('player', {
@@ -84,6 +86,8 @@ export const usePlayerStore = defineStore('player', {
       isLoggedIn: false,
       candies: { S: 0, M: 0, L: 0, XL: 0 },
       regionUnlockMessage: null,
+      combatGeneration: null,
+      combatZone: null,
     }
   },
 
@@ -98,9 +102,22 @@ export const usePlayerStore = defineStore('player', {
       return GENERATION_NAMES[state.currentGeneration] ?? 'Unknown'
     },
     isBossStage: (state): boolean => {
-      return state.currentStage === STAGES_PER_ZONE
+      return state.combatGeneration === null && state.currentStage === STAGES_PER_ZONE
+    },
+    isFarming: (state): boolean => {
+      return state.combatGeneration !== null
+    },
+    activeCombatGen: (state): number => {
+      return state.combatGeneration ?? state.currentGeneration
+    },
+    activeCombatZone: (state): number => {
+      return state.combatZone ?? state.currentZone
     },
     stageLabel: (state): string => {
+      if (state.combatGeneration !== null) {
+        const region = GENERATION_NAMES[state.combatGeneration] ?? '???'
+        return `${region} - Zone ${state.combatZone ?? 1} (Farm)`
+      }
       const region = GENERATION_NAMES[state.currentGeneration] ?? '???'
       return `${region} - Zone ${state.currentZone} - Stage ${state.currentStage}/${STAGES_PER_ZONE}`
     },
@@ -208,6 +225,18 @@ export const usePlayerStore = defineStore('player', {
       if (this.currentStage > 1) {
         this.currentStage--
       }
+      this.stageKills = 0
+    },
+
+    travelTo(gen: number, zone: number) {
+      this.combatGeneration = gen
+      this.combatZone = zone
+      this.stageKills = 0
+    },
+
+    returnToFrontier() {
+      this.combatGeneration = null
+      this.combatZone = null
       this.stageKills = 0
     },
 

@@ -1,3 +1,5 @@
+import { POKEDEX } from './pokedex'
+
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary'
 
 export interface GachaPokemon {
@@ -452,6 +454,24 @@ export const STAR_DPS_MULT_SHINY: number[] = [1, 1, 1.5, 2, 3, 5]
 export function getStarDpsMult(stars: number, isShiny: boolean): number {
   const table = isShiny ? STAR_DPS_MULT_SHINY : STAR_DPS_MULT
   return table[Math.min(stars, table.length - 1)] ?? 1
+}
+
+// Build a slug → generation lookup from POKEDEX
+const _slugGen = new Map<string, number>()
+for (const entry of POKEDEX) {
+  _slugGen.set(entry.slug, entry.gen)
+}
+// Also map banner-only slugs (megas, etc.) to their banner generation
+for (const b of BANNERS) {
+  for (const p of b.pool) {
+    if (!_slugGen.has(p.slug)) {
+      _slugGen.set(p.slug, b.generation)
+    }
+  }
+}
+
+export function getSlugGeneration(slug: string): number {
+  return _slugGen.get(slug) ?? 1
 }
 
 // Build a slug → rarity lookup from all banners

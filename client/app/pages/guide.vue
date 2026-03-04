@@ -512,6 +512,45 @@ function toggleGen(id: number) {
     <!-- ═══════════════ PATCH NOTES TAB ═══════════════ -->
     <div v-if="activeTab === 'patchnotes'" class="flex flex-col gap-4">
 
+      <!-- v1.2.0 -->
+      <article class="rounded-xl border border-blue-500/50 bg-blue-900/20 p-5">
+        <h3 class="mb-3 text-lg font-bold text-blue-300">v1.2.0 — Équilibrage & Farm — 4 Mars 2026</h3>
+        
+        <p class="mb-4 text-sm text-gray-300 italic">
+          {{ t('Gros rééquilibrage économique, système de farm et nouvelles mécaniques de combat !', 'Major economy rebalancing, farming system and new combat mechanics!') }}
+        </p>
+
+        <div class="space-y-4">
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-blue-400">⚔️ {{ t('Combat', 'Combat') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Malus régional : un Pokémon qui combat hors de sa région native inflige 50% de dégâts en moins', 'Region penalty: a Pokémon fighting outside its native region deals 50% less damage') }}</li>
+              <li>{{ t('Nouveau système de farm : retournez sur les anciennes routes pour gagner de l\'or et de l\'XP', 'New farming system: go back to old routes to earn gold and XP') }}</li>
+              <li>{{ t('Sélecteur de route accessible depuis la page combat (icône ▼ à côté du nom de zone)', 'Route selector accessible from the combat page (▼ icon next to zone name)') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-blue-400">💰 {{ t('Économie', 'Economy') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Scaling gold/XP entre générations : les récompenses augmentent de façon continue entre les régions', 'Gold/XP scaling across generations: rewards increase continuously between regions') }}</li>
+              <li>{{ t('Multiplicateur de génération sur les récompenses (×gen) pour suivre le coût des bannières', 'Generation multiplier on rewards (×gen) to match banner costs') }}</li>
+              <li>{{ t('Gacha infini : les Pokémon 5★ ne sont plus retirés du pool de tirage', 'Infinite gacha: 5★ Pokémon are no longer removed from the pull pool') }}</li>
+              <li>{{ t('Doublon d\'un Pokémon déjà 5★ = remboursement de 50% du coût du tirage', 'Duplicate of an already 5★ Pokémon = 50% pull cost refund') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-blue-400">🎨 {{ t('Interface', 'Interface') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Dropdowns inventaire entièrement redessinés (composant custom thémé)', 'Inventory dropdowns fully redesigned (custom themed component)') }}</li>
+              <li>{{ t('Icônes navigation mobile modernisées', 'Mobile navigation icons modernized') }}</li>
+              <li>{{ t('Section Évolutions ajoutée au guide', 'Evolutions section added to guide') }}</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
       <!-- v1.1.2 -->
       <article class="rounded-xl border border-emerald-500/50 bg-emerald-900/20 p-5">
         <h3 class="mb-3 text-lg font-bold text-emerald-300">v1.1.2 — Corrections & Gameplay — 3 Mars 2026</h3>

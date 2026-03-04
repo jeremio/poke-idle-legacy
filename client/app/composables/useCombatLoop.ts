@@ -5,7 +5,7 @@ import { useDaycareStore } from '~/stores/useDaycareStore'
 import { getSpriteUrl, getTrainerSpriteUrl } from '~/utils/showdown'
 import { getZone, GENERATIONS } from '~/data/zones'
 import { getPokemonType, getPokemonTypes, getTypeEffectiveness } from '~/data/types'
-import { getRarityDpsMult, getStarDpsMult } from '~/data/gacha'
+import { getRarityDpsMult, getStarDpsMult, getSlugGeneration } from '~/data/gacha'
 import { getEvoStageMult } from '~/data/evolutions'
 import type { Rarity } from '~/data/gacha'
 import type { PokemonType } from '~/data/types'
@@ -29,24 +29,28 @@ export function useCombatLoop() {
     const rarityMult = poke.rarity ? getRarityDpsMult(poke.slug) : 1.0
     const shinyMult = poke.isShiny ? 1.2 : 1.0
     const starMult = getStarDpsMult(poke.stars, poke.isShiny)
+
+    // Region penalty: 50% damage if fighting outside native generation
+    const pokeGen = getSlugGeneration(poke.slug)
+    const combatGen = player.combatGeneration ?? player.currentGeneration
+    const regionMult = pokeGen === combatGen ? 1.0 : 0.5
     
     // Pour un Pokémon avec doubles types, utiliser le MEILLEUR type offensif
-    // (le Pokémon choisit intelligemment ses attaques)
     const attackerTypes = getPokemonTypes(poke.slug)
     let typeMult = 1
     if (enemyTypes && enemyTypes.length > 0) {
-      // Calculer effectiveness pour CHAQUE type offensif, prendre le meilleur
       typeMult = Math.max(...attackerTypes.map(atkType => 
         getTypeEffectiveness(atkType, enemyTypes)
       ))
     }
     
-    const permanentDps = Math.floor(baseDmg * evoMult * rarityMult * shinyMult * starMult)
+    const permanentDps = Math.floor(baseDmg * evoMult * rarityMult * shinyMult * starMult * regionMult)
     return {
       baseDmg,
       evoMult,
       rarityMult,
       shinyMult,
+      regionMult,
       typeMult,
       permanentDps,
       effectiveDps: Math.round(permanentDps * typeMult),
@@ -64,7 +68,7 @@ export function useCombatLoop() {
   }
 
   function currentZone() {
-    return getZone(player.currentGeneration, player.currentZone)
+    return getZone(player.activeCombatGen, player.activeCombatZone)
   }
 
   function randomWild(): WildPokemon {
@@ -76,9 +80,9 @@ export function useCombatLoop() {
   }
 
   function spawnEnemy() {
-    const stage = player.currentStage
-    const zone = player.currentZone
-    const gen = player.currentGeneration
+    const gen = player.activeCombatGen
+    const zone = player.activeCombatZone
+    const stage = player.isFarming ? 5 : player.currentStage
 
     // Local difficulty for HP/level (resets per gen so new regions feel fresh)
     const localDifficulty = (zone - 1) * 10 + stage
@@ -157,10 +161,13 @@ export function useCombatLoop() {
 
       combat.killEnemy()
 
-      if (wasBoss) {
-        player.advanceStage()
-      } else {
-        player.addStageKill()
+      // Only advance progression when fighting at the frontier (not farming)
+      if (!player.isFarming) {
+        if (wasBoss) {
+          player.advanceStage()
+        } else {
+          player.addStageKill()
+        }
       }
 
       setTimeout(() => spawnEnemy(), 400)

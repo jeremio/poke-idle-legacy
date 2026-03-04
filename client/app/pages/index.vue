@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Swords, Zap, Timer, Skull, MapPin } from 'lucide-vue-next'
+import { Swords, Zap, Timer, Skull, MapPin, ChevronDown, RotateCcw } from 'lucide-vue-next'
 import { getSpriteUrl, getShinySpriteUrl } from '~/utils/showdown'
 import { useCombatStore } from '~/stores/useCombatStore'
 import { usePlayerStore } from '~/stores/usePlayerStore'
@@ -9,6 +9,8 @@ import { useLocale } from '~/composables/useLocale'
 import { useCombatLoop } from '~/composables/useCombatLoop'
 import { getPokemonType, getPokemonTypes, getTypeInfo } from '~/data/types'
 import { pokemonXpForLevel } from '~/data/evolutions'
+import { GENERATIONS } from '~/data/zones'
+import { getSlugGeneration } from '~/data/gacha'
 import GuestModeModal from '~/components/GuestModeModal.vue'
 
 definePageMeta({
@@ -23,6 +25,43 @@ const { t } = useLocale()
 const { spawnEnemy, checkEnemyDeath, getEffectiveDps, getPokeDps, currentZone } = useCombatLoop()
 
 const showGuestModal = ref(false)
+const showRouteSelector = ref(false)
+
+// Build list of all completed zones for the route selector
+const completedRoutes = computed(() => {
+  const routes: Array<{ gen: number; zone: number; genName: string; zoneName: string }> = []
+  for (const g of GENERATIONS) {
+    if (g.id > player.currentGeneration) break
+    for (const z of g.zones) {
+      // Include zone if it's before the current frontier
+      const isCurrent = g.id === player.currentGeneration && z.id === player.currentZone
+      const isPast = g.id < player.currentGeneration || (g.id === player.currentGeneration && z.id < player.currentZone)
+      if (isPast || isCurrent) {
+        routes.push({
+          gen: g.id,
+          zone: z.id,
+          genName: g.regionFr,
+          zoneName: t(z.nameFr, z.nameEn),
+        })
+      }
+    }
+  }
+  return routes
+})
+
+function selectRoute(gen: number, zone: number) {
+  player.travelTo(gen, zone)
+  showRouteSelector.value = false
+  combat.clearTimers()
+  setTimeout(() => spawnEnemy(), 200)
+}
+
+function goBackToFrontier() {
+  player.returnToFrontier()
+  showRouteSelector.value = false
+  combat.clearTimers()
+  setTimeout(() => spawnEnemy(), 200)
+}
 
 onMounted(() => {
   if (!auth.isAuthenticated) {
@@ -169,10 +208,68 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
       <div class="flex flex-1 flex-col items-center gap-5">
         <!-- Stage Info -->
     <div class="w-full max-w-md text-center">
+      <!-- Farming banner -->
+      <div v-if="player.isFarming" class="mb-2 flex items-center justify-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5">
+        <span class="text-xs font-bold text-amber-400">{{ t('Mode Farm', 'Farm Mode') }}</span>
+        <button
+          class="flex items-center gap-1 rounded bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 transition-colors hover:bg-amber-500/30"
+          @click="goBackToFrontier"
+        >
+          <RotateCcw class="h-3 w-3" />
+          {{ t('Retour frontière', 'Back to frontier') }}
+        </button>
+      </div>
+
       <div class="flex items-center justify-center gap-2 text-sm text-slate-400">
         <MapPin class="h-3.5 w-3.5" />
         <span>{{ zoneName }}</span>
+        <button
+          class="rounded p-0.5 text-slate-500 transition-colors hover:bg-slate-700/50 hover:text-white"
+          :title="t('Changer de route', 'Change route')"
+          @click="showRouteSelector = !showRouteSelector"
+        >
+          <ChevronDown class="h-4 w-4" :class="{ 'rotate-180': showRouteSelector }" />
+        </button>
       </div>
+
+      <!-- Route Selector Dropdown -->
+      <Transition name="fade">
+        <div v-if="showRouteSelector" class="relative z-30 mt-2">
+          <div class="mx-auto max-h-60 w-full max-w-sm overflow-y-auto rounded-xl border border-slate-600 shadow-2xl" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%)">
+            <div class="sticky top-0 border-b border-slate-700 px-3 py-2" style="background: rgba(15,23,42,0.95)">
+              <button
+                class="w-full rounded-lg px-3 py-1.5 text-xs font-bold transition-all"
+                :class="!player.isFarming
+                  ? 'bg-blue-500/20 text-blue-400'
+                  : 'text-slate-400 hover:bg-slate-700/60 hover:text-white'"
+                @click="goBackToFrontier"
+              >
+                {{ t('Frontière actuelle', 'Current frontier') }} — {{ player.stageLabel }}
+              </button>
+            </div>
+            <div class="py-1">
+              <template v-for="g in GENERATIONS" :key="g.id">
+                <div v-if="g.id <= player.currentGeneration" class="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  {{ g.regionFr }}
+                </div>
+                <button
+                  v-for="z in g.zones.filter(z => g.id < player.currentGeneration || z.id <= player.currentZone)"
+                  :key="`${g.id}-${z.id}`"
+                  class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition-colors"
+                  :class="player.isFarming && player.combatGeneration === g.id && player.combatZone === z.id
+                    ? 'bg-amber-500/20 font-bold text-amber-400'
+                    : 'text-gray-300 hover:bg-slate-700/60 hover:text-white'"
+                  @click="selectRoute(g.id, z.id)"
+                >
+                  <span class="w-5 text-center text-[10px] text-slate-500">{{ z.id }}</span>
+                  {{ t(z.nameFr, z.nameEn) }}
+                </button>
+              </template>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
       <div v-if="zone?.types" class="mt-1 flex items-center justify-center gap-1">
         <TypeBadge v-for="tp in zone.types" :key="tp" :type="tp" size="sm" />
       </div>
@@ -181,7 +278,7 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
         {{ t('Combat de Boss', 'Boss Fight') }}
       </p>
       <!-- Stage Kill Progress -->
-      <div v-if="!player.isBossStage" class="mt-2">
+      <div v-if="!player.isBossStage && !player.isFarming" class="mt-2">
         <div class="mb-1 flex items-center justify-between text-xs text-slate-500">
           <span>{{ t('Progression', 'Progress') }}</span>
           <span class="font-bold">{{ player.stageKills ?? 0 }} / {{ player.killsPerStage }}</span>
@@ -413,6 +510,9 @@ function pokemonXpPercent(poke: { level: number; xp: number; rarity?: string }):
                 <div class="flex items-center gap-1">
                   <span class="text-slate-400">{{ t('Base', 'Base') }}:</span>
                   <span class="font-bold text-slate-200">{{ poke.permanentDps }}</span>
+                </div>
+                <div v-if="poke.regionMult < 1" class="flex items-center gap-1">
+                  <span class="font-bold text-orange-400">{{ t('Hors région', 'Off-region') }} x0.5</span>
                 </div>
                 <div v-if="poke.typeMult !== 1" class="flex items-center gap-1">
                   <span class="text-slate-400">{{ t('Type', 'Type') }}:</span>
