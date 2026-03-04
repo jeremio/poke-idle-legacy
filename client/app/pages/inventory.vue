@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Star, Shield, ArrowUpDown, Search, Sparkles, X } from 'lucide-vue-next'
+import { Star, Shield, Search, Sparkles, X } from 'lucide-vue-next'
 import { getSpriteUrl, getShinySpriteUrl } from '~/utils/showdown'
 import { useInventoryStore, MAX_LEVEL } from '~/stores/useInventoryStore'
 import type { OwnedPokemon } from '~/stores/useInventoryStore'
@@ -38,6 +38,23 @@ const filterType = ref<PokemonType | null>(null)
 const filterShiny = ref<boolean | null>(null)
 const filterTeam = ref<boolean | null>(null)
 const filterGen = ref<number | null>(null)
+
+const sortOptions = computed(() => [
+  { value: 'stars', label: `⭐ ${t('Étoiles', 'Stars')}` },
+  { value: 'level', label: `Lv ${t('Niveau', 'Level')}` },
+  { value: 'name', label: `A-Z ${t('Nom', 'Name')}` },
+  { value: 'dps', label: 'DPS' },
+  { value: 'pokedex', label: `# ${t('Pokédex', 'Pokédex')}` },
+  { value: 'rarity', label: `${t('Rareté', 'Rarity')}` },
+])
+
+const genOptions = computed(() => [
+  { value: null, label: t('Toutes régions', 'All regions') },
+  { value: 1, label: 'Gen 1 - Kanto' },
+  { value: 2, label: 'Gen 2 - Johto' },
+  { value: 3, label: 'Gen 3 - Hoenn' },
+  { value: 4, label: 'Gen 4 - Sinnoh' },
+])
 
 // Team save/load
 const showSaveTeamModal = ref(false)
@@ -303,17 +320,11 @@ function getDetailStats(poke: OwnedPokemon) {
       </div>
 
       <!-- Sort dropdown -->
-      <select
-        v-model="sortBy"
-        class="custom-select rounded-lg border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 px-3 py-2 text-xs text-gray-300 shadow-md outline-none transition-all hover:border-slate-600 hover:shadow-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
-      >
-        <option value="stars">⭐ {{ t('Étoiles', 'Stars') }}</option>
-        <option value="level">Lv {{ t('Niveau', 'Level') }}</option>
-        <option value="name">A-Z {{ t('Nom', 'Name') }}</option>
-        <option value="dps">DPS</option>
-        <option value="pokedex"># {{ t('Pokédex', 'Pokédex') }}</option>
-        <option value="rarity">🎨 {{ t('Rareté', 'Rarity') }}</option>
-      </select>
+      <CustomSelect
+        :model-value="sortBy"
+        :options="sortOptions"
+        @update:model-value="sortBy = $event"
+      />
 
       <!-- Shiny toggle -->
       <button
@@ -340,16 +351,11 @@ function getDetailStats(poke: OwnedPokemon) {
       </button>
 
       <!-- Gen/Region filter -->
-      <select
-        v-model="filterGen"
-        class="custom-select rounded-lg border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 px-3 py-2 text-xs text-gray-300 shadow-md outline-none transition-all hover:border-slate-600 hover:shadow-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
-      >
-        <option :value="null">{{ t('Toutes régions', 'All regions') }}</option>
-        <option :value="1">Gen 1 - Kanto</option>
-        <option :value="2">Gen 2 - Johto</option>
-        <option :value="3">Gen 3 - Hoenn</option>
-        <option :value="4">Gen 4 - Sinnoh</option>
-      </select>
+      <CustomSelect
+        :model-value="filterGen"
+        :options="genOptions"
+        @update:model-value="filterGen = $event"
+      />
     </div>
 
     <!-- Type filter row -->
