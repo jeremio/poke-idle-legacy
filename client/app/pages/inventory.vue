@@ -39,14 +39,6 @@ const filterShiny = ref<boolean | null>(null)
 const filterTeam = ref<boolean | null>(null)
 const filterGen = ref<number | null>(null)
 
-// Drag & drop state
-const draggedPokemon = ref<OwnedPokemon | null>(null)
-const dragOverSlot = ref<number | null>(null)
-
-// Drag & drop state
-const draggedPokemon = ref<OwnedPokemon | null>(null)
-const draggedSlot = ref<number | null>(null)
-
 // Team save/load
 const showSaveTeamModal = ref(false)
 const showLoadTeamModal = ref(false)
@@ -72,67 +64,6 @@ function clearTeam() {
   inventory.team.forEach(p => inventory.removeFromTeam(p.id))
 }
 
-// Drag & drop handlers for team
-function onDragStart(pokemon: OwnedPokemon, event: DragEvent) {
-  draggedPokemon.value = pokemon
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = 'move'
-  }
-}
-
-function onDragOver(slot: number, event: DragEvent) {
-  event.preventDefault()
-  dragOverSlot.value = slot
-  if (event.dataTransfer) {
-    event.dataTransfer.dropEffect = 'move'
-  }
-}
-
-function onDragLeave() {
-  dragOverSlot.value = null
-}
-
-function onDrop(targetSlot: number) {
-  if (!draggedPokemon.value) return
-  
-  const sourcePokemon = draggedPokemon.value
-  const targetPokemon = inventory.team.find(p => p.teamSlot === targetSlot)
-  
-  if (sourcePokemon.teamSlot !== null) {
-    // Dragging from team: swap positions
-    if (targetPokemon) {
-      inventory.setTeamSlot(targetPokemon.id, sourcePokemon.teamSlot)
-    }
-    inventory.setTeamSlot(sourcePokemon.id, targetSlot)
-  } else {
-    // Dragging from inventory: add to team
-    if (targetPokemon) {
-      inventory.removeFromTeam(targetPokemon.id)
-    }
-    inventory.setTeamSlot(sourcePokemon.id, targetSlot)
-  }
-  
-  draggedPokemon.value = null
-  dragOverSlot.value = null
-}
-
-function onDragEnd() {
-  draggedPokemon.value = null
-  dragOverSlot.value = null
-}
-
-// Drag & drop handlers
-function onDragStartTeam(slot: number, event: DragEvent) {
-  const pokemon = inventory.team.find(p => p.teamSlot === slot)
-  if (!pokemon) return
-  draggedPokemon.value = pokemon
-  draggedSlot.value = slot
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = 'move'
-  }
-}
-
-function onDragOverTeam(event: DragEvent) {
 function handlePokemonRightClick(event: MouseEvent, pokemon: OwnedPokemon) {
   event.preventDefault()
   if (isInDaycare(pokemon)) return
@@ -333,17 +264,7 @@ function getDetailStats(poke: OwnedPokemon) {
           v-for="slot in [1, 2, 3, 4, 5, 6]"
           :key="slot"
           class="flex h-24 flex-col items-center justify-center rounded-xl border border-gray-700 bg-gray-800 transition-all"
-          :class="{
-            'cursor-context-menu hover:border-red-500/50': inventory.team.find((p) => p.teamSlot === slot),
-            'cursor-move': inventory.team.find((p) => p.teamSlot === slot),
-            'border-cyan-500 bg-cyan-500/10 scale-105': dragOverSlot === slot
-          }"
-          draggable="true"
-          @dragstart="inventory.team.find((p) => p.teamSlot === slot) ? onDragStart(inventory.team.find((p) => p.teamSlot === slot)!, $event) : null"
-          @dragover="onDragOver(slot, $event)"
-          @dragleave="onDragLeave"
-          @drop.prevent="onDrop(slot)"
-          @dragend="onDragEnd"
+          :class="inventory.team.find((p) => p.teamSlot === slot) ? 'cursor-context-menu hover:border-red-500/50' : ''"
           @contextmenu.prevent="inventory.team.find((p) => p.teamSlot === slot) ? inventory.removeFromTeam(inventory.team.find((p) => p.teamSlot === slot)!.id) : null"
         >
           <template v-if="inventory.team.find((p) => p.teamSlot === slot)">
@@ -476,13 +397,10 @@ function getDetailStats(poke: OwnedPokemon) {
         :key="pokemon.id"
         class="group relative flex flex-col items-center gap-1 rounded-xl border p-2 transition-all hover:scale-105"
         :class="pokemon.teamSlot !== null
-          ? 'border-cyan-500 bg-cyan-500/10 cursor-move'
+          ? 'border-cyan-500 bg-cyan-500/10 cursor-default'
           : isInDaycare(pokemon)
             ? 'border-purple-500/50 bg-purple-500/5 cursor-not-allowed'
             : 'border-gray-700 bg-gray-800 hover:border-blue-500'"
-        draggable="true"
-        @dragstart="onDragStart(pokemon, $event)"
-        @dragend="onDragEnd"
         @click="openDetail(pokemon)"
         @contextmenu.prevent="handlePokemonRightClick($event, pokemon)"
       >
