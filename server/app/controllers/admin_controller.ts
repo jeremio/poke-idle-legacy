@@ -13,9 +13,13 @@ export default class AdminController {
     const totalPokemons = await UserPokemon.query().count('* as total')
     const adminUsers = await User.query().where('role', 'admin').count('* as total')
     const totalShinys = await UserPokemon.query().where('isShiny', true).count('* as total')
-    const totalLegendaries = await UserPokemon.query().where('rarity', 'legendary').count('* as total')
+    const totalLegendaries = await UserPokemon.query()
+      .where('rarity', 'legendary')
+      .count('* as total')
     const yesterday = DateTime.now().minus({ hours: 24 }).toISO()
-    const activePlayers = await User.query().where('lastLoginAt', '>=', yesterday!).count('* as total')
+    const activePlayers = await User.query()
+      .where('lastLoginAt', '>=', yesterday!)
+      .count('* as total')
     const aggregates = await db.rawQuery(`
       SELECT
         COALESCE(AVG(level), 0)::int AS avg_level,
