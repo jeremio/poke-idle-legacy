@@ -769,18 +769,6 @@ onMounted(async () => {
                 <button v-for="amt in [1000, 5000, 10000, 50000]" :key="amt" class="rounded bg-slate-700 px-2 py-0.5 text-[10px] text-yellow-400 hover:bg-slate-600" @click="goldToGive = amt">{{ amt.toLocaleString() }}</button>
               </div>
             </div>
-            <div>
-              <label class="mb-1 block text-sm text-gray-400">💎 Gems</label>
-              <input
-                v-model.number="gemsToGive"
-                type="number"
-                min="0"
-                class="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
-              />
-              <div class="mt-1 flex gap-1">
-                <button v-for="amt in [10, 50, 100, 500]" :key="amt" class="rounded bg-slate-700 px-2 py-0.5 text-[10px] text-purple-400 hover:bg-slate-600" @click="gemsToGive = amt">{{ amt }}</button>
-              </div>
-            </div>
             <div class="flex gap-2">
               <button
                 class="flex-1 rounded bg-green-600 px-4 py-2 font-bold text-white hover:bg-green-700"

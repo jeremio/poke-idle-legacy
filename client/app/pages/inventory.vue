@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Star, Shield, Search, Sparkles, X } from 'lucide-vue-next'
+import { Star, Shield, Search, Sparkles, X, Trash2, Save, FolderOpen } from 'lucide-vue-next'
 import { getSpriteUrl, getShinySpriteUrl } from '~/utils/showdown'
 import { useInventoryStore, MAX_LEVEL } from '~/stores/useInventoryStore'
 import type { OwnedPokemon } from '~/stores/useInventoryStore'
@@ -343,21 +343,21 @@ function getDetailStats(poke: OwnedPokemon) {
             class="rounded-lg bg-red-600 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-red-500"
             @click="clearTeam"
           >
-            🗑️ {{ t('Vider', 'Clear') }}
+            <Trash2 class="h-3.5 w-3.5 inline" /> {{ t('Vider', 'Clear') }}
           </button>
           <button
             v-if="inventory.team.length > 0"
             class="rounded-lg bg-cyan-600 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-cyan-500"
             @click="showSaveTeamModal = true"
           >
-            💾 {{ t('Sauvegarder', 'Save') }}
+            <Save class="h-3.5 w-3.5 inline" /> {{ t('Sauvegarder', 'Save') }}
           </button>
           <button
             v-if="inventory.savedTeams.length > 0"
             class="rounded-lg bg-purple-600 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-purple-500"
             @click="showLoadTeamModal = true"
           >
-            📂 {{ t('Charger', 'Load') }}
+            <FolderOpen class="h-3.5 w-3.5 inline" /> {{ t('Charger', 'Load') }}
           </button>
         </div>
       </div>
@@ -753,7 +753,7 @@ function getDetailStats(poke: OwnedPokemon) {
             class="w-full max-w-md rounded-2xl border-2 border-cyan-500 bg-gray-900 p-6"
             @click.stop
           >
-            <h3 class="mb-4 text-xl font-bold text-cyan-400">💾 {{ t('Sauvegarder l\'équipe', 'Save Team') }}</h3>
+            <h3 class="mb-4 flex items-center gap-2 text-xl font-bold text-cyan-400"><Save class="h-5 w-5" /> {{ t('Sauvegarder l\'équipe', 'Save Team') }}</h3>
             <input
               v-model="newTeamName"
               type="text"
@@ -793,7 +793,7 @@ function getDetailStats(poke: OwnedPokemon) {
             class="w-full max-w-md rounded-2xl border-2 border-purple-500 bg-gray-900 p-6"
             @click.stop
           >
-            <h3 class="mb-4 text-xl font-bold text-purple-400">📂 {{ t('Charger une équipe', 'Load Team') }}</h3>
+            <h3 class="mb-4 flex items-center gap-2 text-xl font-bold text-purple-400"><FolderOpen class="h-5 w-5" /> {{ t('Charger une équipe', 'Load Team') }}</h3>
             <div class="max-h-96 space-y-2 overflow-y-auto">
               <div
                 v-for="team in inventory.savedTeams"
@@ -814,7 +814,7 @@ function getDetailStats(poke: OwnedPokemon) {
                   class="rounded bg-red-600 px-3 py-1 text-sm font-bold text-white transition-colors hover:bg-red-500"
                   @click="deleteSavedTeam(team.name)"
                 >
-                  🗑️
+                  <Trash2 class="h-3.5 w-3.5" />
                 </button>
               </div>
               <p v-if="inventory.savedTeams.length === 0" class="py-8 text-center text-gray-500">
