@@ -143,6 +143,7 @@ const navItems = computed(() => {
     { label: t('Profil', 'Profile'), icon: User, to: '/profile', badge: 0 },
     { label: t('Guide', 'Guide'), icon: HelpCircle, to: '/guide', badge: 0 },
     { label: t('Pokédex', 'Pokédex'), icon: BookOpen, to: '/pokedex', badge: 0 },
+    { label: t('Classement', 'Leaderboard'), icon: Trophy, to: '/leaderboard', badge: 0 },
   ]
   
   if (auth.user?.role === 'admin') {
