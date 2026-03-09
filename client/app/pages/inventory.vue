@@ -10,7 +10,7 @@ import { getPokemonType, getPokemonTypes, getEffectiveness, TYPES } from '~/data
 import type { PokemonType } from '~/data/types'
 import { RARITY_COLORS, RARITY_LABELS_FR, RARITY_LABELS_EN, getRarityDpsMult, getStarDpsMult, RARITY_DPS_MULT, getRarity } from '~/data/gacha'
 import type { Rarity } from '~/data/gacha'
-import { getEvolutionStage, getEvoStageMult, EVO_STAGE_MULT, EVOLUTIONS } from '~/data/evolutions'
+import { getEvolutionStage, getEvoStageMult, EVO_STAGE_MULT, EVOLUTIONS, pokemonXpForLevel } from '~/data/evolutions'
 import { getGenForSlug } from '~/data/pokedex'
 import { useDaycareStore } from '~/stores/useDaycareStore'
 import { useAuthStore } from '~/stores/useAuthStore'
@@ -607,6 +607,27 @@ function getDetailStats(poke: OwnedPokemon) {
                 <span class="text-yellow-400">★{{ detailPokemon.stars }}</span>
               </p>
             </div>
+          </div>
+
+          <!-- XP Progress -->
+          <div v-if="detailPokemon.level < MAX_LEVEL" class="mb-4">
+            <div class="mb-1 flex justify-between text-[10px] text-gray-400">
+              <span>{{ t('Expérience', 'Experience') }}</span>
+              <span>{{ detailPokemon.xp.toLocaleString() }} / {{ pokemonXpForLevel(detailPokemon.level + 1, detailPokemon.rarity).toLocaleString() }} XP</span>
+            </div>
+            <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-700">
+              <div
+                class="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-300"
+                :style="{ width: `${Math.min(100, (detailPokemon.xp / pokemonXpForLevel(detailPokemon.level + 1, detailPokemon.rarity)) * 100)}%` }"
+              />
+            </div>
+            <p class="mt-1 text-[10px] text-gray-500">
+              {{ t('Prochain niveau', 'Next level') }}: Lv.{{ detailPokemon.level + 1 }}
+              — {{ Math.max(0, pokemonXpForLevel(detailPokemon.level + 1, detailPokemon.rarity) - detailPokemon.xp).toLocaleString() }} XP {{ t('restants', 'remaining') }}
+            </p>
+          </div>
+          <div v-else class="mb-4 rounded-lg bg-amber-500/10 px-3 py-2 text-center text-xs font-bold text-amber-400">
+            {{ t('Niveau maximum atteint !', 'Maximum level reached!') }}
           </div>
 
           <!-- Damage breakdown -->

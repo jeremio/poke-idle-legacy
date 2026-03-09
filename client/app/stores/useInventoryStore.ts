@@ -188,6 +188,8 @@ export const useInventoryStore = defineStore('inventory', {
       if (!evo) return false
       const maxGen = currentGeneration ?? 9
       if (getGenForSlug(evo.toSlug) > maxGen) return false
+      // Reset hasEvolved so item evolutions always work (living dex: original stays for future stones)
+      pokemon.hasEvolved = false
       this.applyEvolution(pokemon, evo)
       return true
     },
@@ -199,6 +201,8 @@ export const useInventoryStore = defineStore('inventory', {
       if (getGenForSlug(evo.toSlug) > maxGen) return 0
       const targets = this.collection.filter((p) => p.slug === slug)
       for (const p of targets) {
+        // Reset hasEvolved so item evolutions always work (living dex: original stays for future stones)
+        p.hasEvolved = false
         this.applyEvolution(p, evo)
       }
       return targets.length

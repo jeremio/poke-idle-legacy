@@ -124,14 +124,20 @@ const ITEM_SPRITES: Record<string, string> = {
 const candySizes: CandySize[] = ['S', 'M', 'L', 'XL']
 const CANDY_COLORS: Record<CandySize, string> = { S: '#4ade80', M: '#60a5fa', L: '#c084fc', XL: '#fbbf24' }
 const CANDY_UNLOCK_LEVEL: Record<CandySize, number> = { S: 5, M: 15, L: 30, XL: 50 }
+const CANDY_QUANTITIES = [1, 5, 10, 50] as const
+const candyQty = ref<number>(1)
 
 function isCandyUnlocked(size: CandySize): boolean {
   return player.level >= CANDY_UNLOCK_LEVEL[size]
 }
 
+function getCandyTotalCost(size: CandySize): number {
+  return getCandyCost(size, player.currentGeneration) * candyQty.value
+}
+
 function buyCandy(size: CandySize) {
   if (!isCandyUnlocked(size)) return
-  if (player.buyCandy(size)) {
+  if (player.buyCandy(size, candyQty.value)) {
     flash(`candy-${size}`)
     auth.saveGameState()
   }
@@ -257,13 +263,30 @@ const boostsByGen = computed(() => {
         <Candy class="h-4 w-4 text-green-400" />
         {{ t('Bonbons XP', 'XP Candies') }}
       </h3>
+      <!-- Quantity selector -->
+      <div class="mb-3 flex items-center gap-2">
+        <span class="text-xs text-gray-500">{{ t('Quantité', 'Quantity') }}:</span>
+        <div class="flex gap-1">
+          <button
+            v-for="qty in CANDY_QUANTITIES"
+            :key="qty"
+            class="rounded-lg border px-2.5 py-1 text-xs font-bold transition-all"
+            :class="candyQty === qty
+              ? 'border-green-500 bg-green-500/20 text-green-400'
+              : 'border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600'"
+            @click="candyQty = qty"
+          >
+            x{{ qty }}
+          </button>
+        </div>
+      </div>
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <button
           v-for="size in candySizes"
           :key="size"
           class="flex flex-col items-center gap-2 rounded-xl border border-gray-700 bg-gray-800 p-4 transition-all hover:border-green-500/30 active:scale-[0.98] disabled:opacity-40"
           :class="{ 'ring-2 ring-green-500/50': purchaseFlash === `candy-${size}` }"
-          :disabled="!isCandyUnlocked(size) || player.gold < getCandyCost(size, player.currentGeneration)"
+          :disabled="!isCandyUnlocked(size) || player.gold < getCandyTotalCost(size)"
           @click="buyCandy(size)"
         >
           <div
@@ -274,11 +297,11 @@ const boostsByGen = computed(() => {
           </div>
           <div class="text-center">
             <p class="text-xs font-bold" :style="{ color: CANDY_COLORS[size] }">
-              {{ t('Bonbon', 'Candy') }} {{ size }}
+              {{ t('Bonbon', 'Candy') }} {{ size }} <span v-if="candyQty > 1" class="text-gray-500">×{{ candyQty }}</span>
             </p>
             <p class="text-[10px] text-gray-500">
               <span v-if="!isCandyUnlocked(size)" class="text-orange-400">🔒 Niv. {{ CANDY_UNLOCK_LEVEL[size] }}</span>
-              <span v-else>+{{ CANDY_XP[size].toLocaleString() }} XP</span>
+              <span v-else>+{{ (CANDY_XP[size] * candyQty).toLocaleString() }} XP</span>
             </p>
           </div>
           <div class="flex items-center justify-between gap-2">
@@ -286,7 +309,7 @@ const boostsByGen = computed(() => {
               x{{ player.candies[size] }}
             </span>
             <span class="flex items-center gap-1 text-xs font-bold text-yellow-400">
-              🪙 {{ getCandyCost(size, player.currentGeneration).toLocaleString() }}
+              🪙 {{ getCandyTotalCost(size).toLocaleString() }}
             </span>
           </div>
         </button>

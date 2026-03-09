@@ -201,7 +201,7 @@ function removeFromTeam(pokeId: number) {
 </script>
 
 <template>
-  <div class="flex flex-col items-center gap-5 select-none">
+  <div class="flex flex-col items-center gap-5 select-none" @contextmenu.prevent>
     <!-- Guest Mode Modal -->
     <GuestModeModal :show="showGuestModal" @close="closeGuestModal" @create-account="goToRegister" />
 
