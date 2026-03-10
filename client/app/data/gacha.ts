@@ -475,6 +475,54 @@ const UNOVA_POOL: GachaPokemon[] = [
   { nameFr: 'Méga-Nanméouïe', nameEn: 'Mega Audino', slug: 'audino-mega', rarity: 'legendary', shinyRate: 0.05 },
 ]
 
+// === Gen 6 Kalos Pool ===
+// Sylveon EXCLUDED (cross-gen Eevee evolution)
+const KALOS_POOL: GachaPokemon[] = [
+  // --- COMMON (early routes, common encounters) ---
+  { nameFr: 'Sapereau', nameEn: 'Bunnelby', slug: 'bunnelby', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Passerouge', nameEn: 'Fletchling', slug: 'fletchling', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Lépidonille', nameEn: 'Scatterbug', slug: 'scatterbug', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Hélionceau', nameEn: 'Litleo', slug: 'litleo', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Flabébé', nameEn: 'Flabébé', slug: 'flabebe', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Cabriolaine', nameEn: 'Skiddo', slug: 'skiddo', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Couafarel', nameEn: 'Furfrou', slug: 'furfrou', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Psystigri', nameEn: 'Espurr', slug: 'espurr', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Fluvetin', nameEn: 'Spritzee', slug: 'spritzee', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Sucroquin', nameEn: 'Swirlix', slug: 'swirlix', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Sepiatop', nameEn: 'Inkay', slug: 'inkay', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Opermine', nameEn: 'Binacle', slug: 'binacle', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Venalgue', nameEn: 'Skrelp', slug: 'skrelp', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Flingouste', nameEn: 'Clauncher', slug: 'clauncher', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Galvaran', nameEn: 'Helioptile', slug: 'helioptile', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Grelaçon', nameEn: 'Bergmite', slug: 'bergmite', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Pitrouille', nameEn: 'Pumpkaboo', slug: 'pumpkaboo', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Brocélôme', nameEn: 'Phantump', slug: 'phantump', rarity: 'common', shinyRate: 0.01 },
+  // --- RARE (mid-game, useful) ---
+  { nameFr: 'Pandespiègle', nameEn: 'Pancham', slug: 'pancham', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Monorpale', nameEn: 'Honedge', slug: 'honedge', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Ptyranidur', nameEn: 'Tyrunt', slug: 'tyrunt', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Amagara', nameEn: 'Amaura', slug: 'amaura', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Dedenne', nameEn: 'Dedenne', slug: 'dedenne', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Strassie', nameEn: 'Carbink', slug: 'carbink', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Trousselin', nameEn: 'Klefki', slug: 'klefki', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Brutalibré', nameEn: 'Hawlucha', slug: 'hawlucha', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Sonistrelle', nameEn: 'Noibat', slug: 'noibat', rarity: 'rare', shinyRate: 0.02 },
+  // --- EPIC (starters, pseudo-legendaries, strong Pokémon) ---
+  { nameFr: 'Marisson', nameEn: 'Chespin', slug: 'chespin', rarity: 'epic', shinyRate: 0.03 },
+  { nameFr: 'Feunnec', nameEn: 'Fennekin', slug: 'fennekin', rarity: 'epic', shinyRate: 0.03 },
+  { nameFr: 'Grenousse', nameEn: 'Froakie', slug: 'froakie', rarity: 'epic', shinyRate: 0.03 },
+  { nameFr: 'Mucuscule', nameEn: 'Goomy', slug: 'goomy', rarity: 'epic', shinyRate: 0.03 },
+  // --- LEGENDARY ---
+  { nameFr: 'Xerneas', nameEn: 'Xerneas', slug: 'xerneas', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Yveltal', nameEn: 'Yveltal', slug: 'yveltal', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Zygarde', nameEn: 'Zygarde', slug: 'zygarde', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Diancie', nameEn: 'Diancie', slug: 'diancie', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Hoopa', nameEn: 'Hoopa', slug: 'hoopa', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Volcanion', nameEn: 'Volcanion', slug: 'volcanion', rarity: 'legendary', shinyRate: 0.05 },
+  // Mega Evolution Gen 6
+  { nameFr: 'Méga-Diancie', nameEn: 'Mega Diancie', slug: 'diancie-mega', rarity: 'legendary', shinyRate: 0.05 },
+]
+
 export const BANNERS: Banner[] = [
   {
     id: 'kanto',
@@ -515,6 +563,14 @@ export const BANNERS: Banner[] = [
     generation: 5,
     costGold: 200000,
     pool: UNOVA_POOL,
+  },
+  {
+    id: 'kalos',
+    nameFr: 'Bannière Kalos',
+    nameEn: 'Kalos Banner',
+    generation: 6,
+    costGold: 400000,
+    pool: KALOS_POOL,
   },
 ]
 

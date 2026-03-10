@@ -15,7 +15,7 @@ definePageMeta({
 })
 
 const GENERATION_NAMES: Record<number, string> = {
-  1: 'Kanto', 2: 'Johto', 3: 'Hoenn', 4: 'Sinnoh', 5: 'Unys',
+  1: 'Kanto', 2: 'Johto', 3: 'Hoenn', 4: 'Sinnoh', 5: 'Unys', 6: 'Kalos',
 }
 
 const player = usePlayerStore()

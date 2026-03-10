@@ -655,6 +655,87 @@ export const EVOLUTIONS: Evolution[] = [
 
   // Bug/Fire
   { fromSlug: 'larvesta', toSlug: 'volcarona', toNameFr: 'Pyrax', toNameEn: 'Volcarona', method: 'level', levelRequired: 59 },
+
+  // ══════════════ Gen 6 (Kalos) ══════════════
+
+  // Starters
+  { fromSlug: 'chespin', toSlug: 'quilladin', toNameFr: 'Boguérisse', toNameEn: 'Quilladin', method: 'level', levelRequired: 16 },
+  { fromSlug: 'quilladin', toSlug: 'chesnaught', toNameFr: 'Blindépique', toNameEn: 'Chesnaught', method: 'level', levelRequired: 36 },
+  { fromSlug: 'fennekin', toSlug: 'braixen', toNameFr: 'Roussil', toNameEn: 'Braixen', method: 'level', levelRequired: 16 },
+  { fromSlug: 'braixen', toSlug: 'delphox', toNameFr: 'Goupelin', toNameEn: 'Delphox', method: 'level', levelRequired: 36 },
+  { fromSlug: 'froakie', toSlug: 'frogadier', toNameFr: 'Croâporal', toNameEn: 'Frogadier', method: 'level', levelRequired: 16 },
+  { fromSlug: 'frogadier', toSlug: 'greninja', toNameFr: 'Amphinobi', toNameEn: 'Greninja', method: 'level', levelRequired: 36 },
+
+  // Normal
+  { fromSlug: 'bunnelby', toSlug: 'diggersby', toNameFr: 'Excavarenne', toNameEn: 'Diggersby', method: 'level', levelRequired: 20 },
+
+  // Bird line
+  { fromSlug: 'fletchling', toSlug: 'fletchinder', toNameFr: 'Braisillon', toNameEn: 'Fletchinder', method: 'level', levelRequired: 17 },
+  { fromSlug: 'fletchinder', toSlug: 'talonflame', toNameFr: 'Flambusard', toNameEn: 'Talonflame', method: 'level', levelRequired: 35 },
+
+  // Bug line
+  { fromSlug: 'scatterbug', toSlug: 'spewpa', toNameFr: 'Pérégrain', toNameEn: 'Spewpa', method: 'level', levelRequired: 9 },
+  { fromSlug: 'spewpa', toSlug: 'vivillon', toNameFr: 'Prismillon', toNameEn: 'Vivillon', method: 'level', levelRequired: 12 },
+
+  // Fire/Normal
+  { fromSlug: 'litleo', toSlug: 'pyroar', toNameFr: 'Némélios', toNameEn: 'Pyroar', method: 'level', levelRequired: 35 },
+
+  // Fairy line (shiny stone for final)
+  { fromSlug: 'flabebe', toSlug: 'floette', toNameFr: 'Floette', toNameEn: 'Floette', method: 'level', levelRequired: 19 },
+  { fromSlug: 'floette', toSlug: 'florges', toNameFr: 'Florges', toNameEn: 'Florges', method: 'stone', itemRequired: 'shiny-stone' },
+
+  // Grass
+  { fromSlug: 'skiddo', toSlug: 'gogoat', toNameFr: 'Chevroum', toNameEn: 'Gogoat', method: 'level', levelRequired: 32 },
+
+  // Fighting/Dark
+  { fromSlug: 'pancham', toSlug: 'pangoro', toNameFr: 'Pandarbare', toNameEn: 'Pangoro', method: 'level', levelRequired: 32 },
+
+  // Psychic
+  { fromSlug: 'espurr', toSlug: 'meowstic', toNameFr: 'Mistigrix', toNameEn: 'Meowstic', method: 'level', levelRequired: 25 },
+
+  // Steel/Ghost (dusk stone for final)
+  { fromSlug: 'honedge', toSlug: 'doublade', toNameFr: 'Dimoclès', toNameEn: 'Doublade', method: 'level', levelRequired: 35 },
+  { fromSlug: 'doublade', toSlug: 'aegislash', toNameFr: 'Exagide', toNameEn: 'Aegislash', method: 'stone', itemRequired: 'dusk-stone' },
+
+  // Fairy trade evos
+  { fromSlug: 'spritzee', toSlug: 'aromatisse', toNameFr: 'Cocotine', toNameEn: 'Aromatisse', method: 'trade', itemRequired: 'link-cable' },
+  { fromSlug: 'swirlix', toSlug: 'slurpuff', toNameFr: 'Cupcanaille', toNameEn: 'Slurpuff', method: 'trade', itemRequired: 'link-cable' },
+
+  // Dark/Psychic
+  { fromSlug: 'inkay', toSlug: 'malamar', toNameFr: 'Sepiatroce', toNameEn: 'Malamar', method: 'level', levelRequired: 30 },
+
+  // Rock/Water
+  { fromSlug: 'binacle', toSlug: 'barbaracle', toNameFr: 'Golgopathe', toNameEn: 'Barbaracle', method: 'level', levelRequired: 39 },
+
+  // Poison → Dragon
+  { fromSlug: 'skrelp', toSlug: 'dragalge', toNameFr: 'Kravarech', toNameEn: 'Dragalge', method: 'level', levelRequired: 48 },
+
+  // Water
+  { fromSlug: 'clauncher', toSlug: 'clawitzer', toNameFr: 'Gamblast', toNameEn: 'Clawitzer', method: 'level', levelRequired: 37 },
+
+  // Electric/Normal (sun stone)
+  { fromSlug: 'helioptile', toSlug: 'heliolisk', toNameFr: 'Iguolta', toNameEn: 'Heliolisk', method: 'stone', itemRequired: 'sun-stone' },
+
+  // Fossils
+  { fromSlug: 'tyrunt', toSlug: 'tyrantrum', toNameFr: 'Rexillius', toNameEn: 'Tyrantrum', method: 'level', levelRequired: 39 },
+  { fromSlug: 'amaura', toSlug: 'aurorus', toNameFr: 'Dragmara', toNameEn: 'Aurorus', method: 'level', levelRequired: 39 },
+
+  // Dragon pseudo-legendary
+  { fromSlug: 'goomy', toSlug: 'sliggoo', toNameFr: 'Colimucus', toNameEn: 'Sliggoo', method: 'level', levelRequired: 40 },
+  { fromSlug: 'sliggoo', toSlug: 'goodra', toNameFr: 'Muplodocus', toNameEn: 'Goodra', method: 'level', levelRequired: 50 },
+
+  // Ghost/Grass trade evos
+  { fromSlug: 'phantump', toSlug: 'trevenant', toNameFr: 'Desséliande', toNameEn: 'Trevenant', method: 'trade', itemRequired: 'link-cable' },
+  { fromSlug: 'pumpkaboo', toSlug: 'gourgeist', toNameFr: 'Banshitrouye', toNameEn: 'Gourgeist', method: 'trade', itemRequired: 'link-cable' },
+
+  // Ice
+  { fromSlug: 'bergmite', toSlug: 'avalugg', toNameFr: 'Séracrawl', toNameEn: 'Avalugg', method: 'level', levelRequired: 37 },
+
+  // Flying/Dragon
+  { fromSlug: 'noibat', toSlug: 'noivern', toNameFr: 'Bruyverne', toNameEn: 'Noivern', method: 'level', levelRequired: 48 },
+
+  // Cross-gen: Eevee → Sylveon (happiness/fairy)
+  { fromSlug: 'eevee', toSlug: 'sylveon', toNameFr: 'Nymphali', toNameEn: 'Sylveon', method: 'happiness', itemRequired: 'soothe-bell' },
 ]
 
 // Evolution items available for Gen 1
@@ -711,7 +792,7 @@ export const EVO_ITEMS: EvoItem[] = [
     descFr: 'Simule un échange pour faire évoluer un Pokémon',
     descEn: 'Simulates a trade to evolve a Pokémon',
     icon: '🔗',
-    applicableTo: ['kadabra', 'machoke', 'graveler', 'haunter', 'porygon', 'onix', 'scyther', 'seadra', 'boldore', 'gurdurr', 'karrablast', 'shelmet'],
+    applicableTo: ['kadabra', 'machoke', 'graveler', 'haunter', 'porygon', 'onix', 'scyther', 'seadra', 'boldore', 'gurdurr', 'karrablast', 'shelmet', 'spritzee', 'swirlix', 'phantump', 'pumpkaboo'],
   },
   {
     id: 'kings-rock',
@@ -774,7 +855,7 @@ export const EVO_ITEMS: EvoItem[] = [
     descFr: 'Fait évoluer un Pokémon lié par le bonheur',
     descEn: 'Evolves a Pokémon that evolves through happiness',
     icon: '🔔',
-    applicableTo: ['pichu', 'cleffa', 'igglybuff', 'togepi', 'golbat', 'chansey', 'tyrogue', 'smoochum', 'elekid', 'magby', 'feebas', 'azurill', 'budew', 'woobat', 'swadloon'],
+    applicableTo: ['pichu', 'cleffa', 'igglybuff', 'togepi', 'golbat', 'chansey', 'tyrogue', 'smoochum', 'elekid', 'magby', 'feebas', 'azurill', 'budew', 'woobat', 'swadloon', 'eevee'],
   },
   {
     id: 'sun-stone',
@@ -783,7 +864,7 @@ export const EVO_ITEMS: EvoItem[] = [
     descFr: 'Fait évoluer certains Pokémon avec la lumière du soleil',
     descEn: 'Evolves certain Pokémon with sunlight',
     icon: '☀️',
-    applicableTo: ['sunkern', 'gloom', 'eevee', 'cottonee', 'petilil'],
+    applicableTo: ['sunkern', 'gloom', 'eevee', 'cottonee', 'petilil', 'helioptile'],
   },
   {
     id: 'dusk-stone',
@@ -792,7 +873,7 @@ export const EVO_ITEMS: EvoItem[] = [
     descFr: 'Fait évoluer certains Pokémon liés aux ténèbres',
     descEn: 'Evolves certain Pokémon tied to darkness',
     icon: '🌑',
-    applicableTo: ['murkrow', 'misdreavus', 'lampent'],
+    applicableTo: ['murkrow', 'misdreavus', 'lampent', 'doublade'],
   },
   {
     id: 'shiny-stone',
@@ -801,7 +882,7 @@ export const EVO_ITEMS: EvoItem[] = [
     descFr: 'Fait évoluer Rosélia et Togetic',
     descEn: 'Evolves Roselia and Togetic',
     icon: '✨',
-    applicableTo: ['roselia', 'togetic', 'minccino'],
+    applicableTo: ['roselia', 'togetic', 'minccino', 'floette'],
   },
   {
     id: 'dawn-stone',
