@@ -77,6 +77,8 @@ interface PlayerState {
   shinyCharms: number
   completedPokedexGens: number[]
   pokedexMaster: boolean
+  penaltyType: 'dps' | 'gold' | null
+  penaltyPercent: number
 }
 
 export const usePlayerStore = defineStore('player', {
@@ -106,6 +108,8 @@ export const usePlayerStore = defineStore('player', {
       shinyCharms: 0,
       completedPokedexGens: [],
       pokedexMaster: false,
+      penaltyType: null,
+      penaltyPercent: 0,
     }
   },
 

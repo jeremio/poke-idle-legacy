@@ -56,6 +56,8 @@ router
         router.delete('/users/:id', [AdminController, 'deleteUser'])
         router.post('/users/:id/give-items', [AdminController, 'giveItems'])
         router.post('/users/:id/reset', [AdminController, 'resetUser'])
+        router.post('/users/:id/penalty', [AdminController, 'setPenalty'])
+        router.delete('/users/:id/penalty', [AdminController, 'removePenalty'])
         router.get('/users/:id/pokemons', [AdminController, 'listUserPokemons'])
       })
       .prefix('/admin')

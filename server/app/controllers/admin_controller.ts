@@ -193,8 +193,54 @@ export default class AdminController {
         level: p.level,
         isShiny: p.isShiny,
       })),
+      penaltyType: user.penaltyType,
+      penaltyPercent: user.penaltyPercent,
       created_at: user.createdAt,
       last_login_at: user.lastLoginAt,
+    })
+  }
+
+  /**
+   * Set penalty on a user (dps or gold malus)
+   */
+  async setPenalty({ params, request, response }: HttpContext) {
+    const user = await User.findOrFail(params.id)
+    const { penaltyType, penaltyPercent } = request.only(['penaltyType', 'penaltyPercent'])
+
+    const validTypes = ['dps', 'gold']
+    const validPercents = [5, 10, 25, 50]
+
+    if (!validTypes.includes(penaltyType)) {
+      return response.badRequest({ message: 'Type de malus invalide (dps ou gold)' })
+    }
+    if (!validPercents.includes(Number(penaltyPercent))) {
+      return response.badRequest({ message: 'Pourcentage invalide (5, 10, 25 ou 50)' })
+    }
+
+    user.penaltyType = penaltyType
+    user.penaltyPercent = Number(penaltyPercent)
+    user.adminVersion = (user.adminVersion ?? 0) + 1
+    await user.save()
+
+    return response.ok({
+      message: `Malus ${penaltyType} -${penaltyPercent}% appliqué à ${user.username}`,
+      penalty: { type: user.penaltyType, percent: user.penaltyPercent },
+    })
+  }
+
+  /**
+   * Remove penalty from a user
+   */
+  async removePenalty({ params, response }: HttpContext) {
+    const user = await User.findOrFail(params.id)
+
+    user.penaltyType = null
+    user.penaltyPercent = 0
+    user.adminVersion = (user.adminVersion ?? 0) + 1
+    await user.save()
+
+    return response.ok({
+      message: `Malus retiré de ${user.username}`,
     })
   }
 

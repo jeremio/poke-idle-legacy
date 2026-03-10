@@ -150,7 +150,8 @@ export function useCombatLoop() {
 
   function checkEnemyDeath() {
     if (combat.isEnemyDead && combat.enemy) {
-      const goldReward = combat.enemy.goldReward
+      const goldPenalty = player.penaltyType === 'gold' ? (1 - player.penaltyPercent / 100) : 1
+      const goldReward = Math.max(1, Math.round(combat.enemy.goldReward * goldPenalty))
       const xpReward = combat.enemy.xpReward
       const wasBoss = combat.enemy.isBoss
       player.addGold(goldReward)
@@ -203,7 +204,8 @@ export function useCombatLoop() {
       }
       const baseDps = getEffectiveDps(combat.enemy.types)
       if (baseDps <= 0) return
-      const effectiveDps = baseDps
+      const dpsPenalty = player.penaltyType === 'dps' ? (1 - player.penaltyPercent / 100) : 1
+      const effectiveDps = Math.max(1, Math.round(baseDps * dpsPenalty))
       combat.enemy.currentHp = Math.max(0, combat.enemy.currentHp - effectiveDps)
       daycare.addDamage(effectiveDps)
       checkEnemyDeath()

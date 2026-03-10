@@ -228,9 +228,13 @@ function toggleGen(id: number) {
             'La boutique propose aussi des items d\'évolution (Pierre Feu, Pierre Eau, Pierre Plante, etc.) pour faire évoluer certains Pokémon.',
             'The shop also offers evolution items (Fire Stone, Water Stone, Leaf Stone, etc.) to evolve certain Pokémon.'
           ) }}</p>
+          <p class="text-amber-400 font-medium">{{ t(
+            '💡 Conseil : achetez tous les items d\'évolution de votre génération actuelle AVANT de passer à la suivante, car les prix augmentent fortement à chaque nouvelle région ! (5 000 en Gen 1 → 1 000 000 en Gen 9)',
+            '💡 Tip: buy all evolution items for your current generation BEFORE advancing to the next one, as prices increase sharply with each new region! (5,000 in Gen 1 → 1,000,000 in Gen 9)'
+          ) }}</p>
           <p>{{ t(
-            'Dégâts de clic : 12 paliers d\'amélioration répartis en 4 régions (Kanto, Johto, Hoenn, Sinnoh). Les paliers d\'une région sont verrouillés tant que tu n\'as pas débloqué cette génération.',
-            'Click damage: 12 upgrade tiers spread across 4 regions (Kanto, Johto, Hoenn, Sinnoh). A region\'s tiers are locked until you unlock that generation.'
+            'Dégâts de clic : 27 paliers d\'amélioration répartis sur les 9 régions (Kanto → Paldea). Les paliers d\'une région sont verrouillés tant que tu n\'as pas débloqué cette génération.',
+            'Click damage: 27 upgrade tiers spread across all 9 regions (Kanto → Paldea). A region\'s tiers are locked until you unlock that generation.'
           ) }}</p>
         </div>
       </section>

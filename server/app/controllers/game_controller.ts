@@ -38,6 +38,8 @@ export default class GameController {
         candies: user.candies ?? { S: 0, M: 0, L: 0, XL: 0 },
         daycare: user.daycare ?? [],
         adminVersion: user.adminVersion ?? 0,
+        penaltyType: user.penaltyType ?? null,
+        penaltyPercent: user.penaltyPercent ?? 0,
       },
       pokemons: user.pokemons.map((p) => ({
         id: p.id,

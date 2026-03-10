@@ -369,6 +369,20 @@ function removeFromTeam(pokeId: number) {
       />
     </div>
 
+    <!-- Penalty Indicator -->
+    <div
+      v-if="player.penaltyType"
+      class="flex items-center justify-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-1.5 text-xs font-bold text-red-400"
+    >
+      <span>⚠️</span>
+      <span>
+        {{ t(
+          `Malus actif : ${player.penaltyType === 'dps' ? 'DPS' : 'Gold'} -${player.penaltyPercent}%`,
+          `Active penalty: ${player.penaltyType === 'dps' ? 'DPS' : 'Gold'} -${player.penaltyPercent}%`
+        ) }}
+      </span>
+    </div>
+
     <!-- Enemy Display -->
     <div
       v-if="combat.enemy"

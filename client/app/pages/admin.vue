@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { Search, TrendingUp, Users, Sparkles, Award, MapPin, ChevronDown, ChevronUp, X, RefreshCw, Crown, Zap, Shield as ShieldIcon, Eye, Pencil, Gift, RotateCcw, Trash2 } from 'lucide-vue-next'
+import { Search, TrendingUp, Users, Sparkles, Award, MapPin, ChevronDown, ChevronUp, X, RefreshCw, Crown, Zap, Shield as ShieldIcon, Eye, Pencil, Gift, RotateCcw, Trash2, Ban } from 'lucide-vue-next'
 
 definePageMeta({ layout: 'game' })
 
@@ -90,6 +90,9 @@ const userDetails = ref<UserDetails | null>(null)
 const showUserModal = ref(false)
 const showDetailsModal = ref(false)
 const showGiveItemsModal = ref(false)
+const showPenaltyModal = ref(false)
+const penaltyType = ref<'dps' | 'gold'>('dps')
+const penaltyPercent = ref<5 | 10 | 25 | 50>(10)
 const goldToGive = ref(0)
 const gemsToGive = ref(0)
 const levelToSet = ref(0)
@@ -281,6 +284,51 @@ function openGiveItemsModal(user: User) {
   goldToGive.value = 0
   gemsToGive.value = 0
   showGiveItemsModal.value = true
+}
+
+function openPenaltyModal(user: User) {
+  selectedUser.value = user
+  penaltyType.value = 'dps'
+  penaltyPercent.value = 10
+  showPenaltyModal.value = true
+}
+
+async function setPenalty() {
+  if (!selectedUser.value) return
+  try {
+    const response = await fetch(`${API_BASE}/api/admin/users/${selectedUser.value.id}/penalty`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ penaltyType: penaltyType.value, penaltyPercent: penaltyPercent.value }),
+    })
+    if (response.ok) {
+      const data = await response.json()
+      alert(data.message)
+      showPenaltyModal.value = false
+    } else {
+      const err = await response.json().catch(() => null)
+      alert(`Erreur: ${err?.message || response.statusText}`)
+    }
+  } catch (error) {
+    alert(`Erreur réseau: ${error}`)
+  }
+}
+
+async function removePenalty(userId: number) {
+  if (!confirm('Retirer le malus de ce joueur ?')) return
+  try {
+    const response = await fetch(`${API_BASE}/api/admin/users/${userId}/penalty`, {
+      method: 'DELETE',
+      credentials: 'include',
+    })
+    if (response.ok) {
+      const data = await response.json()
+      alert(data.message)
+    }
+  } catch (error) {
+    alert(`Erreur réseau: ${error}`)
+  }
 }
 
 async function refreshAll() {
@@ -524,6 +572,13 @@ onMounted(async () => {
                       title="Donner items"
                     >
                       <Gift class="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      class="rounded-lg bg-orange-600/20 p-2 text-orange-400 transition-all hover:bg-orange-600/30"
+                      @click="openPenaltyModal(user)"
+                      title="Malus"
+                    >
+                      <Ban class="h-3.5 w-3.5" />
                     </button>
                     <button
                       class="rounded-lg bg-amber-600/20 p-2 text-amber-400 transition-all hover:bg-amber-600/30"
@@ -809,6 +864,78 @@ onMounted(async () => {
               <button
                 class="flex-1 rounded bg-gray-600 px-4 py-2 font-bold text-white hover:bg-gray-700"
                 @click="showGiveItemsModal = false"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </teleport>
+
+    <!-- Penalty Modal -->
+    <teleport to="body">
+      <div
+        v-if="showPenaltyModal && selectedUser"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click="showPenaltyModal = false"
+      >
+        <div
+          class="w-full max-w-md rounded-xl border border-gray-700 bg-gray-800 p-6"
+          @click.stop
+        >
+          <h3 class="mb-4 text-xl font-bold text-white">
+            Malus — {{ selectedUser.username }}
+          </h3>
+          <div class="space-y-4">
+            <div>
+              <label class="mb-1 block text-sm text-gray-400">Type de malus</label>
+              <div class="flex gap-2">
+                <button
+                  v-for="pt in (['dps', 'gold'] as const)"
+                  :key="pt"
+                  class="flex-1 rounded-lg border px-3 py-2 text-sm font-bold transition-all"
+                  :class="penaltyType === pt
+                    ? 'border-orange-500 bg-orange-500/20 text-orange-400'
+                    : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'"
+                  @click="penaltyType = pt"
+                >
+                  {{ pt === 'dps' ? '⚔️ DPS' : '🪙 Gold' }}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm text-gray-400">Pourcentage de réduction</label>
+              <div class="flex gap-2">
+                <button
+                  v-for="pp in ([5, 10, 25, 50] as const)"
+                  :key="pp"
+                  class="flex-1 rounded-lg border px-3 py-2 text-sm font-bold transition-all"
+                  :class="penaltyPercent === pp
+                    ? 'border-red-500 bg-red-500/20 text-red-400'
+                    : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'"
+                  @click="penaltyPercent = pp"
+                >
+                  -{{ pp }}%
+                </button>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button
+                class="flex-1 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-700"
+                @click="setPenalty"
+              >
+                Appliquer malus
+              </button>
+              <button
+                class="rounded bg-green-600 px-4 py-2 font-bold text-white hover:bg-green-700"
+                @click="removePenalty(selectedUser.id); showPenaltyModal = false"
+              >
+                Retirer
+              </button>
+              <button
+                class="rounded bg-gray-600 px-4 py-2 font-bold text-white hover:bg-gray-700"
+                @click="showPenaltyModal = false"
               >
                 Annuler
               </button>
