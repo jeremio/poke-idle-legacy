@@ -225,6 +225,7 @@ const GEN_COMPLETION_REWARDS: Record<number, { gold: number; label: string }> = 
   4: { gold: 400000, label: 'Sinnoh' },
   5: { gold: 800000, label: 'Unova' },
   6: { gold: 1600000, label: 'Kalos' },
+  7: { gold: 3200000, label: 'Alola' },
 }
 
 const ownedSlugs = computed(() => new Set(inventory.collection.map(p => p.slug)))

@@ -1945,6 +1945,308 @@ export const GENERATIONS: Generation[] = [
       },
     ],
   },
+  // ══════════════════════════════════════════════════
+  // Gen 7 — Alola
+  // ══════════════════════════════════════════════════
+  {
+    id: 7,
+    nameFr: 'Génération VII',
+    nameEn: 'Generation VII',
+    regionFr: 'Alola',
+    regionEn: 'Alola',
+    zones: [
+      {
+        id: 1,
+        nameFr: 'Capitaine — Althéo',
+        nameEn: 'Trial Captain — Ilima',
+        types: ['normal'],
+        wild: [
+          { nameFr: 'Manglouton', nameEn: 'Yungoos', slug: 'yungoos', type: 'normal', baseHp: 50, baseAtk: 10 },
+          { nameFr: 'Rattata (Alola)', nameEn: 'Rattata (Alola)', slug: 'rattata-alola', type: 'dark', baseHp: 48, baseAtk: 10 },
+          { nameFr: 'Picassaut', nameEn: 'Pikipek', slug: 'pikipek', type: 'normal', baseHp: 52, baseAtk: 11 },
+        ],
+        boss: {
+          nameFr: 'Althéo',
+          nameEn: 'Ilima',
+          slug: 'ilima',
+          team: [
+            { nameFr: 'Argouste', nameEn: 'Gumshoos', slug: 'gumshoos', level: 12 },
+            { nameFr: 'Rattatac (Alola)', nameEn: 'Raticate (Alola)', slug: 'raticate-alola', level: 13 },
+            { nameFr: 'Dodoala', nameEn: 'Komala', slug: 'komala', level: 14 },
+          ],
+          timerSeconds: 30,
+        },
+      },
+      {
+        id: 2,
+        nameFr: 'Doyen — Pectorius',
+        nameEn: 'Kahuna — Hala',
+        types: ['fighting'],
+        wild: [
+          { nameFr: 'Crabagarre', nameEn: 'Crabrawler', slug: 'crabrawler', type: 'fighting', baseHp: 54, baseAtk: 11 },
+          { nameFr: 'Manglouton', nameEn: 'Yungoos', slug: 'yungoos', type: 'normal', baseHp: 50, baseAtk: 10 },
+          { nameFr: 'Nounourson', nameEn: 'Stufful', slug: 'stufful', type: 'normal', baseHp: 52, baseAtk: 11 },
+        ],
+        boss: {
+          nameFr: 'Pectorius',
+          nameEn: 'Hala',
+          slug: 'hala',
+          team: [
+            { nameFr: 'Crabominable', nameEn: 'Crabominable', slug: 'crabominable', level: 16 },
+            { nameFr: 'Chelours', nameEn: 'Bewear', slug: 'bewear', level: 17 },
+            { nameFr: 'Quartermac', nameEn: 'Passimian', slug: 'passimian', level: 18 },
+          ],
+          timerSeconds: 30,
+        },
+      },
+      {
+        id: 3,
+        nameFr: 'Capitaine — Néphie',
+        nameEn: 'Trial Captain — Lana',
+        types: ['water'],
+        wild: [
+          { nameFr: 'Froussardine', nameEn: 'Wishiwashi', slug: 'wishiwashi', type: 'water', baseHp: 56, baseAtk: 12 },
+          { nameFr: 'Vorastérie', nameEn: 'Mareanie', slug: 'mareanie', type: 'poison', baseHp: 54, baseAtk: 11 },
+          { nameFr: 'Araqua', nameEn: 'Dewpider', slug: 'dewpider', type: 'water', baseHp: 52, baseAtk: 11 },
+        ],
+        boss: {
+          nameFr: 'Néphie',
+          nameEn: 'Lana',
+          slug: 'lana',
+          team: [
+            { nameFr: 'Prédastérie', nameEn: 'Toxapex', slug: 'toxapex', level: 20 },
+            { nameFr: 'Tarenbulle', nameEn: 'Araquanid', slug: 'araquanid', level: 21 },
+            { nameFr: 'Froussardine', nameEn: 'Wishiwashi', slug: 'wishiwashi', level: 22 },
+          ],
+          timerSeconds: 35,
+        },
+      },
+      {
+        id: 4,
+        nameFr: 'Capitaine — Kiawe',
+        nameEn: 'Trial Captain — Kiawe',
+        types: ['fire'],
+        wild: [
+          { nameFr: 'Tritox', nameEn: 'Salandit', slug: 'salandit', type: 'poison', baseHp: 56, baseAtk: 12 },
+          { nameFr: 'Ossatueur (Alola)', nameEn: 'Marowak (Alola)', slug: 'marowak-alola', type: 'fire', baseHp: 58, baseAtk: 13 },
+          { nameFr: 'Boumata', nameEn: 'Turtonator', slug: 'turtonator', type: 'fire', baseHp: 60, baseAtk: 13 },
+        ],
+        boss: {
+          nameFr: 'Kiawe',
+          nameEn: 'Kiawe',
+          slug: 'kiawe',
+          team: [
+            { nameFr: 'Malamandre', nameEn: 'Salazzle', slug: 'salazzle', level: 24 },
+            { nameFr: 'Ossatueur (Alola)', nameEn: 'Marowak (Alola)', slug: 'marowak-alola', level: 25 },
+            { nameFr: 'Boumata', nameEn: 'Turtonator', slug: 'turtonator', level: 26 },
+          ],
+          timerSeconds: 35,
+        },
+      },
+      {
+        id: 5,
+        nameFr: 'Capitaine — Barbara',
+        nameEn: 'Trial Captain — Mallow',
+        types: ['grass'],
+        wild: [
+          { nameFr: 'Mimantis', nameEn: 'Fomantis', slug: 'fomantis', type: 'grass', baseHp: 58, baseAtk: 13 },
+          { nameFr: 'Spododo', nameEn: 'Morelull', slug: 'morelull', type: 'grass', baseHp: 56, baseAtk: 12 },
+          { nameFr: 'Croquine', nameEn: 'Bounsweet', slug: 'bounsweet', type: 'grass', baseHp: 54, baseAtk: 12 },
+        ],
+        boss: {
+          nameFr: 'Barbara',
+          nameEn: 'Mallow',
+          slug: 'mallow',
+          team: [
+            { nameFr: 'Floramantis', nameEn: 'Lurantis', slug: 'lurantis', level: 28 },
+            { nameFr: 'Lampignon', nameEn: 'Shiinotic', slug: 'shiinotic', level: 29 },
+            { nameFr: 'Sucreine', nameEn: 'Tsareena', slug: 'tsareena', level: 30 },
+          ],
+          timerSeconds: 35,
+        },
+      },
+      {
+        id: 6,
+        nameFr: 'Doyenne — Alyxia',
+        nameEn: 'Kahuna — Olivia',
+        types: ['rock'],
+        wild: [
+          { nameFr: 'Rocabot', nameEn: 'Rockruff', slug: 'rockruff', type: 'rock', baseHp: 60, baseAtk: 13 },
+          { nameFr: 'Météno', nameEn: 'Minior', slug: 'minior', type: 'rock', baseHp: 62, baseAtk: 14 },
+          { nameFr: 'Racaillou (Alola)', nameEn: 'Geodude (Alola)', slug: 'geodude-alola', type: 'rock', baseHp: 58, baseAtk: 13 },
+        ],
+        boss: {
+          nameFr: 'Alyxia',
+          nameEn: 'Olivia',
+          slug: 'olivia',
+          team: [
+            { nameFr: 'Lougaroc', nameEn: 'Lycanroc', slug: 'lycanroc', level: 31 },
+            { nameFr: 'Grolem (Alola)', nameEn: 'Golem (Alola)', slug: 'golem-alola', level: 32 },
+            { nameFr: 'Météno', nameEn: 'Minior', slug: 'minior', level: 33 },
+          ],
+          timerSeconds: 40,
+        },
+      },
+      {
+        id: 7,
+        nameFr: 'Capitaine — Chrys',
+        nameEn: 'Trial Captain — Sophocles',
+        types: ['electric'],
+        wild: [
+          { nameFr: 'Larvibule', nameEn: 'Grubbin', slug: 'grubbin', type: 'bug', baseHp: 60, baseAtk: 13 },
+          { nameFr: 'Chrysapile', nameEn: 'Charjabug', slug: 'charjabug', type: 'bug', baseHp: 62, baseAtk: 14 },
+          { nameFr: 'Togedemaru', nameEn: 'Togedemaru', slug: 'togedemaru', type: 'electric', baseHp: 64, baseAtk: 14 },
+        ],
+        boss: {
+          nameFr: 'Chrys',
+          nameEn: 'Sophocles',
+          slug: 'sophocles',
+          team: [
+            { nameFr: 'Lucanon', nameEn: 'Vikavolt', slug: 'vikavolt', level: 34 },
+            { nameFr: 'Togedemaru', nameEn: 'Togedemaru', slug: 'togedemaru', level: 35 },
+            { nameFr: 'Chrysapile', nameEn: 'Charjabug', slug: 'charjabug', level: 36 },
+          ],
+          timerSeconds: 40,
+        },
+      },
+      {
+        id: 8,
+        nameFr: 'Capitaine — Margie',
+        nameEn: 'Trial Captain — Acerola',
+        types: ['ghost'],
+        wild: [
+          { nameFr: 'Bacabouh', nameEn: 'Sandygast', slug: 'sandygast', type: 'ghost', baseHp: 62, baseAtk: 14 },
+          { nameFr: 'Mimiqui', nameEn: 'Mimikyu', slug: 'mimikyu', type: 'ghost', baseHp: 66, baseAtk: 15 },
+          { nameFr: 'Sinistrail', nameEn: 'Dhelmise', slug: 'dhelmise', type: 'ghost', baseHp: 64, baseAtk: 14 },
+        ],
+        boss: {
+          nameFr: 'Margie',
+          nameEn: 'Acerola',
+          slug: 'acerola',
+          team: [
+            { nameFr: 'Trépassable', nameEn: 'Palossand', slug: 'palossand', level: 37 },
+            { nameFr: 'Mimiqui', nameEn: 'Mimikyu', slug: 'mimikyu', level: 38 },
+            { nameFr: 'Sinistrail', nameEn: 'Dhelmise', slug: 'dhelmise', level: 39 },
+          ],
+          timerSeconds: 40,
+        },
+      },
+      {
+        id: 9,
+        nameFr: 'Doyen — Danh',
+        nameEn: 'Kahuna — Nanu',
+        types: ['dark'],
+        wild: [
+          { nameFr: 'Miaouss (Alola)', nameEn: 'Meowth (Alola)', slug: 'meowth-alola', type: 'dark', baseHp: 62, baseAtk: 14 },
+          { nameFr: 'Tadmorv (Alola)', nameEn: 'Grimer (Alola)', slug: 'grimer-alola', type: 'poison', baseHp: 64, baseAtk: 15 },
+          { nameFr: 'Sovkipou', nameEn: 'Wimpod', slug: 'wimpod', type: 'bug', baseHp: 60, baseAtk: 14 },
+        ],
+        boss: {
+          nameFr: 'Danh',
+          nameEn: 'Nanu',
+          slug: 'nanu',
+          team: [
+            { nameFr: 'Persian (Alola)', nameEn: 'Persian (Alola)', slug: 'persian-alola', level: 40 },
+            { nameFr: 'Grotadmorv (Alola)', nameEn: 'Muk (Alola)', slug: 'muk-alola', level: 41 },
+            { nameFr: 'Sarmuraï', nameEn: 'Golisopod', slug: 'golisopod', level: 42 },
+          ],
+          timerSeconds: 45,
+        },
+      },
+      {
+        id: 10,
+        nameFr: 'Capitaine — Oléa',
+        nameEn: 'Trial Captain — Mina',
+        types: ['fairy'],
+        wild: [
+          { nameFr: 'Bombydou', nameEn: 'Cutiefly', slug: 'cutiefly', type: 'bug', baseHp: 64, baseAtk: 15 },
+          { nameFr: 'Guérilande', nameEn: 'Comfey', slug: 'comfey', type: 'fairy', baseHp: 66, baseAtk: 15 },
+          { nameFr: 'Plumeline', nameEn: 'Oricorio', slug: 'oricorio', type: 'fire', baseHp: 64, baseAtk: 15 },
+        ],
+        boss: {
+          nameFr: 'Oléa',
+          nameEn: 'Mina',
+          slug: 'mina',
+          team: [
+            { nameFr: 'Rubombelle', nameEn: 'Ribombee', slug: 'ribombee', level: 43 },
+            { nameFr: 'Guérilande', nameEn: 'Comfey', slug: 'comfey', level: 44 },
+            { nameFr: 'Feunard (Alola)', nameEn: 'Ninetales (Alola)', slug: 'ninetales-alola', level: 45 },
+          ],
+          timerSeconds: 45,
+        },
+      },
+      {
+        id: 11,
+        nameFr: 'Doyenne — Paulie',
+        nameEn: 'Kahuna — Hapu',
+        types: ['ground'],
+        wild: [
+          { nameFr: 'Tiboudet', nameEn: 'Mudbray', slug: 'mudbray', type: 'ground', baseHp: 66, baseAtk: 15 },
+          { nameFr: 'Taupiqueur (Alola)', nameEn: 'Diglett (Alola)', slug: 'diglett-alola', type: 'ground', baseHp: 64, baseAtk: 15 },
+          { nameFr: 'Trépassable', nameEn: 'Palossand', slug: 'palossand', type: 'ghost', baseHp: 68, baseAtk: 16 },
+        ],
+        boss: {
+          nameFr: 'Paulie',
+          nameEn: 'Hapu',
+          slug: 'hapu',
+          team: [
+            { nameFr: 'Bourrinos', nameEn: 'Mudsdale', slug: 'mudsdale', level: 47 },
+            { nameFr: 'Triopikeur (Alola)', nameEn: 'Dugtrio (Alola)', slug: 'dugtrio-alola', level: 48 },
+            { nameFr: 'Trépassable', nameEn: 'Palossand', slug: 'palossand', level: 49 },
+          ],
+          timerSeconds: 50,
+        },
+      },
+      {
+        id: 12,
+        nameFr: 'Conseil 4 — Kahili',
+        nameEn: 'Elite Four — Kahili',
+        types: ['flying', 'steel', 'ghost', 'rock'],
+        wild: [
+          { nameFr: 'Draïeul', nameEn: 'Drampa', slug: 'drampa', type: 'normal', baseHp: 70, baseAtk: 16 },
+          { nameFr: 'Denticrisse', nameEn: 'Bruxish', slug: 'bruxish', type: 'water', baseHp: 68, baseAtk: 16 },
+          { nameFr: 'Bébécaille', nameEn: 'Jangmo-o', slug: 'jangmoo', type: 'dragon', baseHp: 66, baseAtk: 15 },
+        ],
+        boss: {
+          nameFr: 'Kahili',
+          nameEn: 'Kahili',
+          slug: 'kahili',
+          team: [
+            { nameFr: 'Bazoucan', nameEn: 'Toucannon', slug: 'toucannon', level: 51 },
+            { nameFr: 'Écaïd', nameEn: 'Hakamo-o', slug: 'hakamoo', level: 52 },
+            { nameFr: 'Sarmuraï', nameEn: 'Golisopod', slug: 'golisopod', level: 53 },
+            { nameFr: 'Prédastérie', nameEn: 'Toxapex', slug: 'toxapex', level: 54 },
+          ],
+          timerSeconds: 50,
+        },
+      },
+      {
+        id: 13,
+        nameFr: 'Maître — Kukui',
+        nameEn: 'Champion — Kukui',
+        types: ['fire', 'water', 'grass', 'rock', 'steel'],
+        wild: [
+          { nameFr: 'Écaïd', nameEn: 'Hakamo-o', slug: 'hakamoo', type: 'dragon', baseHp: 74, baseAtk: 17 },
+          { nameFr: 'Gouroutan', nameEn: 'Oranguru', slug: 'oranguru', type: 'normal', baseHp: 72, baseAtk: 16 },
+          { nameFr: 'Concombaffe', nameEn: 'Pyukumuku', slug: 'pyukumuku', type: 'water', baseHp: 70, baseAtk: 16 },
+        ],
+        boss: {
+          nameFr: 'Kukui',
+          nameEn: 'Kukui',
+          slug: 'kukui',
+          team: [
+            { nameFr: 'Lougaroc', nameEn: 'Lycanroc', slug: 'lycanroc', level: 55 },
+            { nameFr: 'Ékaïser', nameEn: 'Kommo-o', slug: 'kommoo', level: 55 },
+            { nameFr: 'Félinferno', nameEn: 'Incineroar', slug: 'incineroar', level: 56 },
+            { nameFr: 'Oratoria', nameEn: 'Primarina', slug: 'primarina', level: 57 },
+            { nameFr: 'Archéduc', nameEn: 'Decidueye', slug: 'decidueye', level: 58 },
+            { nameFr: 'Solgaleo', nameEn: 'Solgaleo', slug: 'solgaleo', level: 60 },
+          ],
+          timerSeconds: 60,
+        },
+      },
+    ],
+  },
 ]
 
 export function getGeneration(genId: number): Generation | undefined {

@@ -736,6 +736,99 @@ export const EVOLUTIONS: Evolution[] = [
 
   // Cross-gen: Eevee → Sylveon (happiness/fairy)
   { fromSlug: 'eevee', toSlug: 'sylveon', toNameFr: 'Nymphali', toNameEn: 'Sylveon', method: 'happiness', itemRequired: 'soothe-bell' },
+
+  // ══════════════ Gen 7 (Alola) ══════════════
+
+  // Starters
+  { fromSlug: 'rowlet', toSlug: 'dartrix', toNameFr: 'Efflèche', toNameEn: 'Dartrix', method: 'level', levelRequired: 17 },
+  { fromSlug: 'dartrix', toSlug: 'decidueye', toNameFr: 'Archéduc', toNameEn: 'Decidueye', method: 'level', levelRequired: 34 },
+  { fromSlug: 'litten', toSlug: 'torracat', toNameFr: 'Matoufeu', toNameEn: 'Torracat', method: 'level', levelRequired: 17 },
+  { fromSlug: 'torracat', toSlug: 'incineroar', toNameFr: 'Félinferno', toNameEn: 'Incineroar', method: 'level', levelRequired: 34 },
+  { fromSlug: 'popplio', toSlug: 'brionne', toNameFr: 'Otarlette', toNameEn: 'Brionne', method: 'level', levelRequired: 17 },
+  { fromSlug: 'brionne', toSlug: 'primarina', toNameFr: 'Oratoria', toNameEn: 'Primarina', method: 'level', levelRequired: 34 },
+
+  // Bird line
+  { fromSlug: 'pikipek', toSlug: 'trumbeak', toNameFr: 'Piclairon', toNameEn: 'Trumbeak', method: 'level', levelRequired: 14 },
+  { fromSlug: 'trumbeak', toSlug: 'toucannon', toNameFr: 'Bazoucan', toNameEn: 'Toucannon', method: 'level', levelRequired: 28 },
+
+  // Normal line
+  { fromSlug: 'yungoos', toSlug: 'gumshoos', toNameFr: 'Argouste', toNameEn: 'Gumshoos', method: 'level', levelRequired: 20 },
+
+  // Bug line
+  { fromSlug: 'grubbin', toSlug: 'charjabug', toNameFr: 'Chrysapile', toNameEn: 'Charjabug', method: 'level', levelRequired: 20 },
+  { fromSlug: 'charjabug', toSlug: 'vikavolt', toNameFr: 'Lucanon', toNameEn: 'Vikavolt', method: 'level', levelRequired: 36 },
+
+  // Fighting line
+  { fromSlug: 'crabrawler', toSlug: 'crabominable', toNameFr: 'Crabominable', toNameEn: 'Crabominable', method: 'level', levelRequired: 36 },
+
+  // Fairy/Bug
+  { fromSlug: 'cutiefly', toSlug: 'ribombee', toNameFr: 'Rubombelle', toNameEn: 'Ribombee', method: 'level', levelRequired: 25 },
+
+  // Rock
+  { fromSlug: 'rockruff', toSlug: 'lycanroc', toNameFr: 'Lougaroc', toNameEn: 'Lycanroc', method: 'level', levelRequired: 25 },
+
+  // Poison/Water
+  { fromSlug: 'mareanie', toSlug: 'toxapex', toNameFr: 'Prédastérie', toNameEn: 'Toxapex', method: 'level', levelRequired: 38 },
+
+  // Ground
+  { fromSlug: 'mudbray', toSlug: 'mudsdale', toNameFr: 'Bourrinos', toNameEn: 'Mudsdale', method: 'level', levelRequired: 30 },
+
+  // Water/Bug
+  { fromSlug: 'dewpider', toSlug: 'araquanid', toNameFr: 'Tarenbulle', toNameEn: 'Araquanid', method: 'level', levelRequired: 22 },
+
+  // Grass
+  { fromSlug: 'fomantis', toSlug: 'lurantis', toNameFr: 'Floramantis', toNameEn: 'Lurantis', method: 'level', levelRequired: 34 },
+
+  // Mushroom
+  { fromSlug: 'morelull', toSlug: 'shiinotic', toNameFr: 'Lampignon', toNameEn: 'Shiinotic', method: 'level', levelRequired: 24 },
+
+  // Poison/Fire
+  { fromSlug: 'salandit', toSlug: 'salazzle', toNameFr: 'Malamandre', toNameEn: 'Salazzle', method: 'level', levelRequired: 33 },
+
+  // Normal/Fighting
+  { fromSlug: 'stufful', toSlug: 'bewear', toNameFr: 'Chelours', toNameEn: 'Bewear', method: 'level', levelRequired: 27 },
+
+  // Grass fruit
+  { fromSlug: 'bounsweet', toSlug: 'steenee', toNameFr: 'Candine', toNameEn: 'Steenee', method: 'level', levelRequired: 18 },
+  { fromSlug: 'steenee', toSlug: 'tsareena', toNameFr: 'Sucreine', toNameEn: 'Tsareena', method: 'level', levelRequired: 29 },
+
+  // Bug/Water
+  { fromSlug: 'wimpod', toSlug: 'golisopod', toNameFr: 'Sarmuraï', toNameEn: 'Golisopod', method: 'level', levelRequired: 30 },
+
+  // Ghost/Ground
+  { fromSlug: 'sandygast', toSlug: 'palossand', toNameFr: 'Trépassable', toNameEn: 'Palossand', method: 'level', levelRequired: 42 },
+
+  // Type: Null → Silvally (happiness)
+  { fromSlug: 'typenull', toSlug: 'silvally', toNameFr: 'Silvallié', toNameEn: 'Silvally', method: 'happiness', itemRequired: 'soothe-bell' },
+
+  // Dragon pseudo-legendary
+  { fromSlug: 'jangmoo', toSlug: 'hakamoo', toNameFr: 'Écaïd', toNameEn: 'Hakamo-o', method: 'level', levelRequired: 35 },
+  { fromSlug: 'hakamoo', toSlug: 'kommoo', toNameFr: 'Ékaïser', toNameEn: 'Kommo-o', method: 'level', levelRequired: 45 },
+
+  // Cosmog line
+  { fromSlug: 'cosmog', toSlug: 'cosmoem', toNameFr: 'Cosmovum', toNameEn: 'Cosmoem', method: 'level', levelRequired: 43 },
+  { fromSlug: 'cosmoem', toSlug: 'solgaleo', toNameFr: 'Solgaleo', toNameEn: 'Solgaleo', method: 'level', levelRequired: 53 },
+
+  // Poipole → Naganadel
+  { fromSlug: 'poipole', toSlug: 'naganadel', toNameFr: 'Mandrillon', toNameEn: 'Naganadel', method: 'level', levelRequired: 41 },
+
+  // Meltan → Melmetal
+  { fromSlug: 'meltan', toSlug: 'melmetal', toNameFr: 'Melmetal', toNameEn: 'Melmetal', method: 'level', levelRequired: 50 },
+
+  // === Alolan Form Evolutions (base → evo) ===
+  { fromSlug: 'rattata-alola', toSlug: 'raticate-alola', toNameFr: 'Rattatac (Alola)', toNameEn: 'Raticate (Alola)', method: 'level', levelRequired: 20 },
+  { fromSlug: 'sandshrew-alola', toSlug: 'sandslash-alola', toNameFr: 'Sablaireau (Alola)', toNameEn: 'Sandslash (Alola)', method: 'stone', itemRequired: 'ice-stone' },
+  { fromSlug: 'vulpix-alola', toSlug: 'ninetales-alola', toNameFr: 'Feunard (Alola)', toNameEn: 'Ninetales (Alola)', method: 'stone', itemRequired: 'ice-stone' },
+  { fromSlug: 'diglett-alola', toSlug: 'dugtrio-alola', toNameFr: 'Triopikeur (Alola)', toNameEn: 'Dugtrio (Alola)', method: 'level', levelRequired: 26 },
+  { fromSlug: 'meowth-alola', toSlug: 'persian-alola', toNameFr: 'Persian (Alola)', toNameEn: 'Persian (Alola)', method: 'happiness', itemRequired: 'soothe-bell' },
+  { fromSlug: 'geodude-alola', toSlug: 'graveler-alola', toNameFr: 'Gravalanch (Alola)', toNameEn: 'Graveler (Alola)', method: 'level', levelRequired: 25 },
+  { fromSlug: 'graveler-alola', toSlug: 'golem-alola', toNameFr: 'Grolem (Alola)', toNameEn: 'Golem (Alola)', method: 'trade', itemRequired: 'link-cable' },
+  { fromSlug: 'grimer-alola', toSlug: 'muk-alola', toNameFr: 'Grotadmorv (Alola)', toNameEn: 'Muk (Alola)', method: 'level', levelRequired: 38 },
+
+  // === Cross-gen Alolan Evolutions (old Pokémon → Alolan form) ===
+  { fromSlug: 'pikachu', toSlug: 'raichu-alola', toNameFr: 'Raichu (Alola)', toNameEn: 'Raichu (Alola)', method: 'stone', itemRequired: 'thunder-stone' },
+  { fromSlug: 'exeggcute', toSlug: 'exeggutor-alola', toNameFr: 'Noadkoko (Alola)', toNameEn: 'Exeggutor (Alola)', method: 'stone', itemRequired: 'leaf-stone' },
+  { fromSlug: 'cubone', toSlug: 'marowak-alola', toNameFr: 'Ossatueur (Alola)', toNameEn: 'Marowak (Alola)', method: 'level', levelRequired: 28 },
 ]
 
 // Evolution items available for Gen 1
@@ -792,7 +885,7 @@ export const EVO_ITEMS: EvoItem[] = [
     descFr: 'Simule un échange pour faire évoluer un Pokémon',
     descEn: 'Simulates a trade to evolve a Pokémon',
     icon: '🔗',
-    applicableTo: ['kadabra', 'machoke', 'graveler', 'haunter', 'porygon', 'onix', 'scyther', 'seadra', 'boldore', 'gurdurr', 'karrablast', 'shelmet', 'spritzee', 'swirlix', 'phantump', 'pumpkaboo'],
+    applicableTo: ['kadabra', 'machoke', 'graveler', 'haunter', 'porygon', 'onix', 'scyther', 'seadra', 'boldore', 'gurdurr', 'karrablast', 'shelmet', 'spritzee', 'swirlix', 'phantump', 'pumpkaboo', 'graveler-alola'],
   },
   {
     id: 'kings-rock',
@@ -855,7 +948,7 @@ export const EVO_ITEMS: EvoItem[] = [
     descFr: 'Fait évoluer un Pokémon lié par le bonheur',
     descEn: 'Evolves a Pokémon that evolves through happiness',
     icon: '🔔',
-    applicableTo: ['pichu', 'cleffa', 'igglybuff', 'togepi', 'golbat', 'chansey', 'tyrogue', 'smoochum', 'elekid', 'magby', 'feebas', 'azurill', 'budew', 'woobat', 'swadloon', 'eevee'],
+    applicableTo: ['pichu', 'cleffa', 'igglybuff', 'togepi', 'golbat', 'chansey', 'tyrogue', 'smoochum', 'elekid', 'magby', 'feebas', 'azurill', 'budew', 'woobat', 'swadloon', 'eevee', 'meowth-alola', 'typenull'],
   },
   {
     id: 'sun-stone',
@@ -897,10 +990,10 @@ export const EVO_ITEMS: EvoItem[] = [
     id: 'ice-stone',
     nameFr: 'Pierre Glace',
     nameEn: 'Ice Stone',
-    descFr: 'Fait évoluer Évoli en Givrali',
-    descEn: 'Evolves Eevee into Glaceon',
+    descFr: 'Fait évoluer certains Pokémon de type Glace',
+    descEn: 'Evolves certain Ice-type Pokémon',
     icon: '❄️',
-    applicableTo: ['eevee'],
+    applicableTo: ['eevee', 'sandshrew-alola', 'vulpix-alola'],
   },
   {
     id: 'protector',

@@ -523,6 +523,81 @@ const KALOS_POOL: GachaPokemon[] = [
   { nameFr: 'Méga-Diancie', nameEn: 'Mega Diancie', slug: 'diancie-mega', rarity: 'legendary', shinyRate: 0.05 },
 ]
 
+// === Gen 7 Alola Pool ===
+// Cross-gen Alolan evos (Raichu-Alola, Exeggutor-Alola, Marowak-Alola) EXCLUDED
+const ALOLA_POOL: GachaPokemon[] = [
+  // --- COMMON (early routes, common encounters) ---
+  { nameFr: 'Picassaut', nameEn: 'Pikipek', slug: 'pikipek', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Manglouton', nameEn: 'Yungoos', slug: 'yungoos', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Larvibule', nameEn: 'Grubbin', slug: 'grubbin', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Plumeline', nameEn: 'Oricorio', slug: 'oricorio', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Bombydou', nameEn: 'Cutiefly', slug: 'cutiefly', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Rocabot', nameEn: 'Rockruff', slug: 'rockruff', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Froussardine', nameEn: 'Wishiwashi', slug: 'wishiwashi', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Tiboudet', nameEn: 'Mudbray', slug: 'mudbray', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Mimantis', nameEn: 'Fomantis', slug: 'fomantis', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Spododo', nameEn: 'Morelull', slug: 'morelull', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Nounourson', nameEn: 'Stufful', slug: 'stufful', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Croquine', nameEn: 'Bounsweet', slug: 'bounsweet', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Bacabouh', nameEn: 'Sandygast', slug: 'sandygast', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Concombaffe', nameEn: 'Pyukumuku', slug: 'pyukumuku', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Dodoala', nameEn: 'Komala', slug: 'komala', rarity: 'common', shinyRate: 0.01 },
+  // Alolan base forms
+  { nameFr: 'Rattata (Alola)', nameEn: 'Rattata (Alola)', slug: 'rattata-alola', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Sabelette (Alola)', nameEn: 'Sandshrew (Alola)', slug: 'sandshrew-alola', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Goupix (Alola)', nameEn: 'Vulpix (Alola)', slug: 'vulpix-alola', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Taupiqueur (Alola)', nameEn: 'Diglett (Alola)', slug: 'diglett-alola', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Miaouss (Alola)', nameEn: 'Meowth (Alola)', slug: 'meowth-alola', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Racaillou (Alola)', nameEn: 'Geodude (Alola)', slug: 'geodude-alola', rarity: 'common', shinyRate: 0.01 },
+  { nameFr: 'Tadmorv (Alola)', nameEn: 'Grimer (Alola)', slug: 'grimer-alola', rarity: 'common', shinyRate: 0.01 },
+  // --- RARE (mid-game, useful) ---
+  { nameFr: 'Crabagarre', nameEn: 'Crabrawler', slug: 'crabrawler', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Vorastérie', nameEn: 'Mareanie', slug: 'mareanie', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Araqua', nameEn: 'Dewpider', slug: 'dewpider', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Tritox', nameEn: 'Salandit', slug: 'salandit', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Guérilande', nameEn: 'Comfey', slug: 'comfey', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Gouroutan', nameEn: 'Oranguru', slug: 'oranguru', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Quartermac', nameEn: 'Passimian', slug: 'passimian', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Sovkipou', nameEn: 'Wimpod', slug: 'wimpod', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Boumata', nameEn: 'Turtonator', slug: 'turtonator', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Togedemaru', nameEn: 'Togedemaru', slug: 'togedemaru', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Mimiqui', nameEn: 'Mimikyu', slug: 'mimikyu', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Denticrisse', nameEn: 'Bruxish', slug: 'bruxish', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Draïeul', nameEn: 'Drampa', slug: 'drampa', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Sinistrail', nameEn: 'Dhelmise', slug: 'dhelmise', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Météno', nameEn: 'Minior', slug: 'minior', rarity: 'rare', shinyRate: 0.02 },
+  // --- EPIC (starters, pseudo-legendaries, strong) ---
+  { nameFr: 'Brindibou', nameEn: 'Rowlet', slug: 'rowlet', rarity: 'epic', shinyRate: 0.03 },
+  { nameFr: 'Flamiaou', nameEn: 'Litten', slug: 'litten', rarity: 'epic', shinyRate: 0.03 },
+  { nameFr: 'Otaquin', nameEn: 'Popplio', slug: 'popplio', rarity: 'epic', shinyRate: 0.03 },
+  { nameFr: 'Bébécaille', nameEn: 'Jangmo-o', slug: 'jangmoo', rarity: 'epic', shinyRate: 0.03 },
+  { nameFr: 'Type:0', nameEn: 'Type: Null', slug: 'typenull', rarity: 'epic', shinyRate: 0.03 },
+  // --- LEGENDARY ---
+  { nameFr: 'Tokorico', nameEn: 'Tapu Koko', slug: 'tapukoko', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Tokopiyon', nameEn: 'Tapu Lele', slug: 'tapulele', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Tokotoro', nameEn: 'Tapu Bulu', slug: 'tapubulu', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Tokopisco', nameEn: 'Tapu Fini', slug: 'tapufini', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Cosmog', nameEn: 'Cosmog', slug: 'cosmog', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Solgaleo', nameEn: 'Solgaleo', slug: 'solgaleo', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Lunala', nameEn: 'Lunala', slug: 'lunala', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Necrozma', nameEn: 'Necrozma', slug: 'necrozma', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Magearna', nameEn: 'Magearna', slug: 'magearna', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Marshadow', nameEn: 'Marshadow', slug: 'marshadow', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Zeraora', nameEn: 'Zeraora', slug: 'zeraora', rarity: 'legendary', shinyRate: 0.05 },
+  // Ultra Beasts
+  { nameFr: 'Zéroïd', nameEn: 'Nihilego', slug: 'nihilego', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Mouscoto', nameEn: 'Buzzwole', slug: 'buzzwole', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Cancrelove', nameEn: 'Pheromosa', slug: 'pheromosa', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Câblifère', nameEn: 'Xurkitree', slug: 'xurkitree', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Bamboiselle', nameEn: 'Celesteela', slug: 'celesteela', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Katagami', nameEn: 'Kartana', slug: 'kartana', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Engloutyran', nameEn: 'Guzzlord', slug: 'guzzlord', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Vémini', nameEn: 'Poipole', slug: 'poipole', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Ama-Ama', nameEn: 'Stakataka', slug: 'stakataka', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Pierroteknik', nameEn: 'Blacephalon', slug: 'blacephalon', rarity: 'legendary', shinyRate: 0.05 },
+  { nameFr: 'Meltan', nameEn: 'Meltan', slug: 'meltan', rarity: 'legendary', shinyRate: 0.05 },
+]
+
 export const BANNERS: Banner[] = [
   {
     id: 'kanto',
@@ -572,6 +647,15 @@ export const BANNERS: Banner[] = [
     // Pricing formula: ~8000 × gen² (start gen ≈ 5 pulls/100 kills, end gen ≈ 10 pulls/100 kills)
     costGold: 290000,
     pool: KALOS_POOL,
+  },
+  {
+    id: 'alola',
+    nameFr: 'Bannière Alola',
+    nameEn: 'Alola Banner',
+    generation: 7,
+    // Pricing formula: ~8000 × gen² = 8000 × 49 = 392k → 390k
+    costGold: 390000,
+    pool: ALOLA_POOL,
   },
 ]
 
