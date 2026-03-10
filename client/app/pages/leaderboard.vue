@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { Trophy, Crown, ChevronDown } from 'lucide-vue-next'
+import { ref, computed, onMounted, onUnmounted, type Component } from 'vue'
+import { Trophy, Crown, Star, Coins, Medal, BookOpen, Sparkles, Flame, Gem } from 'lucide-vue-next'
 import { useLocale } from '~/composables/useLocale'
 import { useAuthStore } from '~/stores/useAuthStore'
 
@@ -41,7 +41,7 @@ interface Category {
   id: string
   labelFr: string
   labelEn: string
-  icon: string
+  icon: Component
   color: string
   gradient: string
   field: keyof LeaderboardEntry
@@ -49,13 +49,13 @@ interface Category {
 }
 
 const CATEGORIES: Category[] = [
-  { id: 'level', labelFr: 'Niveau', labelEn: 'Level', icon: '⭐', color: 'text-blue-400', gradient: 'from-blue-500/20 to-cyan-500/10', field: 'level', format: (val) => `Lv. ${val}` },
-  { id: 'gold', labelFr: 'Richesse', labelEn: 'Wealth', icon: '🪙', color: 'text-yellow-400', gradient: 'from-yellow-500/20 to-amber-500/10', field: 'gold', format: (val) => val.toLocaleString() },
-  { id: 'badges', labelFr: 'Badges', labelEn: 'Badges', icon: '🏅', color: 'text-amber-400', gradient: 'from-amber-500/20 to-orange-500/10', field: 'badges', format: (val, entry) => `${val} · ${GENERATION_NAMES[entry.current_generation] ?? '???'}` },
-  { id: 'unique_pokemon', labelFr: 'Pokédex', labelEn: 'Pokédex', icon: '📖', color: 'text-red-400', gradient: 'from-red-500/20 to-pink-500/10', field: 'unique_pokemon', format: (val) => `${val}` },
-  { id: 'shiny_count', labelFr: 'Shiny', labelEn: 'Shiny', icon: '💎', color: 'text-cyan-400', gradient: 'from-cyan-500/20 to-teal-500/10', field: 'shiny_count', format: (val) => `${val}` },
-  { id: 'legendary_count', labelFr: 'Légendaires', labelEn: 'Legendaries', icon: '🐉', color: 'text-orange-400', gradient: 'from-orange-500/20 to-red-500/10', field: 'legendary_count', format: (val) => `${val}` },
-  { id: 'shiny_legendary_count', labelFr: 'Légendaires Shiny', labelEn: 'Shiny Legendaries', icon: '👑', color: 'text-pink-400', gradient: 'from-pink-500/20 to-rose-500/10', field: 'shiny_legendary_count', format: (val) => `${val}` },
+  { id: 'level', labelFr: 'Niveau', labelEn: 'Level', icon: Star, color: 'text-blue-400', gradient: 'from-blue-500/20 to-cyan-500/10', field: 'level', format: (val) => `Lv. ${val}` },
+  { id: 'gold', labelFr: 'Richesse', labelEn: 'Wealth', icon: Coins, color: 'text-yellow-400', gradient: 'from-yellow-500/20 to-amber-500/10', field: 'gold', format: (val) => val.toLocaleString() },
+  { id: 'badges', labelFr: 'Badges', labelEn: 'Badges', icon: Medal, color: 'text-amber-400', gradient: 'from-amber-500/20 to-orange-500/10', field: 'badges', format: (val, entry) => `${val} · ${GENERATION_NAMES[entry.current_generation] ?? '???'}` },
+  { id: 'unique_pokemon', labelFr: 'Pokédex', labelEn: 'Pokédex', icon: BookOpen, color: 'text-red-400', gradient: 'from-red-500/20 to-pink-500/10', field: 'unique_pokemon', format: (val) => `${val}` },
+  { id: 'shiny_count', labelFr: 'Shiny', labelEn: 'Shiny', icon: Sparkles, color: 'text-cyan-400', gradient: 'from-cyan-500/20 to-teal-500/10', field: 'shiny_count', format: (val) => `${val}` },
+  { id: 'legendary_count', labelFr: 'Légendaires', labelEn: 'Legendaries', icon: Flame, color: 'text-orange-400', gradient: 'from-orange-500/20 to-red-500/10', field: 'legendary_count', format: (val) => `${val}` },
+  { id: 'shiny_legendary_count', labelFr: 'Légendaires Shiny', labelEn: 'Shiny Legendaries', icon: Gem, color: 'text-pink-400', gradient: 'from-pink-500/20 to-rose-500/10', field: 'shiny_legendary_count', format: (val) => `${val}` },
 ]
 
 const data = ref<LeaderboardEntry[]>([])
@@ -230,7 +230,7 @@ onUnmounted(() => {
             : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600 hover:text-slate-300'"
           @click="activeCategory = cat.id"
         >
-          <span>{{ cat.icon }}</span>
+          <component :is="cat.icon" class="h-3.5 w-3.5" />
           <span class="hidden sm:inline">{{ t(cat.labelFr, cat.labelEn) }}</span>
         </button>
       </div>
@@ -321,7 +321,7 @@ onUnmounted(() => {
           <!-- Category header -->
           <div class="border-b border-slate-700 bg-gradient-to-r px-6 py-4" :class="currentCategory.gradient">
             <div class="flex items-center gap-3">
-              <span class="text-2xl">{{ currentCategory.icon }}</span>
+              <component :is="currentCategory.icon" class="h-6 w-6" />
               <div>
                 <h2 class="text-lg font-bold text-white">{{ t(currentCategory.labelFr, currentCategory.labelEn) }}</h2>
                 <p class="text-xs text-slate-400">{{ currentRanking.length }} {{ t('joueurs', 'players') }}</p>

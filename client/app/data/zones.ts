@@ -1648,7 +1648,7 @@ export const GENERATIONS: Generation[] = [
     zones: [
       {
         id: 1,
-        nameFr: 'Championne — Viola',
+        nameFr: 'Championne — Violette',
         nameEn: 'Gym Leader — Viola',
         types: ['bug'],
         wild: [
@@ -1657,7 +1657,7 @@ export const GENERATIONS: Generation[] = [
           { nameFr: 'Passerouge', nameEn: 'Fletchling', slug: 'fletchling', type: 'normal', baseHp: 52, baseAtk: 10 },
         ],
         boss: {
-          nameFr: 'Viola',
+          nameFr: 'Violette',
           nameEn: 'Viola',
           slug: 'viola',
           team: [
@@ -1780,7 +1780,7 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 7,
-        nameFr: 'Championne — Astrid',
+        nameFr: 'Championne — Astera',
         nameEn: 'Gym Leader — Olympia',
         types: ['psychic'],
         wild: [
@@ -1789,7 +1789,7 @@ export const GENERATIONS: Generation[] = [
           { nameFr: 'Strassie', nameEn: 'Carbink', slug: 'carbink', type: 'rock', baseHp: 66, baseAtk: 15 },
         ],
         boss: {
-          nameFr: 'Astrid',
+          nameFr: 'Astera',
           nameEn: 'Olympia',
           slug: 'olympia',
           team: [
@@ -1920,7 +1920,7 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 13,
-        nameFr: 'Maître — Diantha',
+        nameFr: 'Maître — Dianthéa',
         nameEn: 'Champion — Diantha',
         types: ['fairy', 'rock', 'dragon'],
         wild: [
@@ -1929,7 +1929,7 @@ export const GENERATIONS: Generation[] = [
           { nameFr: 'Couafarel', nameEn: 'Furfrou', slug: 'furfrou', type: 'normal', baseHp: 70, baseAtk: 16 },
         ],
         boss: {
-          nameFr: 'Diantha',
+          nameFr: 'Dianthéa',
           nameEn: 'Diantha',
           slug: 'diantha',
           team: [
