@@ -14,6 +14,10 @@ definePageMeta({
   layout: 'game',
 })
 
+const GENERATION_NAMES: Record<number, string> = {
+  1: 'Kanto', 2: 'Johto', 3: 'Hoenn', 4: 'Sinnoh',
+}
+
 const player = usePlayerStore()
 const inventory = useInventoryStore()
 const auth = useAuthStore()
@@ -192,7 +196,7 @@ onMounted(() => {
 })
 
 function isBoostUnlocked(boost: ClickBoost): boolean {
-  return player.level >= boost.unlockLevel
+  return player.level >= boost.unlockLevel && player.currentGeneration >= boost.generation
 }
 
 function isBoostPurchased(boostId: string): boolean {
@@ -250,7 +254,8 @@ const boostsByGen = computed(() => {
         >
           <span class="text-[10px] font-bold text-gray-400">{{ boost.nameFr }}</span>
           <span class="text-xs font-bold text-yellow-400">+{{ boost.damage }}</span>
-          <span v-if="!isBoostUnlocked(boost)" class="text-[9px] text-orange-400">🔒 {{ boost.unlockLevel }}</span>
+          <span v-if="player.currentGeneration < boost.generation" class="text-[9px] text-orange-400">🔒 {{ GENERATION_NAMES[boost.generation] }}</span>
+          <span v-else-if="player.level < boost.unlockLevel" class="text-[9px] text-orange-400">🔒 Lv.{{ boost.unlockLevel }}</span>
           <span v-else-if="isBoostPurchased(boost.id)" class="text-[9px] text-green-400">✓</span>
           <span v-else class="text-[9px] text-yellow-400/70">🪙 {{ boost.cost >= 1000 ? Math.round(boost.cost / 1000) + 'k' : boost.cost }}</span>
         </button>

@@ -19,6 +19,7 @@ export default class LeaderboardController {
       FROM users u
       LEFT JOIN user_pokemons up ON up.user_id = u.id
       WHERE u.badges >= 2
+        AND u.role != 'admin'
       GROUP BY u.id, u.username, u.level, u.badges, u.gold, u.current_generation
     `)
 

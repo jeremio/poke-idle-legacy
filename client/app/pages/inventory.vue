@@ -107,9 +107,9 @@ const filteredCollection = computed(() => {
     list = list.filter((p) => p.nameFr.toLowerCase().includes(q) || p.nameEn.toLowerCase().includes(q) || p.slug.includes(q))
   }
 
-  // Type filter
+  // Type filter (match any of the pokemon's types)
   if (filterType.value) {
-    list = list.filter((p) => getPokemonType(p.slug) === filterType.value)
+    list = list.filter((p) => getPokemonTypes(p.slug).includes(filterType.value!))
   }
 
   // Shiny filter
@@ -164,7 +164,9 @@ const filteredCollection = computed(() => {
 // Types present in collection for the filter dropdown
 const collectionTypes = computed(() => {
   const types = new Set<PokemonType>()
-  for (const p of inventory.collection) types.add(getPokemonType(p.slug))
+  for (const p of inventory.collection) {
+    for (const t of getPokemonTypes(p.slug)) types.add(t)
+  }
   return TYPES.filter((t) => types.has(t.id))
 })
 

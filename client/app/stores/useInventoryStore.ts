@@ -175,6 +175,8 @@ export const useInventoryStore = defineStore('inventory', {
           const targetGen = getGenForSlug(evo.toSlug)
           const maxGen = currentGeneration ?? 9
           if (targetGen <= maxGen) {
+            // Reset hasEvolved so level-up evolutions work even if another evo path was taken
+            pokemon.hasEvolved = false
             this.applyEvolution(pokemon, evo)
           }
         }
@@ -319,20 +321,30 @@ export const useInventoryStore = defineStore('inventory', {
     },
 
     // Rebuild hasEvolved flags after loading from server (not persisted)
+    // Match base forms to evolved forms 1:1 (don't mark ALL bases as evolved)
     rebuildHasEvolvedFlags() {
-      // Build set of all slug+shiny combos in collection
-      const existing = new Map<string, number>()
+      // Reset all flags first
+      for (const p of this.collection) p.hasEvolved = false
+
+      // Count how many of each evolved form exist
+      const evolvedCounts = new Map<string, number>()
       for (const p of this.collection) {
         const key = `${p.slug}-${p.isShiny}`
-        existing.set(key, (existing.get(key) ?? 0) + 1)
+        evolvedCounts.set(key, (evolvedCounts.get(key) ?? 0) + 1)
       }
+
+      // Track how many evolved forms have been "claimed" by base forms
+      const claimed = new Map<string, number>()
+
       for (const pokemon of this.collection) {
-        // Find all evolutions from this pokemon's slug
         const evos = EVOLUTIONS.filter(e => e.fromSlug === pokemon.slug)
         for (const evo of evos) {
           const key = `${evo.toSlug}-${pokemon.isShiny}`
-          if (existing.has(key)) {
+          const total = evolvedCounts.get(key) ?? 0
+          const used = claimed.get(key) ?? 0
+          if (total > used) {
             pokemon.hasEvolved = true
+            claimed.set(key, used + 1)
             break
           }
         }

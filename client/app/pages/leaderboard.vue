@@ -71,18 +71,27 @@ function getRanking(cat: Category): LeaderboardEntry[] {
   return [...data.value].sort((a, b) => (b[cat.field] as number) - (a[cat.field] as number))
 }
 
-// General ranking: average position across all categories
+// General ranking: average position across categories where the player has > 0
 const generalRanking = computed<GeneralEntry[]>(() => {
   if (data.value.length === 0) return []
-  const rankMaps: Map<number, number>[] = CATEGORIES.map(cat => {
+  const rankMaps: { cat: Category; map: Map<number, number> }[] = CATEGORIES.map(cat => {
     const sorted = getRanking(cat)
     const map = new Map<number, number>()
     sorted.forEach((e, i) => map.set(e.id, i + 1))
-    return map
+    return { cat, map }
   })
   return data.value.map(entry => {
-    const ranks = rankMaps.map(m => m.get(entry.id) ?? data.value.length)
-    const avgRank = ranks.reduce((s, r) => s + r, 0) / ranks.length
+    // Only count categories where the player has a value > 0
+    const validRanks: number[] = []
+    for (const { cat, map } of rankMaps) {
+      const val = entry[cat.field] as number
+      if (val > 0) {
+        validRanks.push(map.get(entry.id) ?? data.value.length)
+      }
+    }
+    const avgRank = validRanks.length > 0
+      ? validRanks.reduce((s, r) => s + r, 0) / validRanks.length
+      : data.value.length
     return { id: entry.id, username: entry.username, current_generation: entry.current_generation, level: entry.level, avgRank }
   }).sort((a, b) => a.avgRank - b.avgRank)
 })

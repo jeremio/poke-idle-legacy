@@ -466,7 +466,7 @@ onMounted(async () => {
                 </td>
                 <td class="hidden px-4 py-3 lg:table-cell">
                   <span class="rounded bg-slate-700 px-2 py-0.5 text-[10px] font-medium text-slate-300">
-                    {{ GENERATION_NAMES[user.current_generation] ?? `Gen ${user.current_generation}` }}
+                    {{ GENERATION_NAMES[user.current_generation ?? 1] ?? `Gen ${user.current_generation ?? 1}` }}
                   </span>
                 </td>
                 <td class="hidden px-4 py-3 text-xs text-slate-400 lg:table-cell">
