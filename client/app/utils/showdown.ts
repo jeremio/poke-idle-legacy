@@ -20,6 +20,7 @@ const SLUG_FIXES: Record<string, string> = {
   'mime-jr': 'mimejr',
   'mr-rime': 'mrrime',
   'tauros-paldea': 'tauros-paldeacombat',
+  'larry-e4': 'larry',
 }
 
 function fixSlug(slug: string): string {
