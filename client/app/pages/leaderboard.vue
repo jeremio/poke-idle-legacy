@@ -120,10 +120,7 @@ function getMedalClass(rank: number): string {
   return 'bg-slate-700/50 text-slate-400'
 }
 
-function getMedalEmoji(rank: number): string {
-  if (rank === 0) return '🥇'
-  if (rank === 1) return '🥈'
-  if (rank === 2) return '🥉'
+function getRankLabel(rank: number): string {
   return `${rank + 1}`
 }
 
@@ -255,7 +252,7 @@ onUnmounted(() => {
               <!-- 2nd -->
               <div class="flex flex-col items-center gap-2">
                 <div class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-slate-400/50 sm:h-20 sm:w-20" :class="getMedalClass(1)">
-                  <span class="text-2xl sm:text-3xl">🥈</span>
+                  <span class="text-2xl font-black sm:text-3xl">2</span>
                 </div>
                 <span class="text-center text-xs font-bold sm:text-sm" :class="isMeId(podiumGeneral.second.id) ? 'text-yellow-300' : 'text-white'">
                   {{ podiumGeneral.second.username }}
@@ -266,7 +263,7 @@ onUnmounted(() => {
               <div class="flex flex-col items-center gap-2">
                 <Crown class="h-6 w-6 text-yellow-400 sm:h-7 sm:w-7" />
                 <div class="flex h-20 w-20 items-center justify-center rounded-full border-2 border-yellow-400/50 shadow-lg shadow-yellow-500/20 sm:h-24 sm:w-24" :class="getMedalClass(0)">
-                  <span class="text-3xl sm:text-4xl">🥇</span>
+                  <span class="text-3xl font-black sm:text-4xl">1</span>
                 </div>
                 <span class="text-center text-sm font-bold sm:text-base" :class="isMeId(podiumGeneral.first.id) ? 'text-yellow-300' : 'text-white'">
                   {{ podiumGeneral.first.username }}
@@ -276,7 +273,7 @@ onUnmounted(() => {
               <!-- 3rd -->
               <div class="flex flex-col items-center gap-2">
                 <div class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-amber-600/50 sm:h-20 sm:w-20" :class="getMedalClass(2)">
-                  <span class="text-2xl sm:text-3xl">🥉</span>
+                  <span class="text-2xl font-black sm:text-3xl">3</span>
                 </div>
                 <span class="text-center text-xs font-bold sm:text-sm" :class="isMeId(podiumGeneral.third.id) ? 'text-yellow-300' : 'text-white'">
                   {{ podiumGeneral.third.username }}
@@ -297,8 +294,8 @@ onUnmounted(() => {
                 idx < 3 && podiumGeneral ? 'hidden' : ''
               ]"
             >
-              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold" :class="getMedalClass(idx)">
-                {{ getMedalEmoji(idx) }}
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-black" :class="getMedalClass(idx)">
+                {{ getRankLabel(idx) }}
               </div>
               <div class="min-w-0 flex-1">
                 <span class="text-sm font-bold" :class="isMeId(entry.id) ? 'text-yellow-300' : 'text-white'">
@@ -335,7 +332,7 @@ onUnmounted(() => {
               <!-- 2nd -->
               <div class="flex flex-col items-center gap-2">
                 <div class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-slate-400/50 sm:h-20 sm:w-20" :class="getMedalClass(1)">
-                  <span class="text-2xl sm:text-3xl">🥈</span>
+                  <span class="text-2xl font-black sm:text-3xl">2</span>
                 </div>
                 <span class="text-center text-xs font-bold sm:text-sm" :class="isMeId(podiumCategory.second.id) ? 'text-yellow-300' : 'text-white'">
                   {{ podiumCategory.second.username }}
@@ -348,7 +345,7 @@ onUnmounted(() => {
               <div class="flex flex-col items-center gap-2">
                 <Crown class="h-6 w-6 text-yellow-400 sm:h-7 sm:w-7" />
                 <div class="flex h-20 w-20 items-center justify-center rounded-full border-2 border-yellow-400/50 shadow-lg shadow-yellow-500/20 sm:h-24 sm:w-24" :class="getMedalClass(0)">
-                  <span class="text-3xl sm:text-4xl">🥇</span>
+                  <span class="text-3xl font-black sm:text-4xl">1</span>
                 </div>
                 <span class="text-center text-sm font-bold sm:text-base" :class="isMeId(podiumCategory.first.id) ? 'text-yellow-300' : 'text-white'">
                   {{ podiumCategory.first.username }}
@@ -360,7 +357,7 @@ onUnmounted(() => {
               <!-- 3rd -->
               <div class="flex flex-col items-center gap-2">
                 <div class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-amber-600/50 sm:h-20 sm:w-20" :class="getMedalClass(2)">
-                  <span class="text-2xl sm:text-3xl">🥉</span>
+                  <span class="text-2xl font-black sm:text-3xl">3</span>
                 </div>
                 <span class="text-center text-xs font-bold sm:text-sm" :class="isMeId(podiumCategory.third.id) ? 'text-yellow-300' : 'text-white'">
                   {{ podiumCategory.third.username }}
@@ -383,8 +380,8 @@ onUnmounted(() => {
                 idx < 3 && podiumCategory ? 'hidden' : ''
               ]"
             >
-              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold" :class="getMedalClass(idx)">
-                {{ getMedalEmoji(idx) }}
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-black" :class="getMedalClass(idx)">
+                {{ getRankLabel(idx) }}
               </div>
               <div class="min-w-0 flex-1">
                 <span class="text-sm font-bold" :class="isMeId(entry.id) ? 'text-yellow-300' : 'text-white'">
