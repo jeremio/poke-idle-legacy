@@ -2259,7 +2259,7 @@ export const GENERATIONS: Generation[] = [
     zones: [
       {
         id: 1,
-        nameFr: 'Arène — Yannick',
+        nameFr: 'Arène — Percy',
         nameEn: 'Gym — Milo',
         types: ['grass'],
         wild: [
@@ -2268,7 +2268,7 @@ export const GENERATIONS: Generation[] = [
           { nameFr: 'Rongourmand', nameEn: 'Skwovet', slug: 'skwovet', type: 'normal', baseHp: 50, baseAtk: 10 },
         ],
         boss: {
-          nameFr: 'Yannick',
+          nameFr: 'Percy',
           nameEn: 'Milo',
           slug: 'milo',
           team: [
@@ -2347,7 +2347,7 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 5,
-        nameFr: 'Arène — Lona',
+        nameFr: 'Arène — Sally',
         nameEn: 'Gym — Opal',
         types: ['fairy'],
         wild: [
@@ -2356,7 +2356,7 @@ export const GENERATIONS: Generation[] = [
           { nameFr: 'Crèmy', nameEn: 'Milcery', slug: 'milcery', type: 'fairy', baseHp: 56, baseAtk: 12 },
         ],
         boss: {
-          nameFr: 'Lona',
+          nameFr: 'Sally',
           nameEn: 'Opal',
           slug: 'opal',
           team: [
@@ -2369,7 +2369,7 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 6,
-        nameFr: 'Arène — Percy',
+        nameFr: 'Arène — Chaz',
         nameEn: 'Gym — Gordie',
         types: ['rock'],
         wild: [
@@ -2378,7 +2378,7 @@ export const GENERATIONS: Generation[] = [
           { nameFr: 'Dunaja', nameEn: 'Silicobra', slug: 'silicobra', type: 'ground', baseHp: 58, baseAtk: 12 },
         ],
         boss: {
-          nameFr: 'Percy',
+          nameFr: 'Chaz',
           nameEn: 'Gordie',
           slug: 'gordie',
           team: [
