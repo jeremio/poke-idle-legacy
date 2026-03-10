@@ -257,6 +257,32 @@ function checkGenCompletions() {
       auth.saveGameState()
     }
   }
+
+  // Check for Pokédex Master (all 9 gens completed)
+  checkPokedexMaster()
+}
+
+const MAX_GEN = 9
+
+function checkPokedexMaster() {
+  if (player.pokedexMaster) return
+  const allGensCompleted = Array.from({ length: MAX_GEN }, (_, i) => i + 1)
+    .every(gen => player.completedPokedexGens.includes(gen))
+  if (!allGensCompleted) return
+
+  player.pokedexMaster = true
+  const masterGold = 50000000
+  player.addGold(masterGold)
+  addToast(
+    t(
+      `🏆 MAÎTRE POKÉDEX ! Tous les Pokémon collectés ! Shiny ×3 permanent + ${masterGold.toLocaleString()} or !`,
+      `🏆 POKÉDEX MASTER! All Pokémon collected! Permanent ×3 Shiny rate + ${masterGold.toLocaleString()} gold!`
+    ),
+    '👑',
+    'warning',
+    15000,
+  )
+  auth.saveGameState()
 }
 
 // On initial load, silently backfill completedPokedexGens for old saves that don't have it
@@ -274,6 +300,8 @@ watch(() => inventory.collectionCount, () => {
         player.shinyCharms++
       }
     }
+    // Also check master for old saves
+    checkPokedexMaster()
     return
   }
   checkGenCompletions()

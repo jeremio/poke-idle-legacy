@@ -113,7 +113,7 @@ async function doPull() {
   // Do all pulls first (always from full pool — 5★ dupes refund gold)
   const rawPulls = []
   for (let i = 0; i < count; i++) {
-    rawPulls.push(pullFromBanner(banner, player.shinyCharms))
+    rawPulls.push(pullFromBanner(banner, player.shinyCharms, player.pokedexMaster))
   }
 
   // Determine best rarity for ball color reveal

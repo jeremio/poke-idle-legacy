@@ -100,7 +100,7 @@ export function useCombatLoop() {
 
   function spawnWild(localDiff: number, genDiffMult: number, gen: number) {
     const poke = randomWild()
-    const isShiny = Math.random() < getShinyRate(player.shinyCharms)
+    const isShiny = Math.random() < getShinyRate(player.shinyCharms, player.pokedexMaster)
     // HP scales with local difficulty (resets per gen) × gentle gen multiplier
     const hp = Math.round(poke.baseHp * (1 + localDiff * 0.6) * genDiffMult)
     // Gold: 400 × gen² × (1 + localDiff × 0.008) — matches banner cost scaling

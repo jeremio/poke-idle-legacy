@@ -76,6 +76,7 @@ interface PlayerState {
   adminVersion: number
   shinyCharms: number
   completedPokedexGens: number[]
+  pokedexMaster: boolean
 }
 
 export const usePlayerStore = defineStore('player', {
@@ -104,6 +105,7 @@ export const usePlayerStore = defineStore('player', {
       adminVersion: 0,
       shinyCharms: 0,
       completedPokedexGens: [],
+      pokedexMaster: false,
     }
   },
 

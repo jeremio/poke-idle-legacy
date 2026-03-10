@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { User, Trophy, Swords, Zap, Skull, Star, MapPin, Coins, Sparkles } from 'lucide-vue-next'
+import { User, Trophy, Swords, Zap, Skull, Star, MapPin, Coins, Sparkles, Crown } from 'lucide-vue-next'
 import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useCombatStore } from '~/stores/useCombatStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
@@ -90,7 +90,7 @@ const stats = computed<StatItem[]>(() => [
 ])
 
 const shinyChance = computed(() => {
-  const rate = getShinyRate(player.shinyCharms)
+  const rate = getShinyRate(player.shinyCharms, player.pokedexMaster)
   const denom = Math.round(1 / rate)
   return `1/${denom}`
 })
@@ -105,6 +105,9 @@ const shinyChance = computed(() => {
       </div>
       <div>
         <h2 class="text-2xl font-bold">{{ player.username || t('Dresseur', 'Trainer') }}</h2>
+        <p v-if="player.pokedexMaster" class="flex items-center gap-1 text-sm font-bold text-amber-400">
+          <Crown class="h-4 w-4" /> {{ t('Maître Pokédex', 'Pokédex Master') }}
+        </p>
         <p class="text-sm text-gray-400">
           {{ t('Niveau', 'Level') }} {{ player.level }} · {{ player.regionName }}
         </p>

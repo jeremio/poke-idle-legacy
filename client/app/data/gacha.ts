@@ -926,11 +926,13 @@ export function getRarityDpsMult(slug: string): number {
 export const BASE_SHINY_RATE = 1 / 8192
 
 // Each shiny charm adds +1/8192 to the shiny chance
-export function getShinyRate(shinyCharms: number): number {
-  return BASE_SHINY_RATE * (1 + shinyCharms)
+// Pokédex Master bonus: ×3 shiny rate on top
+export function getShinyRate(shinyCharms: number, pokedexMaster: boolean = false): number {
+  const base = BASE_SHINY_RATE * (1 + shinyCharms)
+  return pokedexMaster ? base * 3 : base
 }
 
-export function pullFromBanner(banner: Banner, shinyCharms: number = 0): { pokemon: GachaPokemon; isShiny: boolean } {
+export function pullFromBanner(banner: Banner, shinyCharms: number = 0, pokedexMaster: boolean = false): { pokemon: GachaPokemon; isShiny: boolean } {
   const byRarity = new Map<Rarity, GachaPokemon[]>()
   for (const p of banner.pool) {
     const arr = byRarity.get(p.rarity) ?? []
@@ -952,7 +954,7 @@ export function pullFromBanner(banner: Banner, shinyCharms: number = 0): { pokem
 
   const candidates = byRarity.get(selectedRarity) ?? byRarity.get('common') ?? banner.pool
   const pokemon = candidates[Math.floor(Math.random() * candidates.length)]!
-  const isShiny = Math.random() < getShinyRate(shinyCharms)
+  const isShiny = Math.random() < getShinyRate(shinyCharms, pokedexMaster)
 
   return { pokemon, isShiny }
 }
