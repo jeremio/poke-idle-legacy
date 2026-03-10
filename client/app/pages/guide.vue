@@ -108,8 +108,8 @@ function toggleGen(id: number) {
             'You can also click the enemy to deal click damage. Click damage scales with your level and Shop upgrades.'
           ) }}</p>
           <p class="text-amber-400 font-medium">{{ t(
-            '⚠️ Malus hors-région : tes Pokémon infligent 90% de dégâts en moins s\'ils ne sont pas de la même génération que la zone de combat !',
-            '⚠️ Out-of-region penalty: your Pokémon deal 90% less damage if they\'re not from the same generation as the combat zone!'
+            '⚠️ Malus hors-région : tes Pokémon infligent 99.9% de dégâts en moins s\'ils ne sont pas de la même génération que la zone de combat !',
+            '⚠️ Out-of-region penalty: your Pokémon deal 99.9% less damage if they\'re not from the same generation as the combat zone!'
           ) }}</p>
         </div>
       </section>
@@ -275,8 +275,8 @@ function toggleGen(id: number) {
             'Each generation unlocks new Pokémon to summon (dedicated gacha banner), new zones and new bosses.'
           ) }}</p>
           <p class="text-amber-400 font-medium">{{ t(
-            '⚠️ Utilise des Pokémon de la bonne région ! Un Pokémon hors-région subit un malus de 90% de dégâts. Compose ton équipe avec des Pokémon natifs de la zone que tu combats.',
-            '⚠️ Use Pokémon from the right region! An out-of-region Pokémon takes a 90% damage penalty. Build your team with Pokémon native to the zone you\'re fighting in.'
+            '⚠️ Utilise des Pokémon de la bonne région ! Un Pokémon hors-région subit un malus de 99.9% de dégâts. Compose ton équipe avec des Pokémon natifs de la zone que tu combats.',
+            '⚠️ Use Pokémon from the right region! An out-of-region Pokémon takes a 99.9% damage penalty. Build your team with Pokémon native to the zone you\'re fighting in.'
           ) }}</p>
         </div>
       </section>
