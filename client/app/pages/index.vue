@@ -17,7 +17,6 @@ import { CANDY_XP } from '~/stores/usePlayerStore'
 import type { CandySize } from '~/stores/usePlayerStore'
 import { MAX_LEVEL } from '~/stores/useInventoryStore'
 import type { OwnedPokemon } from '~/stores/useInventoryStore'
-import GuestModeModal from '~/components/GuestModeModal.vue'
 
 definePageMeta({
   layout: 'game',
@@ -30,7 +29,6 @@ const auth = useAuthStore()
 const { t } = useLocale()
 const { spawnEnemy, checkEnemyDeath, getEffectiveDps, getPokeDps, currentZone } = useCombatLoop()
 
-const showGuestModal = ref(false)
 const showRouteSelector = ref(false)
 
 // Build list of all farmable zones (all zones before the player's current frontier)
@@ -69,27 +67,6 @@ function goBackToFrontier() {
   setTimeout(() => spawnEnemy(), 200)
 }
 
-onMounted(() => {
-  if (!auth.isAuthenticated) {
-    const hasSeenGuestModal = localStorage.getItem('poke-idle-guest-modal-seen')
-    if (!hasSeenGuestModal) {
-      setTimeout(() => {
-        showGuestModal.value = true
-      }, 1000)
-    }
-  }
-})
-
-function closeGuestModal() {
-  showGuestModal.value = false
-  localStorage.setItem('poke-idle-guest-modal-seen', 'true')
-}
-
-function goToRegister() {
-  showGuestModal.value = false
-  localStorage.setItem('poke-idle-guest-modal-seen', 'true')
-  navigateTo('/login?register=1')
-}
 
 watch(() => player.clickDamage, (dmg) => {
   combat.clickDamage = dmg
@@ -202,9 +179,6 @@ function removeFromTeam(pokeId: number) {
 
 <template>
   <div class="flex flex-col items-center gap-5 select-none" @contextmenu.prevent>
-    <!-- Guest Mode Modal -->
-    <GuestModeModal :show="showGuestModal" @close="closeGuestModal" @create-account="goToRegister" />
-
     <!-- Region Unlock Modal -->
     <Teleport to="body">
       <Transition name="fade">

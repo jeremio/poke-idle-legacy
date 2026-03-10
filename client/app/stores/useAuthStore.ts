@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { useApi } from '~/composables/useApi'
 import { POKEDEX } from '~/data/pokedex'
-import { useLocalStorage } from '~/composables/useLocalStorage'
 import type { CandySize } from '~/stores/usePlayerStore'
 import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
@@ -129,40 +128,11 @@ export const useAuthStore = defineStore('auth', {
       } catch {
         this.isAuthenticated = false
         this.user = null
-        // En mode invité, charger depuis localStorage
-        this.loadGuestGameState()
       }
-    },
-
-    loadGuestGameState() {
-      const { loadGuestData } = useLocalStorage()
-      const guestData = loadGuestData()
-      
-      if (!guestData) return
-      
-      const player = usePlayerStore()
-      const inventory = useInventoryStore()
-      const daycare = useDaycareStore()
-      
-      player.setPlayer({
-        ...guestData.player,
-        isLoggedIn: false,
-      })
-      
-      inventory.collection = guestData.inventory.collection
-      inventory.nextId = guestData.inventory.nextId
-      inventory.migrateRarities()
-      inventory.migrateNames()
-      inventory.rebuildHasEvolvedFlags()
-      daycare.slots = (guestData.daycare.slots || []).map((s: any) => ({ ...s, isShiny: s.isShiny ?? false }))
     },
 
     async loadGameState() {
-      // Mode invité : charger depuis localStorage
-      if (!this.isAuthenticated) {
-        this.loadGuestGameState()
-        return null
-      }
+      if (!this.isAuthenticated) return null
       
       try {
         const api = useApi()
@@ -193,7 +163,7 @@ export const useAuthStore = defineStore('auth', {
           isLoggedIn: true,
         })
 
-        // Overwrite localStorage bonuses with server data to prevent guest mode leakage
+        // Overwrite localStorage bonuses with server data
         player.saveBonuses()
 
         // If clickDamageBonus is 0 (e.g. after admin reset), clear purchased click boosts
@@ -235,50 +205,8 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    saveGuestGameState() {
-      if (this.isAuthenticated) return
-      
-      const { saveGuestData } = useLocalStorage()
-      const player = usePlayerStore()
-      const inventory = useInventoryStore()
-      const daycare = useDaycareStore()
-      
-      saveGuestData({
-        player: {
-          username: player.username || 'Invité',
-          gold: player.gold,
-          gems: player.gems,
-          xp: player.xp,
-          level: player.level,
-          currentGeneration: player.currentGeneration,
-          currentZone: player.currentZone,
-          currentStage: player.currentStage,
-          clickDamage: player.clickDamage,
-          clickDamageBonus: player.clickDamageBonus,
-          teamDpsBonus: player.teamDpsBonus,
-          badges: player.badges,
-          candies: player.candies,
-          defeatedBosses: player.defeatedBosses,
-          shinyCharms: player.shinyCharms,
-          completedPokedexGens: player.completedPokedexGens,
-        },
-        inventory: {
-          collection: inventory.collection,
-          nextId: inventory.nextId,
-        },
-        daycare: {
-          slots: daycare.slots,
-        },
-        lastSaved: Date.now(),
-      })
-    },
-
     async saveGameState(keepalive = false) {
-      // Mode invité : sauvegarder dans localStorage
-      if (!this.isAuthenticated) {
-        this.saveGuestGameState()
-        return
-      }
+      if (!this.isAuthenticated) return
 
       // Prevent concurrent saves (race condition causes pokemon duplication)
       if (_saveLock) {

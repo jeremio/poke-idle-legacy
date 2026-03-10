@@ -1187,11 +1187,11 @@ function toggleGen(id: number) {
           </div>
 
           <div>
-            <h4 class="mb-2 text-sm font-semibold text-emerald-400">{{ t('Mode Invité & Sauvegarde', 'Guest Mode & Saves') }}</h4>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">{{ t('Sauvegarde', 'Saves') }}</h4>
             <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
-              <li>{{ t('Mode invité avec sauvegarde localStorage complète', 'Guest mode with full localStorage save') }}</li>
+              <li>{{ t('Compte requis pour jouer — sauvegarde cloud automatique', 'Account required to play — automatic cloud save') }}</li>
               <li>{{ t('Sauvegarde automatique toutes les 10 secondes', 'Auto-save every 10 seconds') }}</li>
-              <li>{{ t('Synchronisation cloud pour comptes authentifiés', 'Cloud sync for authenticated accounts') }}</li>
+              <li>{{ t('Guide, Pokédex et Classement accessibles sans compte', 'Guide, Pokédex and Leaderboard accessible without account') }}</li>
             </ul>
           </div>
 

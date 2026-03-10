@@ -27,11 +27,7 @@ let autoSaveInterval: ReturnType<typeof setInterval> | null = null
 let debouncedSaveTimer: ReturnType<typeof setTimeout> | null = null
 
 function saveOnUnload() {
-  // Guest mode: synchronous localStorage save (always reliable)
-  if (!auth.isAuthenticated) {
-    auth.saveGuestGameState()
-    return
-  }
+  if (!auth.isAuthenticated) return
   auth.saveGameState(true)
 }
 
@@ -50,31 +46,33 @@ function debouncedSave() {
 }
 
 onMounted(() => {
-  // Auth + species cache handled by auth.global middleware
-  initCombat()
+  // Only init gameplay systems for authenticated users
+  if (auth.isAuthenticated) {
+    initCombat()
 
-  // Migrate rarities for existing Pokemon (starters Gen 2/3 rare → epic)
-  inventory.migrateRarities()
+    // Migrate rarities for existing Pokemon (starters Gen 2/3 rare → epic)
+    inventory.migrateRarities()
 
-  // Migrate names from POKEDEX (fixes stale FR/EN names from older saves)
-  inventory.migrateNames()
+    // Migrate names from POKEDEX (fixes stale FR/EN names from older saves)
+    inventory.migrateNames()
 
-  // Migrate starter evolutions to epic (fix for existing Pokemon)
-  inventory.migrateStarterRarities()
+    // Migrate starter evolutions to epic (fix for existing Pokemon)
+    inventory.migrateStarterRarities()
 
-  // Migrate Gen 4 evolutions to correct rarity
-  inventory.migrateGen4Evolutions()
+    // Migrate Gen 4 evolutions to correct rarity
+    inventory.migrateGen4Evolutions()
 
-  // Check evolutions on mount
-  inventory.checkAllEvolutions(player.currentGeneration)
+    // Check evolutions on mount
+    inventory.checkAllEvolutions(player.currentGeneration)
 
-  // Auto-save every 10s as safety net
-  autoSaveInterval = setInterval(() => {
-    auth.saveGameState()
-  }, 10_000)
+    // Auto-save every 10s as safety net
+    autoSaveInterval = setInterval(() => {
+      auth.saveGameState()
+    }, 10_000)
 
-  window.addEventListener('beforeunload', saveOnUnload)
-  document.addEventListener('visibilitychange', saveOnVisibilityChange)
+    window.addEventListener('beforeunload', saveOnUnload)
+    document.addEventListener('visibilitychange', saveOnVisibilityChange)
+  }
 })
 
 // Debounced reactive save: any important state change triggers save after 2s
@@ -325,10 +323,10 @@ watch(() => inventory.collectionCount, () => {
         <span class="hidden font-pixel text-[7px] lg:inline" style="color: #ee1515">LEGACY</span>
       </div>
 
-      <!-- Trainer Level -->
-      <div class="mb-2 flex w-full flex-col items-center gap-1 px-3">
+      <!-- Trainer Level (authenticated only) -->
+      <div v-if="auth.isAuthenticated" class="mb-2 flex w-full flex-col items-center gap-1 px-3">
         <div class="flex w-full items-center justify-between text-xs">
-          <span class="font-bold" style="color: #60a5fa">{{ auth.isAuthenticated ? player.username : t('Invité', 'Guest') }}</span>
+          <span class="font-bold" style="color: #60a5fa">{{ player.username }}</span>
           <span class="font-bold" style="color: #ffcc00">Lv.{{ player.level }}</span>
         </div>
         <div class="h-2.5 w-full overflow-hidden rounded-full" style="background: #1e3a5f; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5)">
@@ -409,15 +407,28 @@ watch(() => inventory.collectionCount, () => {
             <div class="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"></div>
           </div>
           <h1 class="font-pixel text-xs" style="color: #ee1515">POKE-IDLE</h1>
-          <span class="text-[10px] font-bold text-slate-500 md:hidden">Lv.{{ player.level }}</span>
+          <span v-if="auth.isAuthenticated" class="text-[10px] font-bold text-slate-500 md:hidden">Lv.{{ player.level }}</span>
         </div>
-        <div class="flex items-center gap-2 text-sm md:gap-4">
+        <div v-if="auth.isAuthenticated" class="flex items-center gap-2 text-sm md:gap-4">
           <div class="flex items-center gap-1 rounded-lg px-2 py-1 md:gap-1.5 md:px-3 md:py-1.5" style="background: rgba(255,204,0,0.08)">
             <span class="text-sm md:text-base">🪙</span>
             <span class="text-xs font-bold md:text-sm" style="color: #ffcc00">{{ player.formattedGold }}</span>
           </div>
         </div>
       </header>
+
+      <!-- Login Banner (visitors) -->
+      <div v-if="!auth.isAuthenticated" class="mx-3 mt-3 flex items-center justify-between gap-3 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-3 md:mx-6 md:mt-4">
+        <p class="text-sm text-indigo-200">
+          {{ t('Connectez-vous ou créez un compte pour jouer !', 'Sign in or create an account to play!') }}
+        </p>
+        <NuxtLink
+          to="/login"
+          class="shrink-0 rounded-lg bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-indigo-500"
+        >
+          {{ t('Connexion', 'Sign in') }}
+        </NuxtLink>
+      </div>
 
       <!-- Page Content -->
       <div class="p-3 md:p-6" style="background-image: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px); background-size: 20px 20px;">
@@ -475,7 +486,7 @@ watch(() => inventory.collectionCount, () => {
       >
         <div class="absolute bottom-16 left-0 right-0 rounded-t-2xl border-t border-slate-700 p-4 shadow-2xl" style="background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(16px);" @click.stop>
           <div class="mb-3 flex items-center justify-between px-1">
-            <span class="text-xs font-bold text-slate-400">{{ auth.isAuthenticated ? player.username : t('Invité', 'Guest') }} · Lv.{{ player.level }}</span>
+            <span class="text-xs font-bold text-slate-400">{{ auth.isAuthenticated ? `${player.username} · Lv.${player.level}` : t('Visiteur', 'Visitor') }}</span>
             <span class="text-[10px] text-slate-500">{{ player.regionName }}</span>
           </div>
           <div class="grid grid-cols-4 gap-2">

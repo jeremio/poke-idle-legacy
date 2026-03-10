@@ -3,6 +3,9 @@ import { useSpeciesCache } from '~/composables/useSpeciesCache'
 
 let initialized = false
 
+// Pages accessible without authentication
+const PUBLIC_PAGES = ['/login', '/guide', '/pokedex', '/leaderboard']
+
 export default defineNuxtRouteMiddleware(async (to) => {
   // Skip on server
   if (import.meta.server) return
@@ -17,9 +20,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
     initialized = true
   }
 
-  // Login page is always accessible
-  if (to.path === '/login') return
+  // Public pages are always accessible
+  if (PUBLIC_PAGES.includes(to.path)) return
 
-  // All other pages are accessible in guest mode
-  // Users can play without authentication
+  // Gameplay pages require authentication — redirect to guide
+  if (!auth.isAuthenticated) {
+    return navigateTo('/guide')
+  }
 })

@@ -152,16 +152,16 @@ async function handleSubmit() {
         </button>
       </p>
 
-      <!-- Guest Mode -->
+      <!-- Discover app -->
       <div class="mt-6">
         <NuxtLink
-          to="/"
+          to="/guide"
           class="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-gray-700 bg-gray-800/50 py-3 text-sm font-bold text-gray-300 transition-all hover:border-gray-600 hover:bg-gray-800 hover:text-white"
         >
-          {{ t('Accéder en mode invité', 'Access as guest') }}
+          {{ t('Découvrir l\'application', 'Discover the app') }}
         </NuxtLink>
         <p class="mt-2 text-center text-xs text-gray-600">
-          {{ t('Accédez à toutes les fonctionnalités sans compte', 'Access all features without an account') }}
+          {{ t('Consultez le guide, le pokédex et le classement', 'Browse the guide, pokédex and leaderboard') }}
         </p>
       </div>
     </div>
