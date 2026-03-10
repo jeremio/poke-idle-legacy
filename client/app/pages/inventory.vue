@@ -112,7 +112,7 @@ const filteredCollection = computed(() => {
     const isFr = locale.value === 'fr'
     list = list.filter((p) => {
       const name = isFr ? p.nameFr : p.nameEn
-      return name.toLowerCase().includes(q) || p.slug.includes(q)
+      return name.toLowerCase().includes(q)
     })
   }
 
@@ -376,7 +376,7 @@ function getDetailStats(poke: OwnedPokemon) {
         <div
           v-for="slot in [1, 2, 3, 4, 5, 6]"
           :key="slot"
-          class="flex h-28 flex-col items-center justify-center gap-1 rounded-xl border bg-gray-800 py-1 transition-all duration-200"
+          class="flex h-36 flex-col items-center justify-center gap-1.5 rounded-xl border bg-gray-800 py-2 transition-all duration-200"
           :class="[
             dragOverSlot === slot ? 'border-cyan-400 bg-cyan-500/20 scale-110 shadow-lg shadow-cyan-500/30 ring-2 ring-cyan-400/50' : 'border-gray-700',
             dragSlot === slot ? 'opacity-40 scale-95' : '',
@@ -413,6 +413,9 @@ function getDetailStats(poke: OwnedPokemon) {
                 class="h-2 w-2 fill-yellow-400 text-yellow-400"
               />
             </div>
+            <p class="w-full truncate text-center text-[9px] text-gray-300 px-1">
+              {{ t(inventory.team.find((p) => p.teamSlot === slot)!.nameFr, inventory.team.find((p) => p.teamSlot === slot)!.nameEn) }}
+            </p>
           </template>
           <template v-else>
             <span class="text-2xl text-gray-600">?</span>
