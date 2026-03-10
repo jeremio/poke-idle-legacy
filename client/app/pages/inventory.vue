@@ -376,7 +376,7 @@ function getDetailStats(poke: OwnedPokemon) {
         <div
           v-for="slot in [1, 2, 3, 4, 5, 6]"
           :key="slot"
-          class="flex h-36 flex-col items-center justify-center gap-1.5 rounded-xl border bg-gray-800 py-2 transition-all duration-200"
+          class="flex h-44 flex-col items-center justify-center gap-1.5 rounded-xl border bg-gray-800 py-2 transition-all duration-200"
           :class="[
             dragOverSlot === slot ? 'border-cyan-400 bg-cyan-500/20 scale-110 shadow-lg shadow-cyan-500/30 ring-2 ring-cyan-400/50' : 'border-gray-700',
             dragSlot === slot ? 'opacity-40 scale-95' : '',
@@ -396,7 +396,7 @@ function getDetailStats(poke: OwnedPokemon) {
             <PokemonSprite
               :slug="inventory.team.find((p) => p.teamSlot === slot)!.slug"
               :shiny="inventory.team.find((p) => p.teamSlot === slot)!.isShiny"
-              class="pointer-events-none h-10 w-10 select-none"
+              class="pointer-events-none h-14 w-14 select-none"
             />
             <div class="flex gap-0.5">
               <TypeBadge
