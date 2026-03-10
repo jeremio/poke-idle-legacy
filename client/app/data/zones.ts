@@ -2222,7 +2222,7 @@ export const GENERATIONS: Generation[] = [
       },
       {
         id: 13,
-        nameFr: 'Maître — Kukui',
+        nameFr: 'Maître — Euphorbe',
         nameEn: 'Champion — Kukui',
         types: ['fire', 'water', 'grass', 'rock', 'steel'],
         wild: [
@@ -2231,7 +2231,7 @@ export const GENERATIONS: Generation[] = [
           { nameFr: 'Concombaffe', nameEn: 'Pyukumuku', slug: 'pyukumuku', type: 'water', baseHp: 70, baseAtk: 16 },
         ],
         boss: {
-          nameFr: 'Kukui',
+          nameFr: 'Euphorbe',
           nameEn: 'Kukui',
           slug: 'kukui',
           team: [

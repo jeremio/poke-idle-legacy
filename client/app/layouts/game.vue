@@ -257,11 +257,21 @@ function checkGenCompletions() {
   }
 }
 
-// Check on collection changes — skip the first trigger (initial load from save)
+// On initial load, silently backfill completedPokedexGens for old saves that don't have it
 let _initialLoadDone = false
 watch(() => inventory.collectionCount, () => {
   if (!_initialLoadDone) {
     _initialLoadDone = true
+    // Silently mark already-complete gens (fixes old saves missing completedPokedexGens)
+    const owned = new Set(inventory.collection.map(p => p.slug))
+    for (let gen = 1; gen <= player.currentGeneration; gen++) {
+      if (player.completedPokedexGens.includes(gen)) continue
+      const genPokemon = getPokedexByGen(gen)
+      if (genPokemon.length > 0 && genPokemon.every(p => owned.has(p.slug))) {
+        player.completedPokedexGens.push(gen)
+        player.shinyCharms++
+      }
+    }
     return
   }
   checkGenCompletions()

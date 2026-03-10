@@ -825,10 +825,10 @@ export const EVOLUTIONS: Evolution[] = [
   { fromSlug: 'graveler-alola', toSlug: 'golem-alola', toNameFr: 'Grolem (Alola)', toNameEn: 'Golem (Alola)', method: 'trade', itemRequired: 'link-cable' },
   { fromSlug: 'grimer-alola', toSlug: 'muk-alola', toNameFr: 'Grotadmorv (Alola)', toNameEn: 'Muk (Alola)', method: 'level', levelRequired: 38 },
 
-  // === Cross-gen Alolan Evolutions (old Pokémon → Alolan form) ===
-  { fromSlug: 'pikachu', toSlug: 'raichu-alola', toNameFr: 'Raichu (Alola)', toNameEn: 'Raichu (Alola)', method: 'stone', itemRequired: 'thunder-stone' },
-  { fromSlug: 'exeggcute', toSlug: 'exeggutor-alola', toNameFr: 'Noadkoko (Alola)', toNameEn: 'Exeggutor (Alola)', method: 'stone', itemRequired: 'leaf-stone' },
-  { fromSlug: 'cubone', toSlug: 'marowak-alola', toNameFr: 'Ossatueur (Alola)', toNameEn: 'Marowak (Alola)', method: 'level', levelRequired: 28 },
+  // === Cross-gen Alolan Evolutions (old Pokémon → Alolan form via Alola Stone) ===
+  { fromSlug: 'pikachu', toSlug: 'raichu-alola', toNameFr: 'Raichu (Alola)', toNameEn: 'Raichu (Alola)', method: 'stone', itemRequired: 'alola-stone' },
+  { fromSlug: 'exeggcute', toSlug: 'exeggutor-alola', toNameFr: 'Noadkoko (Alola)', toNameEn: 'Exeggutor (Alola)', method: 'stone', itemRequired: 'alola-stone' },
+  { fromSlug: 'cubone', toSlug: 'marowak-alola', toNameFr: 'Ossatueur (Alola)', toNameEn: 'Marowak (Alola)', method: 'stone', itemRequired: 'alola-stone' },
 ]
 
 // Evolution items available for Gen 1
@@ -1039,6 +1039,15 @@ export const EVO_ITEMS: EvoItem[] = [
     descEn: 'Evolves Dusclops into Dusknoir',
     icon: '👻',
     applicableTo: ['dusclops'],
+  },
+  {
+    id: 'alola-stone',
+    nameFr: 'Pierre Alola',
+    nameEn: 'Alola Stone',
+    descFr: 'Fait évoluer un Pokémon en sa forme d\'Alola',
+    descEn: 'Evolves a Pokémon into its Alolan form',
+    icon: '🌺',
+    applicableTo: ['pikachu', 'exeggcute', 'cubone'],
   },
 ]
 
