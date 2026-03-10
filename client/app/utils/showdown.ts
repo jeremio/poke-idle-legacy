@@ -60,5 +60,5 @@ export function getPokeApiSpriteUrl(id: number, shiny = false): string {
 }
 
 export function getTrainerSpriteUrl(slug: string): string {
-  return `${SHOWDOWN_BASE}/trainers/${slug}.png`
+  return `${SHOWDOWN_BASE}/trainers/${fixSlug(slug)}.png`
 }
