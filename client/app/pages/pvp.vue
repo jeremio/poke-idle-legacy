@@ -144,6 +144,7 @@ async function sendChallenge() {
     })
     const data = await res.json()
     if (res.ok) {
+      if (typeof data.gold === 'number') player.gold = data.gold
       showTeamModal.value = false
       await fetchChallenges()
     } else {
@@ -172,6 +173,7 @@ async function acceptChallenge() {
     })
     const data = await res.json()
     if (res.ok) {
+      if (typeof data.gold === 'number') player.gold = data.gold
       showTeamModal.value = false
       // Load match result and show animation
       await loadMatchResult(data.matchId)

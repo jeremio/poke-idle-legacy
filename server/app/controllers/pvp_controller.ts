@@ -113,6 +113,10 @@ export default class PvpController {
       return response.badRequest({ message: 'Un défi est déjà en attente entre vous deux' })
     }
 
+    // Deduct gold from challenger immediately
+    user.gold -= betAmount
+    await user.save()
+
     const challenge = await PvpChallenge.create({
       challengerId: user.id,
       challengedId: challengedId,
@@ -126,6 +130,7 @@ export default class PvpController {
     return response.ok({
       id: challenge.id,
       message: 'Défi envoyé !',
+      gold: user.gold,
     })
   }
 
@@ -193,6 +198,8 @@ export default class PvpController {
       return response.badRequest({ message: "Ce défi n'est plus disponible" })
     }
     if (challenge.expiresAt && challenge.expiresAt < DateTime.now()) {
+      // Refund challenger on expiration
+      await User.query().where('id', challenge.challengerId).increment('gold', challenge.betAmount)
       challenge.status = 'expired'
       await challenge.save()
       return response.badRequest({ message: 'Ce défi a expiré' })
@@ -203,16 +210,15 @@ export default class PvpController {
       return response.badRequest({ message: 'Vous devez sélectionner 6 pokémon' })
     }
 
-    // Verify gold for both
+    // Verify gold for acceptor (challenger already paid on send)
     const challenger = await User.findOrFail(challenge.challengerId)
-    if (challenger.gold < challenge.betAmount) {
-      challenge.status = 'expired'
-      await challenge.save()
-      return response.badRequest({ message: "Le challenger n'a plus assez de pokédollars" })
-    }
     if (user.gold < challenge.betAmount) {
       return response.badRequest({ message: "Vous n'avez pas assez de pokédollars" })
     }
+
+    // Deduct gold from acceptor immediately
+    user.gold -= challenge.betAmount
+    await user.save()
 
     // Determine common generations
     const minGen = Math.min(challenger.currentGeneration, user.currentGeneration)
@@ -265,17 +271,25 @@ export default class PvpController {
       betAmount: challenge.betAmount,
     })
 
-    // Transfer gold
+    // Distribute gold: winner gets both bets, draw refunds both
     if (result.winnerId) {
-      const loserId = result.winnerId === challenge.challengerId ? user.id : challenge.challengerId
-      await User.query().where('id', result.winnerId).increment('gold', challenge.betAmount)
-      await User.query().where('id', loserId).decrement('gold', challenge.betAmount)
+      await User.query()
+        .where('id', result.winnerId)
+        .increment('gold', challenge.betAmount * 2)
+    } else {
+      // Draw: refund both players
+      await User.query().where('id', challenge.challengerId).increment('gold', challenge.betAmount)
+      await User.query().where('id', user.id).increment('gold', challenge.betAmount)
     }
-    // Draw: no gold transfer
+
+    // Reload user gold for response
+    await user.refresh()
+    await challenger.refresh()
 
     return response.ok({
       matchId: match.id,
       message: 'Combat terminé !',
+      gold: user.gold,
     })
   }
 
@@ -294,6 +308,9 @@ export default class PvpController {
     if (challenge.status !== 'pending') {
       return response.badRequest({ message: "Ce défi n'est plus disponible" })
     }
+
+    // Refund challenger
+    await User.query().where('id', challenge.challengerId).increment('gold', challenge.betAmount)
 
     challenge.status = 'declined'
     await challenge.save()
