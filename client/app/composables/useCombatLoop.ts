@@ -103,11 +103,13 @@ export function useCombatLoop() {
     const isShiny = Math.random() < getShinyRate(player.shinyCharms, player.pokedexMaster)
     // HP scales with local difficulty (resets per gen) × gentle gen multiplier
     const hp = Math.round(poke.baseHp * (1 + localDiff * 0.6) * genDiffMult)
-    // Gold: 400 × gen² × (1 + localDiff × 0.008) — matches banner cost scaling
-    // End-gen ≈ 10 pulls/100 kills, start-gen ≈ 5 pulls/100 kills
+    // Gold scales with banner cost: ~5 pulls/100 kills at start, ~10 at end
+    // Gen 1 uses lower base (25) to match cheap Kanto banner (500g)
     const diffScale = 1 + localDiff * 0.008
-    const goldReward = Math.round(400 * gen * gen * diffScale * (isShiny ? 5 : 1))
-    const xpReward = Math.round(200 * gen * gen * diffScale * (isShiny ? 3 : 1))
+    const goldBase = gen === 1 ? 25 : 400 * gen * gen
+    const xpBase = gen === 1 ? 12 : 200 * gen * gen
+    const goldReward = Math.round(goldBase * diffScale * (isShiny ? 5 : 1))
+    const xpReward = Math.round(xpBase * diffScale * (isShiny ? 3 : 1))
     combat.setEnemy({
       nameFr: isShiny ? `✨ ${poke.nameFr} sauvage ✨` : `${poke.nameFr} sauvage`,
       nameEn: isShiny ? `✨ Wild ${poke.nameEn} ✨` : `Wild ${poke.nameEn}`,
@@ -131,6 +133,8 @@ export function useCombatLoop() {
     const totalHp = Math.round(teamBase * (1.5 + localDiff * 0.05) * genDiffMult)
     // Boss rewards ≈ 10× wild rewards
     const diffScale = 1 + localDiff * 0.008
+    const goldBase = gen === 1 ? 250 : 4000 * gen * gen
+    const xpBase = gen === 1 ? 120 : 2000 * gen * gen
     const bossTypes = getPokemonTypes(boss.team[0]?.slug ?? 'normal')
     combat.setEnemy({
       nameFr: `Boss : ${boss.nameFr}`,
@@ -141,8 +145,8 @@ export function useCombatLoop() {
       maxHp: totalHp,
       currentHp: totalHp,
       level: Math.max(1, Math.ceil(localDiff * 100 / 130)),
-      goldReward: Math.round(4000 * gen * gen * diffScale),
-      xpReward: Math.round(2000 * gen * gen * diffScale),
+      goldReward: Math.round(goldBase * diffScale),
+      xpReward: Math.round(xpBase * diffScale),
       isBoss: true,
       bossTimerSeconds: boss.timerSeconds,
     })
