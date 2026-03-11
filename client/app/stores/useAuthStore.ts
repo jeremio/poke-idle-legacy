@@ -290,7 +290,14 @@ export const useAuthStore = defineStore('auth', {
             if (keepalive) {
               api.post('/api/game/save-pokemons', pokemonsPayload, fetchOpts)
             } else {
-              await api.post('/api/game/save-pokemons', pokemonsPayload)
+              const pokRes = await api.post<{ ids?: (number | null)[] }>('/api/game/save-pokemons', pokemonsPayload)
+              if (pokRes?.ids) {
+                const newIds = pokRes.ids
+                for (let i = 0; i < inventory.collection.length; i++) {
+                  const poke = inventory.collection[i]
+                  if (poke) poke.serverId = newIds[i] ?? null
+                }
+              }
             }
           }
         } catch (e) {

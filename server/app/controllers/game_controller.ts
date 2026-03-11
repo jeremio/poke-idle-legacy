@@ -182,8 +182,9 @@ export default class GameController {
     }
 
     // Now save all pokemons in a transaction to prevent duplication on concurrent saves
-    const validPokemons = pokemons
-      .map((p) => ({
+    const mapped = pokemons.map((p, idx) => ({
+      idx,
+      data: {
         userId: user.id,
         speciesId: p.speciesId ?? slugToId.get(p.slug) ?? 0,
         level: p.level,
@@ -192,17 +193,31 @@ export default class GameController {
         isShiny: p.isShiny,
         rarity: p.rarity ?? 'common',
         teamSlot: p.teamSlot,
-      }))
-      .filter((p) => p.speciesId > 0)
+      },
+    }))
+    const valid = mapped.filter((m) => m.data.speciesId > 0)
 
+    let created: UserPokemon[] = []
     await db.transaction(async (trx) => {
       await UserPokemon.query({ client: trx }).where('userId', user.id).delete()
-      if (validPokemons.length > 0) {
-        await UserPokemon.createMany(validPokemons, { client: trx })
+      if (valid.length > 0) {
+        created = await UserPokemon.createMany(
+          valid.map((m) => m.data),
+          { client: trx }
+        )
       }
     })
 
-    return response.ok({ message: `${validPokemons.length} Pokémon saved` })
+    // Build positional ID array matching the original pokemons order
+    const ids: (number | null)[] = new Array(pokemons.length).fill(null)
+    for (const [i, entry] of valid.entries()) {
+      ids[entry.idx] = created[i]?.id ?? null
+    }
+
+    return response.ok({
+      message: `${valid.length} Pokémon saved`,
+      ids,
+    })
   }
 
   async uploadAvatar({ request, response, auth }: HttpContext) {
