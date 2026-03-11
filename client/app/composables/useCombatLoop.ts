@@ -87,8 +87,8 @@ export function useCombatLoop() {
     // Local difficulty resets per generation so each region feels fresh
     const localDifficulty = (zone - 1) * 10 + stage
 
-    // Gentle generation difficulty multiplier: x1.0, x1.2, x1.3, x1.4, x1.5…
-    const genDiffMult = gen === 1 ? 1.0 : 1.0 + gen * 0.1
+    // Compound 15% difficulty increase per generation: gen1=x1, gen2=x1.15, gen3=x1.32…
+    const genDiffMult = Math.pow(1.15, gen - 1)
 
     if (player.isBossStage) {
       const boss = currentZone()?.boss
@@ -128,9 +128,8 @@ export function useCombatLoop() {
   }
 
   function spawnBoss(boss: BossTrainer, localDiff: number, genDiffMult: number, gen: number) {
-    // Boss HP: controlled scaling — team size × difficulty curve, independent of visual levels
-    const teamBase = Math.round(boss.team.length * Math.pow(localDiff, 1.6) * 1.4)
-    const totalHp = Math.round(teamBase * (1.5 + localDiff * 0.05) * genDiffMult * 2.3)
+    // Boss HP: calibrated so Pierre(z1)~2K, Blue(z13)~400K, +15% compound per gen
+    const totalHp = Math.round(boss.team.length * 23 * Math.pow(localDiff, 1.64) * genDiffMult)
     // Boss rewards ≈ 10× wild rewards
     const diffScale = 1 + localDiff * 0.02
     const goldBase = gen === 1 ? 250 : 4000 * gen * gen
@@ -269,7 +268,7 @@ export function useCombatLoop() {
     if (!zone) return
     const boss = zone.boss
     const localDifficulty = (zoneId - 1) * 10 + 10
-    const genDiffMult = genId === 1 ? 1.0 : 1.0 + genId * 0.1
+    const genDiffMult = Math.pow(1.15, genId - 1)
     spawnBoss(boss, localDifficulty, genDiffMult, genId)
   }
 
