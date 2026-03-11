@@ -189,8 +189,9 @@ export const usePlayerStore = defineStore('player', {
     },
 
     recalcClickDamage() {
-      // Clics: √(level) + badges scaling — utiles (~20-30% des dégâts) mais jamais dominants
-      this.clickDamage = Math.floor(3 + Math.sqrt(this.level) * 3 + this.badges * 1.5)
+      // Clics: √(level) + badges scaling — utiles mais jamais suffisants pour battre un boss seul
+      // À 7 clics/s sur 30s (210 clics), clickDmg × 210 < boss z1 HP pour toutes les gens
+      this.clickDamage = Math.floor(3 + Math.sqrt(this.level) * 2 + this.badges * 0.3)
     },
 
     addXp(amount: number) {
