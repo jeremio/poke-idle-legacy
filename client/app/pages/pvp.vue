@@ -5,7 +5,8 @@ import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useAuthStore } from '~/stores/useAuthStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
 import { useLocale } from '~/composables/useLocale'
-import { TYPES } from '~/data/types'
+import { TYPES, getEffectiveness } from '~/data/types'
+import type { PokemonType } from '~/data/types'
 
 definePageMeta({ layout: 'game' })
 
@@ -355,6 +356,20 @@ function formatGold(n: number): string {
   return String(n)
 }
 
+function getSuperEffectiveTypes(bossTypes: string[]): { id: PokemonType; mult: number }[] {
+  const normalized = bossTypes.map((bt) => bt.toLowerCase() as PokemonType)
+  const results: { id: PokemonType; mult: number }[] = []
+  for (const atkType of TYPES) {
+    let mult = 1
+    for (const defType of normalized) {
+      mult *= getEffectiveness(atkType.id, defType)
+    }
+    if (mult > 1) results.push({ id: atkType.id, mult })
+  }
+  results.sort((a, b) => b.mult - a.mult)
+  return results
+}
+
 function getTypeColor(typeId: string): string {
   return TYPES.find((t2) => t2.id === typeId.toLowerCase())?.color ?? '#6B7280'
 }
@@ -509,6 +524,15 @@ onUnmounted(() => {
                         class="rounded px-1 py-px text-[9px] font-bold text-white"
                         :style="{ backgroundColor: getTypeColor(bt) }"
                       >{{ getTypeName(bt) }}</span>
+                    </div>
+                    <div v-if="c.boss.types?.length" class="mt-0.5 flex items-center gap-0.5">
+                      <Zap class="h-2.5 w-2.5 text-green-400" />
+                      <span
+                        v-for="se in getSuperEffectiveTypes(c.boss.types).slice(0, 4)"
+                        :key="se.id"
+                        class="rounded px-0.5 text-[8px] font-bold text-white/80"
+                        :style="{ backgroundColor: getTypeColor(se.id) }"
+                      >{{ getTypeName(se.id) }}</span>
                     </div>
                   </div>
                 </div>
@@ -807,10 +831,15 @@ onUnmounted(() => {
                 </span>
                 <span class="ml-1 text-[10px] text-slate-500">Gen {{ challengeBoss.generation }}</span>
               </div>
-              <p class="mt-1 flex items-center gap-1 text-[10px] text-amber-400/70">
-                <Zap class="h-3 w-3" />
-                {{ t('Choisissez des types efficaces contre ce boss !', 'Pick types that are effective against this boss!') }}
-              </p>
+              <div v-if="challengeBoss.types?.length" class="mt-1.5 flex flex-wrap items-center gap-1">
+                <span class="text-[10px] font-bold text-green-400"><Zap class="mr-0.5 inline h-3 w-3" />{{ t('Efficace :', 'Effective:') }}</span>
+                <span
+                  v-for="se in getSuperEffectiveTypes(challengeBoss.types).slice(0, 6)"
+                  :key="se.id"
+                  class="rounded px-1 py-px text-[9px] font-bold text-white"
+                  :style="{ backgroundColor: getTypeColor(se.id) }"
+                >{{ getTypeName(se.id) }} ×{{ se.mult }}</span>
+              </div>
             </div>
           </div>
 
@@ -943,6 +972,15 @@ onUnmounted(() => {
                     :style="{ backgroundColor: getTypeColor(btype) }"
                   >{{ getTypeName(btype) }}</span>
                   <span class="rounded-md bg-slate-700/50 px-2 py-0.5 text-[10px] font-bold text-slate-400">Gen {{ matchResult.boss.generation }}</span>
+                </div>
+                <div v-if="matchResult.boss.types?.length" class="mt-1 flex flex-wrap items-center gap-1">
+                  <span class="text-[9px] font-bold text-green-400"><Zap class="mr-0.5 inline h-2.5 w-2.5" />{{ t('Efficace :', 'Effective:') }}</span>
+                  <span
+                    v-for="se in getSuperEffectiveTypes(matchResult.boss.types).slice(0, 5)"
+                    :key="se.id"
+                    class="rounded px-1 py-px text-[8px] font-bold text-white/80"
+                    :style="{ backgroundColor: getTypeColor(se.id) }"
+                  >{{ getTypeName(se.id) }} ×{{ se.mult }}</span>
                 </div>
               </div>
             </div>
