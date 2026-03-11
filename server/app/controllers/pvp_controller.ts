@@ -23,7 +23,6 @@ export default class PvpController {
     const players = await User.query()
       .where('badges', '>=', MIN_BADGES)
       .where('id', '!=', user.id)
-      .where('role', '!=', 'admin')
       .where('lastLoginAt', '>=', fiveMinAgo!)
       .select('id', 'username', 'level', 'badges', 'currentGeneration', 'avatarUrl')
       .orderBy('level', 'desc')
@@ -42,7 +41,6 @@ export default class PvpController {
     const players = await User.query()
       .where('badges', '>=', MIN_BADGES)
       .where('id', '!=', user.id)
-      .where('role', '!=', 'admin')
       .select('id', 'username', 'level', 'badges', 'currentGeneration', 'avatarUrl')
       .orderBy('level', 'desc')
       .limit(100)
@@ -57,7 +55,7 @@ export default class PvpController {
   async sendChallenge({ request, response, auth }: HttpContext) {
     const user = auth.use('web').user
     if (!user) return response.unauthorized({ message: 'Not authenticated' })
-    if (user.badges < MIN_BADGES) {
+    if (user.badges < MIN_BADGES && user.role !== 'admin') {
       return response.forbidden({
         message: 'Vous devez avoir au moins 13 badges pour accéder au PvP',
       })
@@ -92,7 +90,7 @@ export default class PvpController {
 
     const challenged = await User.find(challengedId)
     if (!challenged) return response.notFound({ message: 'Joueur introuvable' })
-    if (challenged.badges < MIN_BADGES) {
+    if (challenged.badges < MIN_BADGES && challenged.role !== 'admin') {
       return response.badRequest({ message: "Ce joueur n'a pas encore débloqué le PvP" })
     }
     if (challenged.gold < betAmount) {
