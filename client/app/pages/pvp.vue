@@ -46,6 +46,9 @@ const showTeamModal = ref(false)
 const teamModalMode = ref<'challenge' | 'accept'>('challenge')
 const acceptingChallengeId = ref<number | null>(null)
 const selectedTeam = ref<number[]>([])
+const teamSearch = ref('')
+const teamSort = ref<'level' | 'stars' | 'name'>('level')
+const teamRarity = ref<string | null>(null)
 
 // Match result modal
 const showMatchResult = ref(false)
@@ -242,13 +245,29 @@ const maxBet = computed(() => Math.floor(player.gold * 0.5))
 const pvpUnlocked = computed(() => player.badges >= 13)
 
 const sortedCollection = computed(() => {
-  return [...inventory.collection]
-    .sort((a, b) => {
-      // Team first, then by level desc
-      if (a.teamSlot !== null && b.teamSlot === null) return -1
-      if (a.teamSlot === null && b.teamSlot !== null) return 1
-      return b.level - a.level
-    })
+  let list = [...inventory.collection]
+
+  if (teamSearch.value) {
+    const q = teamSearch.value.toLowerCase()
+    list = list.filter((p) => p.nameFr.toLowerCase().includes(q) || p.nameEn.toLowerCase().includes(q))
+  }
+
+  if (teamRarity.value) {
+    list = list.filter((p) => p.rarity === teamRarity.value)
+  }
+
+  // Always put current team members first
+  list.sort((a, b) => {
+    if (a.teamSlot !== null && b.teamSlot === null) return -1
+    if (a.teamSlot === null && b.teamSlot !== null) return 1
+    switch (teamSort.value) {
+      case 'stars': return b.stars - a.stars || b.level - a.level
+      case 'name': return a.nameFr.localeCompare(b.nameFr)
+      default: return b.level - a.level
+    }
+  })
+
+  return list
 })
 
 function getWinRate(entry: any): string {
@@ -646,8 +665,40 @@ onUnmounted(() => {
             </div>
           </div>
 
+          <!-- Search + filters -->
+          <div class="mb-3 flex flex-wrap items-center gap-2">
+            <div class="relative flex-1 min-w-[140px]">
+              <Search class="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+              <input
+                v-model="teamSearch"
+                type="text"
+                :placeholder="t('Rechercher...', 'Search...')"
+                class="w-full rounded-lg border border-slate-600 bg-slate-700 py-1.5 pl-8 pr-3 text-xs text-white placeholder-slate-500 outline-none focus:border-red-500"
+              />
+            </div>
+            <select
+              v-model="teamSort"
+              class="rounded-lg border border-slate-600 bg-slate-700 px-2 py-1.5 text-xs text-white focus:border-red-500 focus:outline-none"
+            >
+              <option value="level">{{ t('Niveau', 'Level') }}</option>
+              <option value="stars">{{ t('Étoiles', 'Stars') }}</option>
+              <option value="name">{{ t('Nom', 'Name') }}</option>
+            </select>
+            <select
+              v-model="teamRarity"
+              class="rounded-lg border border-slate-600 bg-slate-700 px-2 py-1.5 text-xs text-white focus:border-red-500 focus:outline-none"
+            >
+              <option :value="null">{{ t('Toutes raretés', 'All rarities') }}</option>
+              <option value="legendary">{{ t('Légendaire', 'Legendary') }}</option>
+              <option value="epic">{{ t('Épique', 'Epic') }}</option>
+              <option value="rare">{{ t('Rare', 'Rare') }}</option>
+              <option value="uncommon">{{ t('Peu commun', 'Uncommon') }}</option>
+              <option value="common">{{ t('Commun', 'Common') }}</option>
+            </select>
+          </div>
+
           <!-- Pokemon grid -->
-          <div class="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+          <div class="grid max-h-[50vh] grid-cols-3 gap-2 overflow-y-auto pr-1 sm:grid-cols-4 md:grid-cols-5">
             <button
               v-for="poke in sortedCollection"
               :key="poke.id"

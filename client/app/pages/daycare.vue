@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Egg, Coins, X, Star, Trash2, Plus } from 'lucide-vue-next'
+import { Egg, Coins, X, Star, Trash2, Plus, Search } from 'lucide-vue-next'
 import { getSpriteUrl, getShinySpriteUrl } from '~/utils/showdown'
 import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useInventoryStore, MAX_LEVEL, MAX_STARS } from '~/stores/useInventoryStore'
@@ -22,12 +22,15 @@ const { t } = useLocale()
 
 // ── State ──
 const showPicker = ref(false)
+const pickerSearch = ref('')
+const pickerSort = ref<'stars' | 'name' | 'rarity'>('stars')
+const pickerRarity = ref<string | null>(null)
 const hatchResults = ref<{ slug: string; nameFr: string; nameEn: string; isShiny: boolean; isNew: boolean; stars: number; rarity: Rarity }[]>([])
 
 // Eligible pokemon: level 100, not shiny, not already in daycare, deduplicated by slug
 const eligiblePokemon = computed(() => {
   const seen = new Set<string>()
-  return inventory.collection.filter((p) => {
+  let list = inventory.collection.filter((p) => {
     if (p.level < MAX_LEVEL) return false
     if (p.isShiny) return false
     if (daycare.hasSlug(p.slug, p.isShiny)) return false
@@ -35,7 +38,41 @@ const eligiblePokemon = computed(() => {
     seen.add(p.slug)
     return true
   })
+
+  if (pickerSearch.value) {
+    const q = pickerSearch.value.toLowerCase()
+    list = list.filter((p) => p.nameFr.toLowerCase().includes(q) || p.nameEn.toLowerCase().includes(q))
+  }
+
+  if (pickerRarity.value) {
+    list = list.filter((p) => p.rarity === pickerRarity.value)
+  }
+
+  switch (pickerSort.value) {
+    case 'stars':
+      list.sort((a, b) => b.stars - a.stars || a.slug.localeCompare(b.slug))
+      break
+    case 'name':
+      list.sort((a, b) => a.nameFr.localeCompare(b.nameFr))
+      break
+    case 'rarity': {
+      const order: Record<string, number> = { legendary: 0, epic: 1, rare: 2, uncommon: 3, common: 4 }
+      list.sort((a, b) => (order[a.rarity] ?? 5) - (order[b.rarity] ?? 5))
+      break
+    }
+  }
+
+  return list
 })
+
+const rarityOptions: { value: string | null; label: string }[] = [
+  { value: null, label: 'Toutes' },
+  { value: 'legendary', label: 'L\u00e9gendaire' },
+  { value: 'epic', label: '\u00c9pique' },
+  { value: 'rare', label: 'Rare' },
+  { value: 'uncommon', label: 'Peu commun' },
+  { value: 'common', label: 'Commun' },
+]
 
 function rarityLabel(r: Rarity): string {
   return t(RARITY_LABELS_FR[r], RARITY_LABELS_EN[r])
@@ -307,10 +344,40 @@ const readyCount = computed(() => daycare.slots.filter(slotReady).length)
           <h3 class="mb-1 text-lg font-bold text-white">
             {{ t('Déposer un Pokémon', 'Deposit a Pokémon') }}
           </h3>
-          <p class="mb-4 text-xs text-gray-500">
+          <p class="mb-3 text-xs text-gray-500">
             {{ t('Niv.100 requis · Pas de shiny', 'Lv.100 required · No shinies') }}
           </p>
-          <div class="grid max-h-96 grid-cols-4 gap-2 overflow-y-auto pr-1 sm:grid-cols-5">
+
+          <!-- Search + filters -->
+          <div class="mb-3 flex flex-wrap items-center gap-2">
+            <div class="relative flex-1 min-w-[140px]">
+              <Search class="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+              <input
+                v-model="pickerSearch"
+                type="text"
+                :placeholder="t('Rechercher...', 'Search...')"
+                class="w-full rounded-lg border border-gray-700 bg-gray-800 py-1.5 pl-8 pr-3 text-xs text-white placeholder-gray-500 outline-none focus:border-green-500"
+              />
+            </div>
+            <select
+              v-model="pickerSort"
+              class="rounded-lg border border-gray-700 bg-gray-800 px-2 py-1.5 text-xs text-white focus:border-green-500 focus:outline-none"
+            >
+              <option value="stars">{{ t('Étoiles', 'Stars') }}</option>
+              <option value="name">{{ t('Nom', 'Name') }}</option>
+              <option value="rarity">{{ t('Rareté', 'Rarity') }}</option>
+            </select>
+            <select
+              v-model="pickerRarity"
+              class="rounded-lg border border-gray-700 bg-gray-800 px-2 py-1.5 text-xs text-white focus:border-green-500 focus:outline-none"
+            >
+              <option v-for="opt in rarityOptions" :key="String(opt.value)" :value="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="grid max-h-80 grid-cols-4 gap-2 overflow-y-auto pr-1 sm:grid-cols-5">
             <button
               v-for="poke in eligiblePokemon"
               :key="poke.id"
