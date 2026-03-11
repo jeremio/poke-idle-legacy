@@ -5,6 +5,7 @@ import type { CandySize } from '~/stores/usePlayerStore'
 import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
 import { useDaycareStore } from '~/stores/useDaycareStore'
+import { useCombatStore } from '~/stores/useCombatStore'
 import { getRarity } from '~/data/gacha'
 
 interface AuthState {
@@ -167,9 +168,11 @@ export const useAuthStore = defineStore('auth', {
         // Overwrite localStorage bonuses with server data
         player.saveBonuses()
 
-        // If clickDamageBonus is 0 (e.g. after admin reset), clear purchased click boosts
+        // If clickDamageBonus is 0 (e.g. after admin reset), clear purchased click boosts + KO counter
         if ((data.player.clickDamageBonus ?? 0) === 0) {
           localStorage.removeItem('poke-idle-click-boosts')
+          localStorage.removeItem('poke-idle-total-kos')
+          useCombatStore().totalKills = 0
         }
 
         inventory.collection = data.pokemons.map((p, i) => ({
