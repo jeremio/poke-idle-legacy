@@ -333,6 +333,8 @@ export async function resolveMatch(
   commonGenerations: number[]
 ): Promise<PvpResolution | null> {
   // Load pokemon with species
+  console.log(`[PVP] resolveMatch: p1=${player1Id} ids=${JSON.stringify(player1PokemonIds)}, p2=${player2Id} ids=${JSON.stringify(player2PokemonIds)}, gens=${JSON.stringify(commonGenerations)}`)
+
   const p1Pokemon = await UserPokemon.query()
     .whereIn('id', player1PokemonIds)
     .where('userId', player1Id)
@@ -342,11 +344,20 @@ export async function resolveMatch(
     .where('userId', player2Id)
     .preload('species')
 
-  if (p1Pokemon.length === 0 || p2Pokemon.length === 0) return null
+  console.log(`[PVP] p1Pokemon loaded: ${p1Pokemon.length}, p2Pokemon loaded: ${p2Pokemon.length}`)
+
+  if (p1Pokemon.length === 0 || p2Pokemon.length === 0) {
+    console.error(`[PVP] FAIL: empty team — p1=${p1Pokemon.length} p2=${p2Pokemon.length}`)
+    return null
+  }
 
   // Pick boss
   const boss = await pickBoss(commonGenerations)
-  if (!boss) return null
+  console.log(`[PVP] pickBoss result: ${boss ? boss.slug : 'NULL'}`)
+  if (!boss) {
+    console.error(`[PVP] FAIL: pickBoss returned null for gens=${JSON.stringify(commonGenerations)}`)
+    return null
+  }
 
   const bossType1 = normalizeType(boss.type1)
   const bossType2 = normalizeType(boss.type2)

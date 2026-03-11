@@ -104,6 +104,14 @@ async function loadAll() {
   loading.value = false
 }
 
+// ── Helpers ──
+function toServerIds(clientIds: number[]): number[] {
+  return clientIds.map(cid => {
+    const p = inventory.collection.find(pk => pk.id === cid)
+    return p?.serverId ?? cid
+  })
+}
+
 // ── Challenge Flow ──
 function openChallengeModal(target: any) {
   challengeTarget.value = target
@@ -128,7 +136,7 @@ async function sendChallenge() {
       body: JSON.stringify({
         challengedId: challengeTarget.value.id,
         betAmount: betAmount.value,
-        team: selectedTeam.value,
+        team: toServerIds(selectedTeam.value),
       }),
     })
     const data = await res.json()
@@ -157,7 +165,7 @@ async function acceptChallenge() {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ team: selectedTeam.value }),
+      body: JSON.stringify({ team: toServerIds(selectedTeam.value) }),
     })
     const data = await res.json()
     if (res.ok) {

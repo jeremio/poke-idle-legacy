@@ -177,6 +177,7 @@ export const useAuthStore = defineStore('auth', {
 
         inventory.collection = data.pokemons.map((p, i) => ({
           id: i + 1,
+          serverId: (p as any).id ?? null,
           slug: p.slug,
           nameFr: p.nameFr,
           nameEn: p.nameEn,

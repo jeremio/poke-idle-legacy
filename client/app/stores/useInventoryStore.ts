@@ -7,6 +7,7 @@ import { getGenForSlug, POKEDEX } from '~/data/pokedex'
 
 export interface OwnedPokemon {
   id: number
+  serverId: number | null
   slug: string
   nameFr: string
   nameEn: string
@@ -109,7 +110,7 @@ export const useInventoryStore = defineStore('inventory', {
       }
     },
 
-    addPokemon(pokemon: Omit<OwnedPokemon, 'id' | 'level' | 'xp' | 'teamSlot'>): {
+    addPokemon(pokemon: Omit<OwnedPokemon, 'id' | 'serverId' | 'level' | 'xp' | 'teamSlot'>): {
       isNew: boolean
       isMaxed: boolean
       wasAlreadyMaxed: boolean
@@ -133,6 +134,7 @@ export const useInventoryStore = defineStore('inventory', {
       const newPokemon: OwnedPokemon = {
         ...pokemon,
         id: this.nextId++,
+        serverId: null,
         level: 1,
         xp: 0,
         teamSlot: this.team.length < 6 ? this.team.length + 1 : null,
@@ -141,10 +143,11 @@ export const useInventoryStore = defineStore('inventory', {
       return { isNew: true, isMaxed: false, wasAlreadyMaxed: false, pokemon: newPokemon }
     },
 
-    addPokemonRaw(pokemon: Omit<OwnedPokemon, 'id' | 'level' | 'xp' | 'teamSlot'>): OwnedPokemon {
+    addPokemonRaw(pokemon: Omit<OwnedPokemon, 'id' | 'serverId' | 'level' | 'xp' | 'teamSlot'>): OwnedPokemon {
       const newPokemon: OwnedPokemon = {
         ...pokemon,
         id: this.nextId++,
+        serverId: null,
         level: 1,
         xp: 0,
         teamSlot: null,
@@ -234,6 +237,7 @@ export const useInventoryStore = defineStore('inventory', {
       // Living dex: keep the original pokemon, add the evolution as a new entry at level 1
       const evolved: OwnedPokemon = {
         id: this.nextId++,
+        serverId: null,
         slug: evo.toSlug,
         nameFr: evo.toNameFr,
         nameEn: evo.toNameEn,

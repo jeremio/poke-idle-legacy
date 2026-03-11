@@ -221,16 +221,22 @@ export default class PvpController {
     const commonGens = Array.from({ length: minGen }, (_, i) => i + 1)
 
     // Resolve combat
-    const result = await resolveMatch(
-      challenge.challengerId,
-      user.id,
-      challenge.challengerTeam!,
-      team,
-      commonGens
-    )
+    let result
+    try {
+      result = await resolveMatch(
+        challenge.challengerId,
+        user.id,
+        challenge.challengerTeam!,
+        team,
+        commonGens
+      )
+    } catch (err) {
+      console.error('[PVP] resolveMatch threw:', err)
+      return response.internalServerError({ message: `Erreur combat: ${err instanceof Error ? err.message : String(err)}` })
+    }
 
     if (!result) {
-      return response.internalServerError({ message: 'Impossible de résoudre le combat' })
+      return response.internalServerError({ message: 'Impossible de résoudre le combat (voir logs serveur [PVP])' })
     }
 
     // Update challenge
