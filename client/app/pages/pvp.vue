@@ -57,6 +57,10 @@ const matchResult = ref<any>(null)
 const animationProgress = ref(0)
 const animationDone = ref(false)
 
+// Notifications
+const pvpNotifications = ref<{ id: string; type: 'win' | 'lose' | 'draw' | 'declined' | 'expired'; text: string; matchId?: number }[]>([])
+const seenResultIds = ref<Set<number>>(new Set())
+
 // Polling
 let pollInterval: ReturnType<typeof setInterval> | null = null
 
@@ -84,8 +88,52 @@ async function fetchChallenges() {
       const data = await res.json()
       receivedChallenges.value = data.received
       sentChallenges.value = data.sent
+
+      // Sync gold from server
+      if (typeof data.gold === 'number') player.gold = data.gold
+
+      // Process recent results into notifications
+      if (data.recentResults) {
+        for (const r of data.recentResults) {
+          if (seenResultIds.value.has(r.id)) continue
+          seenResultIds.value.add(r.id)
+          const myId = auth.user?.id
+          if (r.status === 'completed' && r.match) {
+            const won = r.match.winnerId === myId
+            const draw = r.match.winnerId === null
+            pvpNotifications.value.unshift({
+              id: `result-${r.id}`,
+              type: draw ? 'draw' : won ? 'win' : 'lose',
+              text: draw
+                ? t(`Match nul contre ${r.challengedName} ! Mise remboursée.`, `Draw vs ${r.challengedName}! Bet refunded.`)
+                : won
+                  ? t(`Victoire contre ${r.challengedName} ! +${formatGold(r.betAmount * 2)} 🪙`, `Victory vs ${r.challengedName}! +${formatGold(r.betAmount * 2)} 🪙`)
+                  : t(`Défaite contre ${r.challengedName}. -${formatGold(r.betAmount)} 🪙`, `Defeat vs ${r.challengedName}. -${formatGold(r.betAmount)} 🪙`),
+              matchId: r.match.matchId,
+            })
+          } else if (r.status === 'declined') {
+            pvpNotifications.value.unshift({
+              id: `declined-${r.id}`,
+              type: 'declined',
+              text: t(`${r.challengedName} a refusé votre défi. Mise remboursée.`, `${r.challengedName} declined your challenge. Bet refunded.`),
+            })
+          } else if (r.status === 'expired') {
+            pvpNotifications.value.unshift({
+              id: `expired-${r.id}`,
+              type: 'expired',
+              text: t(`Défi contre ${r.challengedName} expiré. Mise remboursée.`, `Challenge vs ${r.challengedName} expired. Bet refunded.`),
+            })
+          }
+        }
+        // Keep only last 10 notifications
+        if (pvpNotifications.value.length > 10) pvpNotifications.value.length = 10
+      }
     }
   } catch { /* ignore */ }
+}
+
+function dismissNotification(id: string) {
+  pvpNotifications.value = pvpNotifications.value.filter((n) => n.id !== id)
 }
 
 async function fetchLeaderboard() {
@@ -377,6 +425,41 @@ onUnmounted(() => {
         >
           {{ t(tab.labelFr, tab.labelEn) }}
         </button>
+      </div>
+
+      <!-- ═══ NOTIFICATIONS ═══ -->
+      <div v-if="pvpNotifications.length > 0" class="space-y-2">
+        <div
+          v-for="notif in pvpNotifications"
+          :key="notif.id"
+          class="flex items-center justify-between rounded-lg px-4 py-3 text-sm font-bold"
+          :class="{
+            'border border-green-500/30 bg-green-500/10 text-green-400': notif.type === 'win',
+            'border border-red-500/30 bg-red-500/10 text-red-400': notif.type === 'lose',
+            'border border-amber-500/30 bg-amber-500/10 text-amber-400': notif.type === 'draw',
+            'border border-slate-500/30 bg-slate-500/10 text-slate-400': notif.type === 'declined' || notif.type === 'expired',
+          }"
+        >
+          <div class="flex items-center gap-2">
+            <span>{{ notif.type === 'win' ? '🏆' : notif.type === 'lose' ? '💀' : notif.type === 'draw' ? '🤝' : '📨' }}</span>
+            <span>{{ notif.text }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              v-if="notif.matchId"
+              class="rounded bg-slate-700 px-2 py-1 text-xs text-white transition-colors hover:bg-slate-600"
+              @click="loadMatchResult(notif.matchId!)"
+            >
+              {{ t('Voir', 'View') }}
+            </button>
+            <button
+              class="text-slate-500 transition-colors hover:text-white"
+              @click="dismissNotification(notif.id)"
+            >
+              <X class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- ═══ ARENA TAB ═══ -->

@@ -195,17 +195,24 @@ export default class PvpController {
   }
 
   /**
-   * GET /api/game/pvp/challenges — défis reçus et envoyés en attente
+   * GET /api/game/pvp/challenges — défis reçus et envoyés en attente + résultats récents
    */
   async listChallenges({ response, auth }: HttpContext) {
     const user = auth.use('web').user
     if (!user) return response.unauthorized({ message: 'Not authenticated' })
 
-    // Expire old challenges
-    await PvpChallenge.query()
+    // Expire old challenges & refund challengers
+    const expiredChallenges = await PvpChallenge.query()
       .where('status', 'pending')
       .where('expiresAt', '<', DateTime.now().toSQL()!)
-      .update({ status: 'expired' })
+    for (const ch of expiredChallenges) {
+      await User.query().where('id', ch.challengerId).increment('gold', ch.betAmount)
+      ch.status = 'expired'
+      await ch.save()
+    }
+
+    // Reload user gold (may have changed from wins/refunds)
+    await user.refresh()
 
     const received = await PvpChallenge.query()
       .where('challengedId', user.id)
@@ -219,7 +226,42 @@ export default class PvpController {
       .preload('challenged')
       .orderBy('createdAt', 'desc')
 
+    // Recent results: challenges I sent that were completed/declined/expired in last 10 min
+    const tenMinAgo = DateTime.now().minus({ minutes: 10 }).toSQL()!
+    const recentResults = await PvpChallenge.query()
+      .where('challengerId', user.id)
+      .whereIn('status', ['completed', 'declined', 'expired'])
+      .where('updatedAt', '>=', tenMinAgo)
+      .preload('challenged')
+      .orderBy('updatedAt', 'desc')
+      .limit(10)
+
+    // For completed challenges, fetch associated match to get winner
+    const recentResultsData = await Promise.all(
+      recentResults.map(async (c) => {
+        let matchInfo = null
+        if (c.status === 'completed') {
+          const match = await PvpMatch.query().where('challengeId', c.id).first()
+          if (match) {
+            matchInfo = {
+              matchId: match.id,
+              winnerId: match.winnerId,
+            }
+          }
+        }
+        return {
+          id: c.id,
+          challengedName: c.challenged.username,
+          betAmount: c.betAmount,
+          status: c.status,
+          match: matchInfo,
+          updatedAt: c.updatedAt?.toISO(),
+        }
+      })
+    )
+
     return response.ok({
+      gold: user.gold,
       received: received.map((c) => ({
         id: c.id,
         challengerId: c.challengerId,
@@ -256,6 +298,7 @@ export default class PvpController {
             }
           : null,
       })),
+      recentResults: recentResultsData,
     })
   }
 
