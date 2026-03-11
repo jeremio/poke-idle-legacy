@@ -89,9 +89,9 @@ export function useCombatLoop() {
     // Local difficulty resets per generation so each region feels fresh
     const localDifficulty = (zone - 1) * 10 + stage
 
-    // Adaptive gen scaling: stronger for early zones, gentler for late zones
-    // Satisfies: Pierre~2K, Blue~400K, gen9-z1~15K, gen9-z13~1M
-    const genDiffMult = 1 + (gen - 1) * (0.16 + 3.4 / localDifficulty)
+    // Adaptive gen scaling: gen9 champion ≈ 8K DPS, gen1 champion ≈ 4.3K DPS
+    // A maxed legendary 5★ team of 6 ≈ 7200 DPS (14K with type effectiveness)
+    const genDiffMult = 1 + (gen - 1) * (0.095 + 1.5 / localDifficulty)
 
     if (player.isBossStage) {
       const boss = currentZone()?.boss
@@ -141,7 +141,7 @@ export function useCombatLoop() {
     const smoothTeam = 2 + (zoneIdx / 12) * 4
     // Champion (z13) gets ×1.2 HP to stay hardest despite longer timer
     const championMult = zoneIdx === 12 ? 1.2 : 1.0
-    const totalHp = Math.round(smoothTeam * 140 * Math.pow(localDiff, 1.21) * genDiffMult * championMult)
+    const totalHp = Math.round(smoothTeam * 140 * Math.pow(localDiff, 1.15) * genDiffMult * championMult)
     // Boss rewards ≈ 10× wild rewards
     const diffScale = 1 + localDiff * 0.02
     const goldBase = gen === 1 ? 500 : 4000 * gen * gen
