@@ -129,8 +129,8 @@ export function useCombatLoop() {
   }
 
   function spawnBoss(boss: BossTrainer, localDiff: number, genDiffMult: number, gen: number) {
-    // Boss HP: flattened curve — early bosses slightly tougher, late bosses easier
-    const totalHp = Math.round(boss.team.length * 35 * Math.pow(localDiff, 1.5) * genDiffMult)
+    // Boss HP: Pierre~4.5K, Blue~300K — flatter curve
+    const totalHp = Math.round(boss.team.length * 140 * Math.pow(localDiff, 1.21) * genDiffMult)
     // Boss rewards ≈ 10× wild rewards
     const diffScale = 1 + localDiff * 0.02
     const goldBase = gen === 1 ? 500 : 4000 * gen * gen
