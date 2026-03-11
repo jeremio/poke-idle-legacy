@@ -190,7 +190,7 @@ export const usePlayerStore = defineStore('player', {
 
     recalcClickDamage() {
       // Clics: √(level) scaling — vise ~35% des dégâts totaux (30-40%)
-      this.clickDamage = Math.floor(5 + Math.sqrt(this.level) * 7 + this.badges * 3) + this.clickDamageBonus
+      this.clickDamage = Math.floor(3 + Math.sqrt(this.level) * 3 + this.badges * 3) + this.clickDamageBonus
     },
 
     addXp(amount: number) {
