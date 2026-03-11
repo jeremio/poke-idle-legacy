@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Bug, Zap, Coins, MapPin, Star, Package, BookOpen } from 'lucide-vue-next'
+import { Bug, Zap, Coins, MapPin, Star, Package, BookOpen, Swords } from 'lucide-vue-next'
 import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
 import { useAuthStore } from '~/stores/useAuthStore'
 import { useLocale } from '~/composables/useLocale'
+import { useCombatLoop } from '~/composables/useCombatLoop'
 import { GENERATIONS } from '~/data/zones'
 import { BANNERS } from '~/data/gacha'
 
@@ -13,6 +14,7 @@ const player = usePlayerStore()
 const inventory = useInventoryStore()
 const auth = useAuthStore()
 const { t } = useLocale()
+const { forceBossSpawn } = useCombatLoop()
 
 // ── Quick actions ──
 function giveGold(amount: number) { player.addGold(amount) }
@@ -58,6 +60,12 @@ function maxAllPokemon() {
 
 function giveAllCandies() {
   player.candies = { S: 999, M: 999, L: 999, XL: 999 }
+}
+
+function forceBoss(genId: number, zoneId: number) {
+  player.combatGeneration = genId
+  player.combatZone = zoneId
+  forceBossSpawn(genId, zoneId)
 }
 
 function forceSave() {
@@ -140,6 +148,27 @@ function forceSave() {
               ? 'bg-orange-500 text-black'
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
             @click="setGenZone(gen.id, zone.id)"
+          >
+            {{ zone.id }}. {{ zone.boss.nameFr }}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Boss Fight -->
+    <section class="mb-4 rounded-xl border border-gray-700/50 bg-gray-800/40 p-4">
+      <h2 class="mb-3 flex items-center gap-2 text-sm font-bold text-red-400">
+        <Swords class="h-4 w-4" /> {{ t('Combattre un Boss', 'Fight a Boss') }}
+      </h2>
+      <p class="mb-2 text-xs text-gray-500">{{ t('Lance directement un combat de boss', 'Directly start a boss fight') }}</p>
+      <div v-for="gen in GENERATIONS" :key="'boss-'+gen.id" class="mb-3">
+        <p class="mb-1 text-xs font-bold text-white">{{ gen.nameFr }} ({{ gen.regionFr }})</p>
+        <div class="flex flex-wrap gap-1">
+          <button
+            v-for="zone in gen.zones"
+            :key="zone.id"
+            class="rounded bg-red-600/20 px-2 py-1 text-[10px] font-bold text-red-400 hover:bg-red-600/30 transition-colors"
+            @click="forceBoss(gen.id, zone.id)"
           >
             {{ zone.id }}. {{ zone.boss.nameFr }}
           </button>

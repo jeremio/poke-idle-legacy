@@ -264,6 +264,15 @@ export function useCombatLoop() {
     spawnEnemy()
   }
 
+  function forceBossSpawn(genId: number, zoneId: number) {
+    const zone = getZone(genId, zoneId)
+    if (!zone) return
+    const boss = zone.boss
+    const localDifficulty = (zoneId - 1) * 10 + 10
+    const genDiffMult = genId === 1 ? 1.0 : 1.0 + genId * 0.1
+    spawnBoss(boss, localDifficulty, genDiffMult, genId)
+  }
+
   return {
     init,
     spawnEnemy,
@@ -271,5 +280,6 @@ export function useCombatLoop() {
     getEffectiveDps,
     getPokeDps,
     currentZone,
+    forceBossSpawn,
   }
 }
