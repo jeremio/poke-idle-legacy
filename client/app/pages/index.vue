@@ -116,7 +116,8 @@ function handleClick(event?: MouseEvent) {
     return
   }
   combat.clickAttack()
-  spawnDamageNumber(combat.clickDamage, event)
+  const displayDmg = combat.enemy?.isBoss ? Math.max(1, Math.floor(combat.clickDamage * 0.25)) : combat.clickDamage
+  spawnDamageNumber(displayDmg, event)
   checkEnemyDeath()
 }
 

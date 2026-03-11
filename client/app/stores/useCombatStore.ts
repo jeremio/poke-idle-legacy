@@ -85,7 +85,9 @@ export const useCombatStore = defineStore('combat', {
 
     clickAttack() {
       if (!this.enemy || this.enemy.currentHp <= 0) return
-      this.enemy.currentHp = Math.max(0, this.enemy.currentHp - this.clickDamage)
+      // Clicks do 25% damage against bosses — team DPS is required to win
+      const dmg = this.enemy.isBoss ? Math.max(1, Math.floor(this.clickDamage * 0.25)) : this.clickDamage
+      this.enemy.currentHp = Math.max(0, this.enemy.currentHp - dmg)
       this.totalClicks++
     },
 
