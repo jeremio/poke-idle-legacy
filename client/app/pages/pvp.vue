@@ -45,7 +45,7 @@ const betAmount = ref(1000)
 const showTeamModal = ref(false)
 const teamModalMode = ref<'challenge' | 'accept'>('challenge')
 const acceptingChallengeId = ref<number | null>(null)
-const acceptingChallengeBoss = ref<{ slug: string; nameFr: string; nameEn: string; types: string[]; generation: number } | null>(null)
+const challengeBoss = ref<{ slug: string; nameFr: string; nameEn: string; types: string[]; generation: number } | null>(null)
 const selectedTeam = ref<number[]>([])
 const teamSearch = ref('')
 const teamSort = ref<'level' | 'stars' | 'name'>('level')
@@ -123,8 +123,24 @@ function openChallengeModal(target: any) {
   showChallengeModal.value = true
 }
 
-function confirmChallenge() {
+async function confirmChallenge() {
   showChallengeModal.value = false
+  // Fetch pre-picked boss before team selection
+  try {
+    const res = await fetch(`${API}/api/pvp/preview-boss`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ challengedId: challengeTarget.value.id }),
+    })
+    if (res.ok) {
+      challengeBoss.value = await res.json()
+    } else {
+      challengeBoss.value = null
+    }
+  } catch {
+    challengeBoss.value = null
+  }
   teamModalMode.value = 'challenge'
   selectedTeam.value = []
   showTeamModal.value = true
@@ -141,6 +157,7 @@ async function sendChallenge() {
         challengedId: challengeTarget.value.id,
         betAmount: betAmount.value,
         team: toSlugs(selectedTeam.value),
+        bossSlug: challengeBoss.value?.slug ?? undefined,
       }),
     })
     const data = await res.json()
@@ -158,7 +175,7 @@ async function sendChallenge() {
 
 function openAcceptModal(challenge: any) {
   acceptingChallengeId.value = challenge.id
-  acceptingChallengeBoss.value = challenge.boss ?? null
+  challengeBoss.value = challenge.boss ?? null
   teamModalMode.value = 'accept'
   selectedTeam.value = []
   showTeamModal.value = true
@@ -655,23 +672,23 @@ onUnmounted(() => {
 
           <!-- Boss preview (when accepting a challenge) -->
           <div
-            v-if="teamModalMode === 'accept' && acceptingChallengeBoss"
+            v-if="challengeBoss"
             class="mb-4 flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3"
           >
-            <img :src="getSpriteUrl(acceptingChallengeBoss.slug)" class="h-14 w-14 object-contain" alt="" />
+            <img :src="getSpriteUrl(challengeBoss.slug)" class="h-14 w-14 object-contain" alt="" />
             <div>
               <p class="text-sm font-bold text-amber-300">
-                {{ t('Boss :', 'Boss:') }} {{ t(acceptingChallengeBoss.nameFr, acceptingChallengeBoss.nameEn) }}
+                {{ t('Boss :', 'Boss:') }} {{ t(challengeBoss.nameFr, challengeBoss.nameEn) }}
               </p>
               <div class="mt-0.5 flex items-center gap-1">
                 <span
-                  v-for="btype in (acceptingChallengeBoss.types || [])"
+                  v-for="btype in (challengeBoss.types || [])"
                   :key="btype"
                   class="rounded bg-slate-700 px-1.5 py-0.5 text-[10px] font-bold uppercase text-slate-300"
                 >
                   {{ btype }}
                 </span>
-                <span class="ml-1 text-[10px] text-slate-500">Gen {{ acceptingChallengeBoss.generation }}</span>
+                <span class="ml-1 text-[10px] text-slate-500">Gen {{ challengeBoss.generation }}</span>
               </div>
               <p class="mt-1 text-[10px] text-amber-400/70">
                 {{ t('Choisissez des types efficaces contre ce boss !', 'Pick types that are effective against this boss!') }}

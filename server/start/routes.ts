@@ -54,6 +54,7 @@ router
         router.get('/players', [PvpController, 'listPlayers'])
         router.get('/all-players', [PvpController, 'listAllPlayers'])
         router.get('/challenges', [PvpController, 'listChallenges'])
+        router.post('/preview-boss', [PvpController, 'previewBoss'])
         router.post('/challenge', [PvpController, 'sendChallenge'])
         router.post('/challenge/:id/accept', [PvpController, 'acceptChallenge'])
         router.post('/challenge/:id/decline', [PvpController, 'declineChallenge'])

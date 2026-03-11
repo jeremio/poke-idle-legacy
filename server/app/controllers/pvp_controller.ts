@@ -49,8 +49,43 @@ export default class PvpController {
   }
 
   /**
+   * POST /api/game/pvp/preview-boss — pré-sélectionner un boss pour un défi
+   * body: { challengedId }
+   */
+  async previewBoss({ request, response, auth }: HttpContext) {
+    const user = auth.use('web').user
+    if (!user) return response.unauthorized({ message: 'Not authenticated' })
+
+    const { challengedId } = request.body() as { challengedId: number }
+    if (!challengedId) return response.badRequest({ message: 'challengedId requis' })
+
+    const challenged = await User.find(challengedId)
+    if (!challenged) return response.notFound({ message: 'Joueur introuvable' })
+
+    const minGen = Math.min(user.currentGeneration, challenged.currentGeneration)
+    const commonGens = Array.from({ length: minGen }, (_, i) => i + 1)
+    const boss = await pickBoss(commonGens)
+    if (!boss) {
+      return response.internalServerError({ message: 'Impossible de choisir un boss PvP' })
+    }
+
+    const bossType1 = (boss.type1 ?? '').toLowerCase().trim()
+    const bossType2 = (boss.type2 ?? '').toLowerCase().trim()
+    const bossTypes = [bossType1, bossType2].filter(Boolean)
+    if (bossTypes.length === 0) bossTypes.push('normal')
+
+    return response.ok({
+      slug: boss.slug,
+      nameFr: boss.nameFr,
+      nameEn: boss.nameEn,
+      types: bossTypes,
+      generation: boss.generation,
+    })
+  }
+
+  /**
    * POST /api/game/pvp/challenge — envoyer un défi
-   * body: { challengedId, betAmount, team: number[] (6 pokemon IDs) }
+   * body: { challengedId, betAmount, team: string[], bossSlug? }
    */
   async sendChallenge({ request, response, auth }: HttpContext) {
     const user = auth.use('web').user
@@ -61,10 +96,11 @@ export default class PvpController {
       })
     }
 
-    const { challengedId, betAmount, team } = request.body() as {
+    const { challengedId, betAmount, team, bossSlug: requestedBossSlug } = request.body() as {
       challengedId: number
       betAmount: number
       team: string[]
+      bossSlug?: string
     }
 
     if (!challengedId || !betAmount || !team || team.length !== 6) {
@@ -113,10 +149,17 @@ export default class PvpController {
       return response.badRequest({ message: 'Un défi est déjà en attente entre vous deux' })
     }
 
-    // Pre-pick the PvP boss so both players can see it before choosing their team
+    // Use boss from preview if provided, otherwise pick a new one
     const minGen = Math.min(user.currentGeneration, challenged.currentGeneration)
     const commonGens = Array.from({ length: minGen }, (_, i) => i + 1)
-    const boss = await pickBoss(commonGens)
+    let boss: Awaited<ReturnType<typeof pickBoss>> = null
+    if (requestedBossSlug) {
+      const Species = (await import('#models/species')).default
+      boss = await Species.query().where('slug', requestedBossSlug).first()
+    }
+    if (!boss) {
+      boss = await pickBoss(commonGens)
+    }
     if (!boss) {
       return response.internalServerError({ message: 'Impossible de choisir un boss PvP' })
     }
