@@ -27,7 +27,7 @@ const player = usePlayerStore()
 const inventory = useInventoryStore()
 const auth = useAuthStore()
 const { t } = useLocale()
-const { spawnEnemy, checkEnemyDeath, getEffectiveDps, getPokeDps, currentZone } = useCombatLoop()
+const { spawnEnemy, checkEnemyDeath, getEffectiveDps, getPokeDps, currentZone, bossGateActive, confirmBossFight } = useCombatLoop()
 
 const showRouteSelector = ref(false)
 
@@ -356,6 +356,26 @@ function removeFromTeam(pokeId: number) {
           `Active penalty: ${player.penaltyType === 'dps' ? 'DPS' : 'Gold'} -${player.penaltyPercent}%`
         ) }}
       </span>
+    </div>
+
+    <!-- Boss Gate: require click to start boss fight (prevents AFK progression) -->
+    <div
+      v-if="bossGateActive && !combat.enemy"
+      class="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl border-4 border-red-500/50 bg-gradient-to-b from-red-950/40 to-slate-900 p-8 shadow-2xl"
+    >
+      <Swords class="h-10 w-10 text-red-400" />
+      <p class="text-center text-lg font-bold text-white">
+        {{ t('Un champion vous attend !', 'A boss awaits!') }}
+      </p>
+      <p class="text-sm text-slate-400">
+        {{ t('Préparez votre équipe avant de combattre.', 'Prepare your team before fighting.') }}
+      </p>
+      <button
+        class="mt-2 rounded-xl bg-red-600 px-8 py-3 text-lg font-bold text-white shadow-lg transition-all hover:bg-red-500 hover:shadow-red-500/30 active:scale-95"
+        @click="confirmBossFight()"
+      >
+        {{ t('Combattre', 'Fight') }}
+      </button>
     </div>
 
     <!-- Enemy Display -->

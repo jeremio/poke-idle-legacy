@@ -12,6 +12,8 @@ import type { PokemonType } from '~/data/types'
 import type { WildPokemon, BossTrainer } from '~/data/zones'
 
 let initialized = false
+const bossGateActive = ref(false)
+const pendingBossInfo = ref<{ boss: BossTrainer; localDiff: number; genDiffMult: number; gen: number } | null>(null)
 
 export function useCombatLoop() {
   const combat = useCombatStore()
@@ -93,7 +95,12 @@ export function useCombatLoop() {
 
     if (player.isBossStage) {
       const boss = currentZone()?.boss
-      if (boss) spawnBoss(boss, localDifficulty, genDiffMult, gen)
+      if (boss) {
+        // Gate: require player click before boss fight (prevents AFK progression)
+        bossGateActive.value = true
+        pendingBossInfo.value = { boss, localDiff: localDifficulty, genDiffMult, gen }
+        return
+      }
     } else {
       spawnWild(localDifficulty, genDiffMult, gen)
     }
@@ -277,6 +284,14 @@ export function useCombatLoop() {
     spawnBoss(boss, localDifficulty, genDiffMult, genId)
   }
 
+  function confirmBossFight() {
+    if (!bossGateActive.value || !pendingBossInfo.value) return
+    const { boss, localDiff, genDiffMult, gen } = pendingBossInfo.value
+    bossGateActive.value = false
+    pendingBossInfo.value = null
+    spawnBoss(boss, localDiff, genDiffMult, gen)
+  }
+
   return {
     init,
     spawnEnemy,
@@ -285,5 +300,7 @@ export function useCombatLoop() {
     getPokeDps,
     currentZone,
     forceBossSpawn,
+    bossGateActive,
+    confirmBossFight,
   }
 }
