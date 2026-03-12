@@ -165,6 +165,7 @@ export const useCombatStore = defineStore('combat', {
 
     reset() {
       this.clearTimers()
+      try { localStorage.removeItem(TOTAL_KILLS_KEY) } catch {}
       this.$reset()
     },
   },

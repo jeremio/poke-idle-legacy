@@ -252,6 +252,8 @@ export const useAuthStore = defineStore('auth', {
             const saveResult = await api.post<{ reload?: boolean }>('/api/game/save', playerPayload)
             if (saveResult?.reload) {
               console.log('[SAVE] Admin override detected — reloading game state')
+              useCombatStore().reset()
+              usePlayerStore().stageKills = 0
               await this.loadGameState()
               return // lock released in finally
             }
