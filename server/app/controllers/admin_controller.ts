@@ -204,7 +204,6 @@ export default class AdminController {
     await UserPokemon.query().delete()
 
     // Reset all users (keep accounts, role, email, password)
-    // Use db.from() (Knex) instead of User.query() so db.raw() works correctly
     await db.from('users').update({
       gold: 0,
       gems: 0,
@@ -222,8 +221,9 @@ export default class AdminController {
       defeated_bosses: JSON.stringify([]),
       penalty_type: null,
       penalty_percent: 0,
-      admin_version: db.raw('COALESCE(admin_version, 0) + 1'),
     })
+    // Increment admin_version via raw SQL (db.raw() can't be used as a value)
+    await db.rawQuery('UPDATE users SET admin_version = COALESCE(admin_version, 0) + 1')
 
     const totalUsers = await User.query().count('* as total')
     return response.ok({
