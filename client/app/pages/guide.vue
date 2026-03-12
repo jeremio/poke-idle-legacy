@@ -133,9 +133,9 @@ function toggleGen(id: number) {
         <h3 class="mt-3 mb-1 text-xs font-semibold text-gray-400 uppercase">{{ t('Probabilités de drop', 'Drop rates') }}</h3>
         <div class="flex flex-wrap gap-2 mb-3">
           <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-gray-300">Commun</span> <span class="font-bold text-white">70%</span></span>
-          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-blue-400">Rare</span> <span class="font-bold text-white">25%</span></span>
-          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-purple-400">Épique</span> <span class="font-bold text-white">4.8%</span></span>
-          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-amber-400">Légendaire</span> <span class="font-bold text-white">0.2%</span></span>
+          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-blue-400">Rare</span> <span class="font-bold text-white">24%</span></span>
+          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-purple-400">Épique</span> <span class="font-bold text-white">5.6%</span></span>
+          <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-amber-400">Légendaire</span> <span class="font-bold text-white">0.4%</span></span>
           <span class="rounded bg-gray-700 px-2 py-1 text-xs"><span class="text-yellow-400">✨ Shiny</span> <span class="font-bold text-white">1/8192</span></span>
         </div>
 
