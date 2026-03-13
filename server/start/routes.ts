@@ -78,6 +78,7 @@ router
         router.delete('/users/:id', [AdminController, 'deleteUser'])
         router.post('/users/:id/give-items', [AdminController, 'giveItems'])
         router.post('/users/:id/reset', [AdminController, 'resetUser'])
+        router.post('/users/:id/reset-level', [AdminController, 'resetLevel'])
         router.post('/users/:id/penalty', [AdminController, 'setPenalty'])
         router.delete('/users/:id/penalty', [AdminController, 'removePenalty'])
         router.delete('/users/:id/avatar', [AdminController, 'resetAvatar'])

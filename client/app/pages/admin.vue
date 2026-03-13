@@ -263,6 +263,23 @@ async function resetUser(userId: number) {
   }
 }
 
+async function resetLevel(userId: number) {
+  if (!confirm('Réinitialiser le niveau de cet utilisateur ? (remet niveau 1, 0 XP)')) return
+  try {
+    const response = await fetch(`${API_BASE}/api/admin/users/${userId}/reset-level`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+    if (response.ok) {
+      const data = await response.json()
+      alert(data.message || 'Niveau réinitialisé')
+      await loadUsers()
+    }
+  } catch (error) {
+    console.error('Failed to reset level:', error)
+  }
+}
+
 async function resetAvatar(userId: number) {
   if (!confirm('Réinitialiser la photo de profil de cet utilisateur ?')) return
   try {
@@ -821,9 +838,16 @@ onMounted(async () => {
                       <Ban class="h-3.5 w-3.5" />
                     </button>
                     <button
+                      class="rounded-lg bg-cyan-600/20 p-2 text-cyan-400 transition-all hover:bg-cyan-600/30"
+                      @click="resetLevel(user.id)"
+                      title="Reset Niveau"
+                    >
+                      <TrendingUp class="h-3.5 w-3.5" />
+                    </button>
+                    <button
                       class="rounded-lg bg-amber-600/20 p-2 text-amber-400 transition-all hover:bg-amber-600/30"
                       @click="resetUser(user.id)"
-                      title="Réinitialiser"
+                      title="Réinitialiser tout"
                     >
                       <RotateCcw class="h-3.5 w-3.5" />
                     </button>

@@ -149,6 +149,22 @@ export default class AdminController {
   }
 
   /**
+   * Reset only the level & XP of a user (keeps everything else)
+   */
+  async resetLevel({ params, response }: HttpContext) {
+    const user = await User.findOrFail(params.id)
+
+    user.xp = 0
+    user.level = 1
+    user.adminVersion = (user.adminVersion ?? 0) + 1
+    await user.save()
+
+    return response.ok({
+      message: `Niveau de ${user.username} réinitialisé (niveau 1, 0 XP)`,
+    })
+  }
+
+  /**
    * Reset user progress
    */
   async resetUser({ params, response }: HttpContext) {
