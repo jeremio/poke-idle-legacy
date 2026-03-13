@@ -182,7 +182,7 @@ const JOHTO_POOL: GachaPokemon[] = [
   { nameFr: 'Lippouti', nameEn: 'Smoochum', slug: 'smoochum', rarity: 'rare', shinyRate: 0.02 },
   { nameFr: 'Debugant', nameEn: 'Tyrogue', slug: 'tyrogue', rarity: 'rare', shinyRate: 0.02 },
   { nameFr: 'Airmure', nameEn: 'Skarmory', slug: 'skarmory', rarity: 'rare', shinyRate: 0.02 },
-  { nameFr: 'Corniaud', nameEn: 'Houndour', slug: 'houndour', rarity: 'rare', shinyRate: 0.02 },
+  { nameFr: 'Malosse', nameEn: 'Houndour', slug: 'houndour', rarity: 'rare', shinyRate: 0.02 },
   { nameFr: 'Scorplane', nameEn: 'Gligar', slug: 'gligar', rarity: 'rare', shinyRate: 0.02 },
   { nameFr: 'Embrylex', nameEn: 'Larvitar', slug: 'larvitar', rarity: 'epic', shinyRate: 0.03 },
   // EPIC STARTERS GEN 2
@@ -191,7 +191,6 @@ const JOHTO_POOL: GachaPokemon[] = [
   { nameFr: 'Kaiminus', nameEn: 'Totodile', slug: 'totodile', rarity: 'epic', shinyRate: 0.03 },
   // EPIC
   { nameFr: 'Écremeuh', nameEn: 'Miltank', slug: 'miltank', rarity: 'epic', shinyRate: 0.03 },
-  { nameFr: 'Leuphorie', nameEn: 'Blissey', slug: 'blissey', rarity: 'epic', shinyRate: 0.03 },
   { nameFr: 'Scarhino', nameEn: 'Heracross', slug: 'heracross', rarity: 'epic', shinyRate: 0.03 },
   { nameFr: 'Queulorior', nameEn: 'Smeargle', slug: 'smeargle', rarity: 'epic', shinyRate: 0.03 },
   { nameFr: 'Qulbutoké', nameEn: 'Wobbuffet', slug: 'wobbuffet', rarity: 'epic', shinyRate: 0.03 },

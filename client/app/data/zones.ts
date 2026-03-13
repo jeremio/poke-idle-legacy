@@ -372,7 +372,7 @@ export const GENERATIONS: Generation[] = [
         wild: [
           { nameFr: 'Fouinette', nameEn: 'Sentret', slug: 'sentret', type: 'normal', baseHp: 35, baseAtk: 5 },
           { nameFr: 'Hoothoot', nameEn: 'Hoothoot', slug: 'hoothoot', type: 'flying', baseHp: 40, baseAtk: 5 },
-          { nameFr: 'Corniaud', nameEn: 'Houndour', slug: 'houndour', type: 'fire', baseHp: 35, baseAtk: 7 },
+          { nameFr: 'Malosse', nameEn: 'Houndour', slug: 'houndour', type: 'fire', baseHp: 35, baseAtk: 7 },
           { nameFr: 'Tournegrin', nameEn: 'Sunkern', slug: 'sunkern', type: 'grass', baseHp: 20, baseAtk: 3 },
         ],
         boss: {
