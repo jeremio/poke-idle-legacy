@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Swords, Users, Clock, Crown, Copy, Check, X, ChevronLeft, Zap, Trophy, Sparkles, Shield } from 'lucide-vue-next'
+import { Swords, Users, Clock, Crown, Copy, Check, X, ChevronLeft, Zap, Trophy, Sparkles, Shield, Search } from 'lucide-vue-next'
 import { useRaidSocket } from '~/composables/useRaidSocket'
 import { useRaidStore } from '~/stores/useRaidStore'
 import { usePlayerStore } from '~/stores/usePlayerStore'
@@ -8,8 +8,11 @@ import { useAuthStore } from '~/stores/useAuthStore'
 import { useLocale } from '~/composables/useLocale'
 import { getSpriteUrl, getShinySpriteUrl } from '~/utils/showdown'
 import { getSlugGeneration } from '~/data/gacha'
-import { getEvolutionStage } from '~/data/evolutions'
-import { TYPES } from '~/data/types'
+import type { Rarity } from '~/data/gacha'
+import { getEvolutionStage, getEvoStageMult } from '~/data/evolutions'
+import { TYPES, getPokemonTypes } from '~/data/types'
+import type { PokemonType } from '~/data/types'
+import { POKEDEX } from '~/data/pokedex'
 
 definePageMeta({
   layout: 'game',
@@ -30,18 +33,22 @@ function pokeSprite(slug: string, isShiny: boolean): string {
 }
 
 function getTypeName(typeId: string): string {
-  const info = TYPES.find(tp => tp.id === typeId)
+  const info = TYPES.find(tp => tp.id === typeId.toLowerCase())
   return info ? t(info.nameFr, info.nameEn) : typeId
 }
 
 function getTypeColor(typeId: string): string {
-  return TYPES.find(tp => tp.id === typeId)?.color ?? '#888'
+  return TYPES.find(tp => tp.id === typeId.toLowerCase())?.color ?? '#888'
 }
 
 const joinCode = ref('')
 const errorMsg = ref<string | null>(null)
 const view = ref<'home' | 'room'>('home')
 const filterEvoStage = ref<number | null>(null)
+const raidSearch = ref('')
+const raidSortBy = ref<'level' | 'stars' | 'name' | 'dps' | 'pokedex' | 'rarity'>('level')
+const raidFilterType = ref<PokemonType | null>(null)
+const raidFilterShiny = ref<boolean | null>(null)
 
 // ── Cooldown system (15 min per generation) ──
 const COOLDOWN_MS = 15 * 60 * 1000
@@ -122,6 +129,37 @@ const evoStageOptions = computed(() => [
   { value: 2, label: t('Stade 2', 'Stage 2') },
 ])
 
+const raidSortOptions = computed(() => [
+  { value: 'level', label: `Lv ${t('Niveau', 'Level')}` },
+  { value: 'stars', label: `⭐ ${t('Étoiles', 'Stars')}` },
+  { value: 'name', label: `A-Z ${t('Nom', 'Name')}` },
+  { value: 'dps', label: 'DPS' },
+  { value: 'pokedex', label: `# ${t('Pokédex', 'Pokédex')}` },
+  { value: 'rarity', label: t('Rareté', 'Rarity') },
+])
+
+function pokeDps(poke: { slug: string; level: number; stars: number; isShiny: boolean; rarity: Rarity }) {
+  const baseDmg = poke.level * 2
+  const evoMult = getEvoStageMult(poke.slug)
+  const starMult = 1 + poke.stars * 0.1
+  const shinyMult = poke.isShiny ? 4.0 : 1.0
+  const RARITY_DPS_MULT: Record<string, number> = { common: 1.0, rare: 1.3, epic: 1.6, legendary: 2.0 }
+  const rarityMult = RARITY_DPS_MULT[poke.rarity] ?? 1.0
+  return Math.round(baseDmg * evoMult * starMult * shinyMult * rarityMult)
+}
+
+// Types present in current gen collection for raid type filter
+const raidCollectionTypes = computed(() => {
+  if (!raid.room) return []
+  const gen = raid.room.generation
+  const types = new Set<PokemonType>()
+  for (const p of inventory.collection) {
+    if (getSlugGeneration(p.slug) !== gen) continue
+    for (const tp of getPokemonTypes(p.slug)) types.add(tp)
+  }
+  return TYPES.filter(tp => types.has(tp.id))
+})
+
 const GENERATION_NAMES: Record<number, string> = {
   1: 'Kanto', 2: 'Johto', 3: 'Hoenn', 4: 'Sinnoh', 5: 'Unys', 6: 'Kalos', 7: 'Alola', 8: 'Galar', 9: 'Paldea',
 }
@@ -141,12 +179,60 @@ const availableGens = computed(() => {
 const availablePokemon = computed(() => {
   if (!raid.room) return []
   const gen = raid.room.generation
-  return inventory.collection.filter(p => {
+  let list = inventory.collection.filter(p => {
     const pokeGen = getSlugGeneration(p.slug)
     if (pokeGen !== gen) return false
     if (filterEvoStage.value !== null && getEvolutionStage(p.slug) !== filterEvoStage.value) return false
     return true
-  }).sort((a, b) => b.level - a.level)
+  })
+
+  // Search filter
+  if (raidSearch.value.trim()) {
+    const q = raidSearch.value.toLowerCase()
+    list = list.filter(p => {
+      const name = t(p.nameFr, p.nameEn)
+      return name.toLowerCase().includes(q)
+    })
+  }
+
+  // Type filter
+  if (raidFilterType.value) {
+    list = list.filter(p => getPokemonTypes(p.slug).includes(raidFilterType.value!))
+  }
+
+  // Shiny filter
+  if (raidFilterShiny.value === true) list = list.filter(p => p.isShiny)
+  else if (raidFilterShiny.value === false) list = list.filter(p => !p.isShiny)
+
+  // Sort
+  switch (raidSortBy.value) {
+    case 'level':
+      list.sort((a, b) => b.level - a.level || b.stars - a.stars)
+      break
+    case 'stars':
+      list.sort((a, b) => b.stars - a.stars || b.level - a.level)
+      break
+    case 'name':
+      list.sort((a, b) => a.slug.localeCompare(b.slug))
+      break
+    case 'dps':
+      list.sort((a, b) => pokeDps(b) - pokeDps(a))
+      break
+    case 'pokedex':
+      list.sort((a, b) => {
+        const aId = POKEDEX.find(p => p.slug === a.slug)?.id ?? 9999
+        const bId = POKEDEX.find(p => p.slug === b.slug)?.id ?? 9999
+        return aId - bId
+      })
+      break
+    case 'rarity': {
+      const rarityOrder: Record<string, number> = { legendary: 0, epic: 1, rare: 2, common: 3 }
+      list.sort((a, b) => (rarityOrder[a.rarity] ?? 4) - (rarityOrder[b.rarity] ?? 4) || b.stars - a.stars)
+      break
+    }
+  }
+
+  return list
 })
 
 const isInSelectedTeam = (pokeId: number) => raid.selectedTeam.some(p => p.id === pokeId)
@@ -272,13 +358,32 @@ async function sendTeam() {
     isShiny: p.isShiny,
     rarity: p.rarity,
   }))
-  await raidSocket.setTeam(team)
+  return await raidSocket.setTeam(team)
 }
 
+const readyLoading = ref(false)
+
 async function toggleReady() {
-  // Always send team first
-  await sendTeam()
-  await raidSocket.setReady(!isReady.value)
+  if (readyLoading.value) return
+  readyLoading.value = true
+  errorMsg.value = null
+  try {
+    // Always send team first
+    const teamRes = await sendTeam()
+    if (teamRes?.error) {
+      errorMsg.value = t('Erreur lors de l\'envoi de l\'équipe. Réessaie.', 'Error sending team. Try again.')
+      return
+    }
+    const readyRes = await raidSocket.setReady(!isReady.value)
+    if (readyRes?.error) {
+      errorMsg.value = t('Erreur: ' + readyRes.error, 'Error: ' + readyRes.error)
+    }
+  } catch (e) {
+    console.error('toggleReady error:', e)
+    errorMsg.value = t('Erreur de connexion. Réessaie.', 'Connection error. Try again.')
+  } finally {
+    readyLoading.value = false
+  }
 }
 
 function copyCode() {
@@ -634,13 +739,66 @@ watch(() => raid.room, (room) => {
             </div>
           </div>
 
-          <!-- Evo stage filter -->
-          <div class="mb-3 flex items-center gap-2">
-            <CustomSelect
-              :model-value="filterEvoStage"
-              :options="evoStageOptions"
-              @update:model-value="filterEvoStage = $event"
-            />
+          <!-- Filters -->
+          <div class="mb-3 flex flex-col gap-2">
+            <!-- Search + Sort -->
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="relative flex-1 min-w-[140px]">
+                <Search class="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                <input
+                  v-model="raidSearch"
+                  class="w-full rounded-lg border border-gray-600 bg-gray-900 py-2 pl-8 pr-3 text-xs text-white placeholder-gray-600 focus:border-purple-500 focus:outline-none"
+                  :placeholder="t('Rechercher...', 'Search...')"
+                />
+              </div>
+              <CustomSelect
+                :model-value="raidSortBy"
+                :options="raidSortOptions"
+                @update:model-value="raidSortBy = $event"
+              />
+            </div>
+            <!-- Evo stage + Shiny -->
+            <div class="flex flex-wrap items-center gap-2">
+              <CustomSelect
+                :model-value="filterEvoStage"
+                :options="evoStageOptions"
+                @update:model-value="filterEvoStage = $event"
+              />
+              <button
+                class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium shadow-md transition-all hover:shadow-lg"
+                :class="raidFilterShiny === true
+                  ? 'border-yellow-500 bg-gradient-to-br from-yellow-500/20 to-yellow-600/30 text-yellow-400 shadow-yellow-500/20'
+                  : 'border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 text-slate-400 hover:border-slate-600 hover:text-white'"
+                @click="raidFilterShiny = raidFilterShiny === true ? null : true"
+              >
+                <Sparkles class="h-3.5 w-3.5" />
+                Shiny
+              </button>
+            </div>
+            <!-- Type filter row -->
+            <div class="flex flex-wrap items-center gap-1">
+              <button
+                class="rounded-lg border px-2 py-1 text-[10px] font-medium shadow-sm transition-all hover:shadow-md"
+                :class="raidFilterType === null
+                  ? 'border-blue-500 bg-gradient-to-br from-blue-500/20 to-blue-600/30 text-blue-400 shadow-blue-500/20'
+                  : 'border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 text-slate-400 hover:border-slate-600 hover:text-white'"
+                @click="raidFilterType = null"
+              >
+                {{ t('Tous', 'All') }}
+              </button>
+              <button
+                v-for="tp in raidCollectionTypes"
+                :key="tp.id"
+                class="rounded-lg border px-2 py-1 text-[10px] font-medium shadow-sm transition-all hover:shadow-md"
+                :class="raidFilterType === tp.id
+                  ? 'border-blue-500 bg-gradient-to-br from-blue-500/20 to-blue-600/30 text-white shadow-blue-500/20'
+                  : 'border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 text-slate-400 hover:border-slate-600 hover:text-white'"
+                :style="raidFilterType === tp.id ? { borderColor: tp.color, boxShadow: `0 0 8px ${tp.color}40` } : {}"
+                @click="raidFilterType = tp.id"
+              >
+                {{ t(tp.nameFr, tp.nameEn) }}
+              </button>
+            </div>
           </div>
 
           <!-- Available Pokémon grid -->
@@ -673,10 +831,11 @@ watch(() => raid.room, (room) => {
           :class="isReady
             ? 'bg-red-600 text-white hover:bg-red-500'
             : 'bg-green-600 text-white hover:bg-green-500'"
-          :disabled="!canReady"
+          :disabled="!canReady || readyLoading"
           @click="toggleReady"
         >
-          {{ isReady ? t('Annuler (Prêt)', 'Cancel (Ready)') : t('PRÊT !', 'READY!') }}
+          <template v-if="readyLoading">{{ t('Envoi...', 'Sending...') }}</template>
+          <template v-else>{{ isReady ? t('Annuler (Prêt)', 'Cancel (Ready)') : t('PRÊT !', 'READY!') }}</template>
         </button>
       </template>
 

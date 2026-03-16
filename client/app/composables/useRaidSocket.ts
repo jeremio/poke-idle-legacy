@@ -8,6 +8,13 @@ import { useAuthStore } from '~/stores/useAuthStore'
 
 let socket: Socket | null = null
 
+function withTimeout<T>(promise: Promise<T>, ms = 8000): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('socket_timeout')), ms)),
+  ])
+}
+
 export function useRaidSocket() {
   const config = useRuntimeConfig()
   const raid = useRaidStore()
@@ -122,19 +129,21 @@ export function useRaidSocket() {
   }
 
   function setTeam(team: any[]): Promise<any> {
-    return new Promise((resolve) => {
-      socket?.emit('raid:set_team', { team }, (response: any) => {
+    if (!socket?.connected) return Promise.resolve({ error: 'not_connected' })
+    return withTimeout(new Promise((resolve) => {
+      socket!.emit('raid:set_team', { team }, (response: any) => {
         resolve(response)
       })
-    })
+    }))
   }
 
   function setReady(ready: boolean): Promise<any> {
-    return new Promise((resolve) => {
-      socket?.emit('raid:ready', { ready }, (response: any) => {
+    if (!socket?.connected) return Promise.resolve({ error: 'not_connected' })
+    return withTimeout(new Promise((resolve) => {
+      socket!.emit('raid:ready', { ready }, (response: any) => {
         resolve(response)
       })
-    })
+    }))
   }
 
   function listLobbies(generation?: number): Promise<any> {
