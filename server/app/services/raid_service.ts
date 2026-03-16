@@ -75,22 +75,22 @@ function getEvoStageFromFamily(slug: string, family: EvolutionStage[]): number {
 
 const MIN_PLAYERS = 2
 const MAX_PLAYERS = 4
-const COMBAT_DURATION = 180 // 3 minutes
+const COMBAT_DURATION = 90 // 1 min 30
 const SHINY_CHANCE = 1 / 100
 const CATCH_CHANCE = 0.5
 const TICK_INTERVAL = 1000 // 1 second
 
-// Base HP for raid bosses per generation (scales with player count)
+// Base HP for raid bosses per generation (for 2 players, scales with 3P/4P)
 const BASE_BOSS_HP: Record<number, number> = {
-  1: 500_000,
-  2: 1_000_000,
-  3: 2_000_000,
-  4: 4_000_000,
-  5: 8_000_000,
-  6: 12_000_000,
-  7: 18_000_000,
-  8: 25_000_000,
-  9: 35_000_000,
+  1: 1_250_000,
+  2: 1_300_000,
+  3: 1_500_000,
+  4: 1_700_000,
+  5: 1_900_000,
+  6: 1_900_000,
+  7: 2_300_000,
+  8: 2_500_000,
+  9: 2_700_000,
 }
 
 // Gold rewards per generation
@@ -258,6 +258,17 @@ class RaidService {
       return { code, disbanded: false }
     }
 
+    // After result: clean up player from room
+    if (room.phase === 'victory' || room.phase === 'defeat') {
+      room.players.delete(userId)
+      this.playerRooms.delete(userId)
+      if (room.players.size === 0) {
+        this.disbandRoom(code)
+        return { code, disbanded: true }
+      }
+      return { code, disbanded: false }
+    }
+
     // In lobby: remove from room
     room.players.delete(userId)
     this.playerRooms.delete(userId)
@@ -306,11 +317,19 @@ class RaidService {
     const team: RaidPokemon[] = []
     for (const input of teamInput.slice(0, 6)) {
       const owned = ownedMap.get(input.id)
-      if (!owned) continue // skip if not owned
+      if (!owned) {
+        console.warn(
+          `[Raid setTeam] user=${userId} pokemon id=${input.id} slug=${input.slug} NOT FOUND in DB (owned IDs: ${[...ownedMap.keys()].join(',')})`
+        )
+        continue
+      }
 
       const species = owned.species
       const types: PokemonType[] = species
-        ? [species.type1 as PokemonType, ...(species.type2 ? [species.type2 as PokemonType] : [])]
+        ? [
+            species.type1.toLowerCase() as PokemonType,
+            ...(species.type2 ? [species.type2.toLowerCase() as PokemonType] : []),
+          ]
         : ['normal' as PokemonType]
 
       const evoStage = species?.evolutionFamily
@@ -368,9 +387,12 @@ class RaidService {
     room.boss.maxHp = scaledHp
     room.boss.currentHp = scaledHp
 
+    // Normalize boss types to lowercase for type chart lookup
+    const bossTypes = room.boss.types.map((t) => t.toLowerCase() as PokemonType)
+
     // Compute each player's DPS
     for (const player of room.players.values()) {
-      player.dps = getTeamDps(player.team, room.boss.types as PokemonType[])
+      player.dps = getTeamDps(player.team, bossTypes)
       player.totalDamage = 0
     }
 

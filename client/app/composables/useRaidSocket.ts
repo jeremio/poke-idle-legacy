@@ -119,10 +119,13 @@ export function useRaidSocket() {
 
   function leaveRoom(): Promise<any> {
     return new Promise((resolve) => {
-      socket?.emit('raid:leave', {}, (response: any) => {
-        if (response.ok) {
-          raid.reset()
-        }
+      if (!socket?.connected) {
+        raid.reset()
+        return resolve({ ok: true })
+      }
+      socket.emit('raid:leave', {}, (response: any) => {
+        // Always reset — room may have been auto-disbanded after result
+        raid.reset()
         resolve(response)
       })
     })
