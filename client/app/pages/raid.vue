@@ -351,7 +351,6 @@ function togglePokemon(poke: { id: number; serverId: number | null; slug: string
 
 async function sendTeam() {
   const team = raid.selectedTeam.map(p => ({
-    id: p.serverId ?? p.id, // server needs DB id for ownership verification
     slug: p.slug,
     level: p.level,
     stars: p.stars,

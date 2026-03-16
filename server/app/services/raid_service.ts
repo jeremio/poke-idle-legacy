@@ -283,13 +283,12 @@ class RaidService {
   }
 
   /**
-   * Set team from client-provided pokemon IDs.
+   * Set team from client-provided pokemon slugs.
    * Resolves types & evo stage from Species DB (no duplication).
    */
   async setTeam(
     userId: number,
     teamInput: Array<{
-      id: number
       slug: string
       level: number
       stars: number
@@ -306,25 +305,43 @@ class RaidService {
 
     if (teamInput.length > 6) return false
 
-    // Verify ownership: all pokemon must belong to this user
-    const pokemonIds = teamInput.map((p) => p.id)
+    // Verify ownership: look up all user pokemon by slug (avoids serverId mismatch)
+    const slugs = [...new Set(teamInput.map((p) => p.slug))]
     const ownedPokemon = await UserPokemon.query()
       .where('userId', userId)
-      .whereIn('id', pokemonIds)
-      .preload('species')
-    const ownedMap = new Map(ownedPokemon.map((p) => [p.id, p]))
+      .preload('species', (q) => q.whereIn('slug', slugs))
+      .whereHas('species', (q) => q.whereIn('slug', slugs))
+
+    // Group by slug for matching (user may own multiple of the same slug)
+    const ownedBySlug = new Map<string, typeof ownedPokemon>()
+    for (const p of ownedPokemon) {
+      const slug = p.species?.slug
+      if (!slug) continue
+      if (!ownedBySlug.has(slug)) ownedBySlug.set(slug, [])
+      ownedBySlug.get(slug)!.push(p)
+    }
 
     const team: RaidPokemon[] = []
+    const usedIds = new Set<number>()
     for (const input of teamInput.slice(0, 6)) {
-      const owned = ownedMap.get(input.id)
-      if (!owned) {
-        console.warn(
-          `[Raid setTeam] user=${userId} pokemon id=${input.id} slug=${input.slug} NOT FOUND in DB (owned IDs: ${[...ownedMap.keys()].join(',')})`
-        )
+      const candidates = ownedBySlug.get(input.slug)
+      if (!candidates || candidates.length === 0) {
+        console.warn(`[Raid setTeam] user=${userId} slug=${input.slug} NOT FOUND in DB`)
         continue
       }
+      // Find best match by level+stars+shiny, avoiding duplicates
+      const match =
+        candidates.find(
+          (c) =>
+            !usedIds.has(c.id) &&
+            c.level === input.level &&
+            c.stars === input.stars &&
+            c.isShiny === input.isShiny
+        ) ?? candidates.find((c) => !usedIds.has(c.id))
+      if (!match) continue
+      usedIds.add(match.id)
 
-      const species = owned.species
+      const species = match.species
       const types: PokemonType[] = species
         ? [
             species.type1.toLowerCase() as PokemonType,
@@ -337,11 +354,11 @@ class RaidService {
         : 1
 
       team.push({
-        slug: owned.species?.slug ?? input.slug,
-        level: owned.level,
-        stars: owned.stars,
-        isShiny: owned.isShiny,
-        rarity: owned.rarity,
+        slug: species?.slug ?? input.slug,
+        level: match.level,
+        stars: match.stars,
+        isShiny: match.isShiny,
+        rarity: match.rarity,
         types,
         evoStage,
       })
