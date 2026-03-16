@@ -18,8 +18,8 @@ export interface RaidLegendary {
 }
 
 // Load slug arrays from shared JSON (no duplication — same file could be read by client)
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
-const jsonPath = join(__dirname, '..', '..', '..', 'shared', 'raid-legendaries.json')
+const currentDir = fileURLToPath(new URL('.', import.meta.url))
+const jsonPath = join(currentDir, '..', '..', '..', 'shared', 'raid-legendaries.json')
 const SLUG_POOLS: Record<string, string[]> = JSON.parse(readFileSync(jsonPath, 'utf-8'))
 
 /**

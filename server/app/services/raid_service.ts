@@ -21,8 +21,8 @@ export interface RaidPlayer {
   team: RaidPokemon[]
   ready: boolean
   connected: boolean
-  dps: number          // current computed DPS vs boss
-  totalDamage: number  // accumulated damage dealt
+  dps: number // current computed DPS vs boss
+  totalDamage: number // accumulated damage dealt
 }
 
 export type RaidPhase = 'lobby' | 'combat' | 'victory' | 'defeat' | 'closed'
@@ -64,7 +64,9 @@ export interface RaidResult {
  */
 function getEvoStageFromFamily(slug: string, family: EvolutionStage[]): number {
   if (!family || family.length === 0) return 1
-  const idx = family.findIndex(f => f.name?.toLowerCase() === slug || f.pokedexId?.toString() === slug)
+  const idx = family.findIndex(
+    (f) => f.name?.toLowerCase() === slug || f.pokedexId?.toString() === slug
+  )
   if (idx < 0) return 1
   return Math.min(idx + 1, 3)
 }
@@ -128,13 +130,24 @@ class RaidService {
   // Callback for emitting events to Socket.IO (set by ws.ts)
   public onEmit: ((roomCode: string, event: string, data: any) => void) | null = null
   // Callback for giving rewards to a player (set by ws.ts)
-  public onReward: ((userId: number, result: RaidResult, playerResult: RaidResult['players'][0]) => Promise<void>) | null = null
+  public onReward:
+    | ((
+        userId: number,
+        result: RaidResult,
+        playerResult: RaidResult['players'][0]
+      ) => Promise<void>)
+    | null = null
 
   generateCode(): string {
     return randomBytes(3).toString('hex').toUpperCase() // 6-char hex
   }
 
-  async createRoom(userId: number, username: string, socketId: string, generation: number): Promise<RaidRoom | { error: string }> {
+  async createRoom(
+    userId: number,
+    username: string,
+    socketId: string,
+    generation: number
+  ): Promise<RaidRoom | { error: string }> {
     // Check if player already in a room
     if (this.playerRooms.has(userId)) {
       return { error: 'already_in_room' }
@@ -185,7 +198,12 @@ class RaidService {
     return room
   }
 
-  joinRoom(code: string, userId: number, username: string, socketId: string): RaidRoom | { error: string } {
+  joinRoom(
+    code: string,
+    userId: number,
+    username: string,
+    socketId: string
+  ): RaidRoom | { error: string } {
     if (this.playerRooms.has(userId)) {
       const existingCode = this.playerRooms.get(userId)!
       if (existingCode === code) {
@@ -257,7 +275,17 @@ class RaidService {
    * Set team from client-provided pokemon IDs.
    * Resolves types & evo stage from Species DB (no duplication).
    */
-  async setTeam(userId: number, teamInput: Array<{ id: number; slug: string; level: number; stars: number; isShiny: boolean; rarity: string }>): Promise<boolean> {
+  async setTeam(
+    userId: number,
+    teamInput: Array<{
+      id: number
+      slug: string
+      level: number
+      stars: number
+      isShiny: boolean
+      rarity: string
+    }>
+  ): Promise<boolean> {
     const code = this.playerRooms.get(userId)
     if (!code) return false
     const room = this.rooms.get(code)
@@ -268,12 +296,12 @@ class RaidService {
     if (teamInput.length > 6) return false
 
     // Verify ownership: all pokemon must belong to this user
-    const pokemonIds = teamInput.map(p => p.id)
+    const pokemonIds = teamInput.map((p) => p.id)
     const ownedPokemon = await UserPokemon.query()
       .where('userId', userId)
       .whereIn('id', pokemonIds)
       .preload('species')
-    const ownedMap = new Map(ownedPokemon.map(p => [p.id, p]))
+    const ownedMap = new Map(ownedPokemon.map((p) => [p.id, p]))
 
     const team: RaidPokemon[] = []
     for (const input of teamInput.slice(0, 6)) {
@@ -305,7 +333,10 @@ class RaidService {
     return true
   }
 
-  setReady(userId: number, ready: boolean): { room: RaidRoom; allReady: boolean } | { error: string } {
+  setReady(
+    userId: number,
+    ready: boolean
+  ): { room: RaidRoom; allReady: boolean } | { error: string } {
     const code = this.playerRooms.get(userId)
     if (!code) return { error: 'not_in_room' }
     const room = this.rooms.get(code)
@@ -317,8 +348,8 @@ class RaidService {
     player.ready = ready
 
     // Check if all players ready and enough players
-    const allReady = room.players.size >= MIN_PLAYERS && 
-      Array.from(room.players.values()).every(p => p.ready)
+    const allReady =
+      room.players.size >= MIN_PLAYERS && Array.from(room.players.values()).every((p) => p.ready)
 
     return { room, allReady }
   }
@@ -409,7 +440,9 @@ class RaidService {
     }
 
     const goldReward = victory ? (GOLD_REWARDS[room.generation] ?? 25_000) : 0
-    const candyReward = victory ? (CANDY_REWARDS[room.generation] ?? { S: 0, M: 0, L: 0, XL: 0 }) : { S: 0, M: 0, L: 0, XL: 0 }
+    const candyReward = victory
+      ? (CANDY_REWARDS[room.generation] ?? { S: 0, M: 0, L: 0, XL: 0 })
+      : { S: 0, M: 0, L: 0, XL: 0 }
 
     for (const player of room.players.values()) {
       const caught = victory && Math.random() < CATCH_CHANCE
@@ -454,7 +487,7 @@ class RaidService {
       bossCurrentHp: room.boss.currentHp,
       bossMaxHp: room.boss.maxHp,
       timeLeft: room.timeLeft,
-      players: Array.from(room.players.values()).map(p => ({
+      players: Array.from(room.players.values()).map((p) => ({
         userId: p.userId,
         username: p.username,
         dps: p.dps,
@@ -520,7 +553,7 @@ class RaidService {
       },
       hostUserId: room.hostUserId,
       timeLeft: room.timeLeft,
-      players: Array.from(room.players.values()).map(p => ({
+      players: Array.from(room.players.values()).map((p) => ({
         userId: p.userId,
         username: p.username,
         team: p.team,
@@ -533,8 +566,26 @@ class RaidService {
   }
 
   // List open lobbies for a generation
-  listOpenLobbies(generation?: number): Array<{ code: string; generation: number; bossSlug: string; bossNameFr: string; bossNameEn: string; bossIsShiny: boolean; playerCount: number; maxPlayers: number }> {
-    const lobbies: Array<{ code: string; generation: number; bossSlug: string; bossNameFr: string; bossNameEn: string; bossIsShiny: boolean; playerCount: number; maxPlayers: number }> = []
+  listOpenLobbies(generation?: number): Array<{
+    code: string
+    generation: number
+    bossSlug: string
+    bossNameFr: string
+    bossNameEn: string
+    bossIsShiny: boolean
+    playerCount: number
+    maxPlayers: number
+  }> {
+    const lobbies: Array<{
+      code: string
+      generation: number
+      bossSlug: string
+      bossNameFr: string
+      bossNameEn: string
+      bossIsShiny: boolean
+      playerCount: number
+      maxPlayers: number
+    }> = []
     for (const room of this.rooms.values()) {
       if (room.phase !== 'lobby') continue
       if (generation !== undefined && room.generation !== generation) continue

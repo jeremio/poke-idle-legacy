@@ -50,9 +50,10 @@ export function getPokemonDps(poke: RaidPokemon, bossTypes: PokemonType[]): numb
   const shinyMult = poke.isShiny ? 4.0 : 1.0
   const starMult = getStarDpsMult(poke.stars, poke.isShiny)
 
-  const typeMult = poke.types.length > 0
-    ? Math.max(...poke.types.map(atkType => getTypeEffectiveness(atkType, bossTypes)))
-    : 1
+  const typeMult =
+    poke.types.length > 0
+      ? Math.max(...poke.types.map((atkType) => getTypeEffectiveness(atkType, bossTypes)))
+      : 1
 
   const permanentDps = Math.floor(baseDmg * evoMult * rarityMult * shinyMult * starMult)
   return Math.round(permanentDps * typeMult)

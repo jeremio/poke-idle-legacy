@@ -135,7 +135,12 @@ export function initSocketIO(httpServer: HttpServer, origin: string | string[] |
 
     socket.on('raid:create', async (data: { generation: number }, callback) => {
       if (!currentUserId || !currentUsername) return
-      const result = await raidService.createRoom(currentUserId, currentUsername, socket.id, data.generation)
+      const result = await raidService.createRoom(
+        currentUserId,
+        currentUsername,
+        socket.id,
+        data.generation
+      )
       if ('error' in result) {
         if (typeof callback === 'function') callback({ error: result.error })
         return
@@ -151,7 +156,12 @@ export function initSocketIO(httpServer: HttpServer, origin: string | string[] |
 
     socket.on('raid:join', (data: { code: string }, callback) => {
       if (!currentUserId || !currentUsername) return
-      const result = raidService.joinRoom(data.code.toUpperCase(), currentUserId, currentUsername, socket.id)
+      const result = raidService.joinRoom(
+        data.code.toUpperCase(),
+        currentUserId,
+        currentUsername,
+        socket.id
+      )
       if ('error' in result) {
         if (typeof callback === 'function') callback({ error: result.error })
         return
@@ -190,17 +200,32 @@ export function initSocketIO(httpServer: HttpServer, origin: string | string[] |
 
     // ── Set team ───────────────────────────────────────────────────
 
-    socket.on('raid:set_team', async (data: { team: Array<{ id: number; slug: string; level: number; stars: number; isShiny: boolean; rarity: string }> }, callback) => {
-      if (!currentUserId) return
-      const ok = await raidService.setTeam(currentUserId, data.team)
-      if (typeof callback === 'function') callback({ ok })
+    socket.on(
+      'raid:set_team',
+      async (
+        data: {
+          team: Array<{
+            id: number
+            slug: string
+            level: number
+            stars: number
+            isShiny: boolean
+            rarity: string
+          }>
+        },
+        callback
+      ) => {
+        if (!currentUserId) return
+        const ok = await raidService.setTeam(currentUserId, data.team)
+        if (typeof callback === 'function') callback({ ok })
 
-      // Broadcast updated room state
-      const room = raidService.getRoomForPlayer(currentUserId)
-      if (room) {
-        io?.to(`raid:${room.code}`).emit('raid:room_state', raidService.getRoomState(room))
+        // Broadcast updated room state
+        const room = raidService.getRoomForPlayer(currentUserId)
+        if (room) {
+          io?.to(`raid:${room.code}`).emit('raid:room_state', raidService.getRoomState(room))
+        }
       }
-    })
+    )
 
     // ── Toggle ready ───────────────────────────────────────────────
 
@@ -243,7 +268,10 @@ export function initSocketIO(httpServer: HttpServer, origin: string | string[] |
           raidService.leaveRoom(currentUserId)
           const updatedRoom = raidService.getRoom(room.code)
           if (updatedRoom) {
-            io?.to(`raid:${room.code}`).emit('raid:room_state', raidService.getRoomState(updatedRoom))
+            io?.to(`raid:${room.code}`).emit(
+              'raid:room_state',
+              raidService.getRoomState(updatedRoom)
+            )
           } else {
             io?.to(`raid:${room.code}`).emit('raid:disbanded')
           }
