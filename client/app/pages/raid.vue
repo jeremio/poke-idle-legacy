@@ -9,6 +9,7 @@ import { useLocale } from '~/composables/useLocale'
 import { getSpriteUrl, getShinySpriteUrl } from '~/utils/showdown'
 import { getSlugGeneration } from '~/data/gacha'
 import { getEvolutionStage } from '~/data/evolutions'
+import { TYPES } from '~/data/types'
 
 definePageMeta({
   layout: 'game',
@@ -28,10 +29,91 @@ function pokeSprite(slug: string, isShiny: boolean): string {
   return isShiny ? getShinySpriteUrl(slug) : getSpriteUrl(slug)
 }
 
+function getTypeName(typeId: string): string {
+  const info = TYPES.find(tp => tp.id === typeId)
+  return info ? t(info.nameFr, info.nameEn) : typeId
+}
+
+function getTypeColor(typeId: string): string {
+  return TYPES.find(tp => tp.id === typeId)?.color ?? '#888'
+}
+
 const joinCode = ref('')
 const errorMsg = ref<string | null>(null)
 const view = ref<'home' | 'room'>('home')
 const filterEvoStage = ref<number | null>(null)
+
+// ── Cooldown system (15 min per generation) ──
+const COOLDOWN_MS = 15 * 60 * 1000
+const COOLDOWN_KEY = 'poke-idle-raid-cooldowns'
+
+function getCooldowns(): Record<number, number> {
+  try {
+    return JSON.parse(localStorage.getItem(COOLDOWN_KEY) || '{}')
+  } catch { return {} }
+}
+
+function setCooldown(gen: number) {
+  const cd = getCooldowns()
+  cd[gen] = Date.now()
+  localStorage.setItem(COOLDOWN_KEY, JSON.stringify(cd))
+}
+
+function getRemainingCooldown(gen: number): number {
+  const cd = getCooldowns()
+  const last = cd[gen] ?? 0
+  const remaining = COOLDOWN_MS - (Date.now() - last)
+  return remaining > 0 ? remaining : 0
+}
+
+function formatCooldown(ms: number): string {
+  const min = Math.floor(ms / 60000)
+  const sec = Math.floor((ms % 60000) / 1000)
+  return `${min}:${sec.toString().padStart(2, '0')}`
+}
+
+// ── Confirmation modal ──
+const showConfirmModal = ref(false)
+const confirmAction = ref<'create' | 'join' | 'joinLobby'>('create')
+const confirmGen = ref(0)
+const confirmCode = ref('')
+const confirmCooldownRemaining = ref(0)
+let cooldownTimer: ReturnType<typeof setInterval> | null = null
+
+function openConfirmModal(action: 'create' | 'join' | 'joinLobby', gen: number, code = '') {
+  confirmAction.value = action
+  confirmGen.value = gen
+  confirmCode.value = code
+  confirmCooldownRemaining.value = getRemainingCooldown(gen)
+  showConfirmModal.value = true
+  // Update countdown live
+  if (cooldownTimer) clearInterval(cooldownTimer)
+  if (confirmCooldownRemaining.value > 0) {
+    cooldownTimer = setInterval(() => {
+      confirmCooldownRemaining.value = getRemainingCooldown(gen)
+      if (confirmCooldownRemaining.value <= 0 && cooldownTimer) {
+        clearInterval(cooldownTimer)
+        cooldownTimer = null
+      }
+    }, 1000)
+  }
+}
+
+function closeConfirmModal() {
+  showConfirmModal.value = false
+  if (cooldownTimer) { clearInterval(cooldownTimer); cooldownTimer = null }
+}
+
+async function confirmRaidAction() {
+  closeConfirmModal()
+  if (confirmAction.value === 'create') {
+    await doCreateRoom(confirmGen.value)
+  } else if (confirmAction.value === 'join') {
+    await doJoinRoom()
+  } else if (confirmAction.value === 'joinLobby') {
+    await doJoinLobby(confirmCode.value)
+  }
+}
 
 const evoStageOptions = computed(() => [
   { value: null, label: t('Tous stades', 'All stages') },
@@ -80,19 +162,44 @@ const isHost = computed(() => raid.room?.hostUserId === myUserId.value)
 const isReady = computed(() => currentPlayer.value?.ready ?? false)
 const canReady = computed(() => raid.selectedTeam.length > 0)
 
+// Reactive cooldown tick (updates gen button labels every second)
+const cooldownTick = ref(0)
+let globalCooldownTimer: ReturnType<typeof setInterval> | null = null
+
+function getGenCooldown(gen: number): number {
+  cooldownTick.value // reactive dependency
+  return getRemainingCooldown(gen)
+}
+
 // Connect socket on mount
 onMounted(() => {
   if (auth.isAuthenticated) {
     raidSocket.connect()
     raidSocket.listLobbies()
   }
+  globalCooldownTimer = setInterval(() => { cooldownTick.value++ }, 1000)
 })
 
 onUnmounted(() => {
   // Don't disconnect — keep socket alive for combat notifications
+  if (globalCooldownTimer) { clearInterval(globalCooldownTimer); globalCooldownTimer = null }
 })
 
-async function handleCreateRoom(gen: number) {
+function handleCreateRoom(gen: number) {
+  openConfirmModal('create', gen)
+}
+
+function handleJoinRoom() {
+  if (!joinCode.value.trim()) return
+  // We don't know the gen yet for code joins — we'll check after joining
+  openConfirmModal('join', 0)
+}
+
+function handleJoinLobby(code: string, gen: number) {
+  openConfirmModal('joinLobby', gen, code)
+}
+
+async function doCreateRoom(gen: number) {
   errorMsg.value = null
   const res = await raidSocket.createRoom(gen)
   if (res.error) {
@@ -102,13 +209,14 @@ async function handleCreateRoom(gen: number) {
     )
     return
   }
+  setCooldown(gen)
   view.value = 'room'
 }
 
-async function handleJoinRoom() {
-  if (!joinCode.value.trim()) return
+async function doJoinRoom() {
   errorMsg.value = null
-  const res = await raidSocket.joinRoom(joinCode.value.trim())
+  const code = joinCode.value.trim()
+  const res = await raidSocket.joinRoom(code)
   if (res.error) {
     errorMsg.value = t(
       getErrorMessage(res.error).fr,
@@ -116,10 +224,12 @@ async function handleJoinRoom() {
     )
     return
   }
+  // Set cooldown for the room's generation once we know it
+  if (raid.room) setCooldown(raid.room.generation)
   view.value = 'room'
 }
 
-async function handleJoinLobby(code: string) {
+async function doJoinLobby(code: string) {
   errorMsg.value = null
   const res = await raidSocket.joinRoom(code)
   if (res.error) {
@@ -129,6 +239,7 @@ async function handleJoinLobby(code: string) {
     )
     return
   }
+  if (raid.room) setCooldown(raid.room.generation)
   view.value = 'room'
 }
 
@@ -255,6 +366,59 @@ watch(() => raid.room, (room) => {
       {{ errorMsg }}
     </div>
 
+    <!-- ═══════════════ CONFIRMATION MODAL ═══════════════ -->
+    <Teleport to="body">
+      <div v-if="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" @click.self="closeConfirmModal">
+        <div class="mx-4 w-full max-w-sm rounded-2xl border border-gray-700 bg-gray-900 p-6 shadow-2xl">
+          <h3 class="mb-4 text-center text-lg font-bold text-white">
+            {{ confirmAction === 'create'
+              ? t('Créer un raid', 'Create a raid')
+              : t('Rejoindre un raid', 'Join a raid') }}
+          </h3>
+
+          <div v-if="confirmGen > 0" class="mb-4 text-center">
+            <span class="rounded-lg bg-purple-500/20 px-3 py-1 text-sm font-bold text-purple-400">
+              Gen {{ confirmGen }} — {{ GENERATION_NAMES[confirmGen] }}
+            </span>
+          </div>
+
+          <!-- Cooldown warning -->
+          <div v-if="confirmCooldownRemaining > 0" class="mb-4 rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-center">
+            <p class="text-sm font-bold text-amber-400">
+              <Clock class="mr-1 inline h-4 w-4" />
+              {{ t('Cooldown actif pour cette région', 'Cooldown active for this region') }}
+            </p>
+            <p class="mt-1 font-mono text-lg font-black text-amber-300">{{ formatCooldown(confirmCooldownRemaining) }}</p>
+            <p class="mt-1 text-xs text-amber-500/80">
+              {{ t('Patiente avant de pouvoir relancer un raid dans cette région.', 'Wait before starting another raid in this region.') }}
+            </p>
+          </div>
+
+          <!-- Info text -->
+          <p v-else class="mb-4 text-center text-sm text-gray-400">
+            {{ t('Un cooldown de 15 minutes sera appliqué pour cette région après avoir rejoint.', 'A 15-minute cooldown will apply for this region after joining.') }}
+          </p>
+
+          <div class="flex gap-3">
+            <button
+              class="flex-1 rounded-xl bg-gray-700 py-2.5 text-sm font-bold text-white transition-colors hover:bg-gray-600"
+              @click="closeConfirmModal"
+            >
+              {{ t('Annuler', 'Cancel') }}
+            </button>
+            <button
+              class="flex-1 rounded-xl py-2.5 text-sm font-bold text-white transition-colors disabled:opacity-40"
+              :class="confirmCooldownRemaining > 0 ? 'bg-gray-600 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-500'"
+              :disabled="confirmCooldownRemaining > 0"
+              @click="confirmRaidAction"
+            >
+              {{ t('Confirmer', 'Confirm') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- ═══════════════ HOME VIEW ═══════════════ -->
     <template v-if="view === 'home' && !raid.inRoom">
 
@@ -295,12 +459,19 @@ watch(() => raid.room, (room) => {
           <button
             v-for="gen in availableGens"
             :key="gen"
-            class="flex flex-col items-center gap-1 rounded-xl border border-gray-700 bg-gray-900 p-3 text-sm transition-all hover:border-purple-500/50 hover:bg-purple-500/10 disabled:opacity-40"
+            class="relative flex flex-col items-center gap-1 rounded-xl border p-3 text-sm transition-all"
+            :class="getGenCooldown(gen) > 0
+              ? 'border-amber-500/30 bg-amber-500/5 opacity-70'
+              : 'border-gray-700 bg-gray-900 hover:border-purple-500/50 hover:bg-purple-500/10'"
             :disabled="!raid.connected"
             @click="handleCreateRoom(gen)"
           >
-            <span class="text-lg font-bold text-purple-400">Gen {{ gen }}</span>
+            <span class="text-lg font-bold" :class="getGenCooldown(gen) > 0 ? 'text-amber-400' : 'text-purple-400'">Gen {{ gen }}</span>
             <span class="text-xs text-gray-500">{{ GENERATION_NAMES[gen] }}</span>
+            <span v-if="getGenCooldown(gen) > 0" class="mt-0.5 flex items-center gap-1 text-[10px] font-mono font-bold text-amber-400">
+              <Clock class="h-3 w-3" />
+              {{ formatCooldown(getGenCooldown(gen)) }}
+            </span>
           </button>
         </div>
       </div>
@@ -319,7 +490,7 @@ watch(() => raid.room, (room) => {
             v-for="lobby in raid.lobbies"
             :key="lobby.code"
             class="flex items-center justify-between rounded-xl border border-gray-700 bg-gray-900 p-3 transition-all hover:border-purple-500/50"
-            @click="handleJoinLobby(lobby.code)"
+            @click="handleJoinLobby(lobby.code, lobby.generation)"
           >
             <div class="flex items-center gap-3">
               <img :src="pokeSprite(lobby.bossSlug, lobby.bossIsShiny)" class="h-10 w-10" :alt="t(lobby.bossNameFr, lobby.bossNameEn)" />
@@ -377,7 +548,7 @@ watch(() => raid.room, (room) => {
             :key="type"
             class="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase text-white"
             :style="{ backgroundColor: getTypeColor(type) }"
-          >{{ type }}</span>
+          >{{ getTypeName(type) }}</span>
         </div>
 
         <!-- Boss HP bar (visible in combat) -->
@@ -598,17 +769,3 @@ watch(() => raid.room, (room) => {
   </div>
 </template>
 
-<script lang="ts">
-// Type color helper (duplicated from types.ts for template use)
-const TYPE_COLORS: Record<string, string> = {
-  normal: '#A8A878', fire: '#F08030', water: '#6890F0', electric: '#F8D030',
-  grass: '#78C850', ice: '#98D8D8', fighting: '#C03028', poison: '#A040A0',
-  ground: '#E0C068', flying: '#A890F0', psychic: '#F85888', bug: '#A8B820',
-  rock: '#B8A038', ghost: '#705898', dragon: '#7038F8', dark: '#705848',
-  steel: '#B8B8D0', fairy: '#EE99AC',
-}
-
-function getTypeColor(type: string): string {
-  return TYPE_COLORS[type] ?? '#888'
-}
-</script>
