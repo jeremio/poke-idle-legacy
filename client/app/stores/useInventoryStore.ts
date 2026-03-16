@@ -46,6 +46,7 @@ interface InventoryState {
   filterShiny: boolean | null
   filterTeam: boolean | null
   filterGen: number | null
+  showEvoNotifs: boolean
 }
 
 export const MAX_STARS = 5
@@ -63,6 +64,7 @@ export const useInventoryStore = defineStore('inventory', {
     filterShiny: null,
     filterTeam: null,
     filterGen: null,
+    showEvoNotifs: true,
   }),
 
   getters: {

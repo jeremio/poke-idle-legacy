@@ -92,8 +92,8 @@ export function useCombatLoop() {
     // Adaptive gen scaling: gen9 champion ≈ 8K DPS, gen1 champion ≈ 4.3K DPS
     // A maxed legendary 5★ team of 6 ≈ 7200 DPS (14K with type effectiveness)
     let genDiffMult = 1 + (gen - 1) * (0.095 + 1.5 / localDifficulty)
-    // Gen 6 (Kalos) has a very small pool — reduce difficulty so it's beatable
-    if (gen === 6) genDiffMult *= 0.75
+    // Gen 6 (Kalos) has a very small pool — reduce difficulty significantly
+    if (gen === 6) genDiffMult *= 0.55
 
     if (player.isBossStage) {
       const boss = currentZone()?.boss

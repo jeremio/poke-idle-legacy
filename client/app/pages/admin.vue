@@ -568,56 +568,6 @@ onMounted(async () => {
         </div>
       </section>
 
-      <!-- Global Reset -->
-      <section class="mb-6 rounded-xl border border-red-500/30 bg-red-500/5 p-4 sm:mb-8">
-        <h2 class="mb-3 flex items-center gap-2 text-sm font-bold text-red-400">
-          <RotateCcw class="h-4 w-4" /> Reset global
-        </h2>
-        <p class="mb-3 text-xs text-slate-400">
-          Réinitialiser TOUS les joueurs : progression, pokémon, classements. Les comptes (email, mot de passe) sont conservés.
-        </p>
-        <button
-          class="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-red-500"
-          @click="resetAllPlayers"
-        >
-          Réinitialiser tous les joueurs
-        </button>
-      </section>
-
-      <!-- Admin Progression -->
-      <section class="mb-6 rounded-xl border border-purple-500/30 bg-purple-500/5 p-4 sm:mb-8">
-        <h2 class="mb-3 flex items-center gap-2 text-sm font-bold text-purple-400">
-          <Swords class="h-4 w-4" /> Ma progression (admin)
-        </h2>
-        <p class="mb-3 text-xs text-slate-400">
-          Débloquer une génération et obtenir tous les badges des générations précédentes.
-        </p>
-        <div class="flex flex-wrap items-end gap-2">
-          <div class="flex-1">
-            <label class="mb-1 block text-[10px] font-medium text-slate-400">Débloquer jusqu'à</label>
-            <select
-              v-model.number="progressionGen"
-              class="w-full rounded-lg border border-slate-600 bg-slate-700/50 px-3 py-2 text-sm text-white focus:border-purple-500 focus:outline-none"
-            >
-              <option
-                v-for="opt in progressionOptions"
-                :key="opt.genId"
-                :value="opt.genId"
-              >
-                {{ opt.label }}
-              </option>
-            </select>
-          </div>
-          <button
-            class="rounded-lg bg-purple-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-purple-500 disabled:opacity-50"
-            :disabled="progressionLoading"
-            @click="setProgression"
-          >
-            Appliquer
-          </button>
-        </div>
-      </section>
-
       <!-- Stats Grid -->
       <div v-if="stats" class="mb-6 grid grid-cols-2 gap-3 sm:mb-8 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
         <div class="rounded-xl border border-slate-700 bg-gradient-to-br from-blue-500/10 to-blue-600/5 p-4 shadow-lg">
@@ -865,6 +815,56 @@ onMounted(async () => {
           </table>
         </div>
       </div>
+
+      <!-- Admin Progression -->
+      <section class="mt-6 rounded-xl border border-purple-500/30 bg-purple-500/5 p-4 sm:mt-8">
+        <h2 class="mb-3 flex items-center gap-2 text-sm font-bold text-purple-400">
+          <Swords class="h-4 w-4" /> Ma progression (admin)
+        </h2>
+        <p class="mb-3 text-xs text-slate-400">
+          Débloquer une génération et obtenir tous les badges des générations précédentes.
+        </p>
+        <div class="flex flex-wrap items-end gap-2">
+          <div class="flex-1">
+            <label class="mb-1 block text-[10px] font-medium text-slate-400">Débloquer jusqu'à</label>
+            <select
+              v-model.number="progressionGen"
+              class="w-full rounded-lg border border-slate-600 bg-slate-700/50 px-3 py-2 text-sm text-white focus:border-purple-500 focus:outline-none"
+            >
+              <option
+                v-for="opt in progressionOptions"
+                :key="opt.genId"
+                :value="opt.genId"
+              >
+                {{ opt.label }}
+              </option>
+            </select>
+          </div>
+          <button
+            class="rounded-lg bg-purple-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-purple-500 disabled:opacity-50"
+            :disabled="progressionLoading"
+            @click="setProgression"
+          >
+            Appliquer
+          </button>
+        </div>
+      </section>
+
+      <!-- Global Reset -->
+      <section class="mt-6 rounded-xl border border-red-500/30 bg-red-500/5 p-4 sm:mt-8">
+        <h2 class="mb-3 flex items-center gap-2 text-sm font-bold text-red-400">
+          <RotateCcw class="h-4 w-4" /> Reset global
+        </h2>
+        <p class="mb-3 text-xs text-slate-400">
+          Réinitialiser TOUS les joueurs : progression, pokémon, classements. Les comptes (email, mot de passe) sont conservés.
+        </p>
+        <button
+          class="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-red-500"
+          @click="resetAllPlayers"
+        >
+          Réinitialiser tous les joueurs
+        </button>
+      </section>
 
     <!-- User Details Modal -->
     <teleport to="body">

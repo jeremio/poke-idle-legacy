@@ -29,6 +29,18 @@ const { init: initCombat } = useCombatLoop()
 const { toasts, addToast, removeToast } = useToast()
 
 const mobileMenuOpen = ref(false)
+
+function toggleEvoNotifs() {
+  inventory.showEvoNotifs = !inventory.showEvoNotifs
+  addToast(
+    inventory.showEvoNotifs
+      ? t('Notifs évolution activées', 'Evolution notifs enabled')
+      : t('Notifs évolution désactivées', 'Evolution notifs disabled'),
+    '🔔',
+    'info',
+    2000,
+  )
+}
 const adminBanner = ref<string | null>(null)
 let autoSaveInterval: ReturnType<typeof setInterval> | null = null
 let debouncedSaveTimer: ReturnType<typeof setTimeout> | null = null
@@ -167,7 +179,7 @@ const navItems = computed(() => {
 
   const items = [
     { label: t('Combat', 'Combat'), icon: Swords, to: '/', badge: 0 },
-    { label: t('Inventaire', 'Inventory'), icon: Package, to: '/inventory', badge: evolvableWithItem.value },
+    { label: t('Inventaire', 'Inventory'), icon: Package, to: '/inventory', badge: inventory.showEvoNotifs ? evolvableWithItem.value : 0 },
     { label: t('Invocation', 'Gacha'), icon: Sparkles, to: '/gacha', badge: 0 },
     { label: t('Pension', 'Daycare'), icon: Egg, to: '/daycare', badge: readyEggs.value },
     { label: t('Badges', 'Badges'), icon: Medal, to: '/badges', badge: 0 },
@@ -377,6 +389,7 @@ watch(() => inventory.collectionCount, () => {
           :class="$route.path === item.to 
             ? 'bg-gradient-to-r from-red-600 to-red-500 text-white shadow-lg font-bold' 
             : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'"
+          @contextmenu.prevent="item.to === '/inventory' ? toggleEvoNotifs() : undefined"
         >
           <div class="relative">
             <component :is="item.icon" class="h-5 w-5 shrink-0" />
@@ -488,6 +501,7 @@ watch(() => inventory.collectionCount, () => {
           :class="$route.path === item.to
             ? 'text-red-400'
             : 'text-slate-500 active:text-slate-300'"
+          @contextmenu.prevent="item.to === '/inventory' ? toggleEvoNotifs() : undefined"
         >
           <div
             v-if="$route.path === item.to"
