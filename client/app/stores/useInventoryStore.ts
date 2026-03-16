@@ -45,6 +45,7 @@ interface InventoryState {
   filterType: string | null
   filterShiny: boolean | null
   filterTeam: boolean | null
+  filterEvoStage: number | null
   filterGen: number | null
   showEvoNotifs: boolean
 }
@@ -63,6 +64,7 @@ export const useInventoryStore = defineStore('inventory', {
     filterType: null,
     filterShiny: null,
     filterTeam: null,
+    filterEvoStage: null,
     filterGen: null,
     showEvoNotifs: true,
   }),

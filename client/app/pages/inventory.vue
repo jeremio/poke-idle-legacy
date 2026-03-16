@@ -58,6 +58,10 @@ const filterTeam = computed({
   get: () => inventory.filterTeam,
   set: (v) => { inventory.filterTeam = v },
 })
+const filterEvoStage = computed({
+  get: () => inventory.filterEvoStage,
+  set: (v: number | null) => { inventory.filterEvoStage = v },
+})
 const filterGen = computed({
   get: () => inventory.filterGen,
   set: (v) => { inventory.filterGen = v },
@@ -70,6 +74,13 @@ const sortOptions = computed(() => [
   { value: 'dps', label: 'DPS' },
   { value: 'pokedex', label: `# ${t('Pokédex', 'Pokédex')}` },
   { value: 'rarity', label: `${t('Rareté', 'Rarity')}` },
+])
+
+const evoStageOptions = computed(() => [
+  { value: null, label: t('Tous stades', 'All stages') },
+  { value: 0, label: t('Base', 'Base') },
+  { value: 1, label: t('Stade 1', 'Stage 1') },
+  { value: 2, label: t('Stade 2', 'Stage 2') },
 ])
 
 const genOptions = computed(() => [
@@ -147,6 +158,11 @@ const filteredCollection = computed(() => {
   // Team filter
   if (filterTeam.value === true) list = list.filter((p) => p.teamSlot !== null)
   else if (filterTeam.value === false) list = list.filter((p) => p.teamSlot === null)
+
+  // Evo stage filter
+  if (filterEvoStage.value !== null) {
+    list = list.filter((p) => getEvolutionStage(p.slug) === filterEvoStage.value)
+  }
 
   // Gen filter
   if (filterGen.value !== null) {
@@ -486,6 +502,13 @@ function getDetailStats(poke: OwnedPokemon) {
         <Shield class="h-3.5 w-3.5" />
         {{ t('Équipe', 'Team') }}
       </button>
+
+      <!-- Evo stage filter -->
+      <CustomSelect
+        :model-value="filterEvoStage"
+        :options="evoStageOptions"
+        @update:model-value="filterEvoStage = $event"
+      />
 
       <!-- Gen/Region filter -->
       <CustomSelect
