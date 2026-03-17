@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db'
 import User from '#models/user'
 import UserPokemon from '#models/user_pokemon'
+import Species from '#models/species'
 import type { EvolutionStage } from '#models/species'
 
 // ── DPS helpers (mirrors raid_dps.ts but without boss type effectiveness) ──
@@ -97,21 +98,42 @@ export default class PlayersController {
     const legendaryCount = pokemons.filter((p) => p.rarity === 'legendary').length
     const epicCount = pokemons.filter((p) => p.rarity === 'epic').length
 
+    // Build a gen cache for mega evolutions → base form gen
+    const megaSlugs = pokemons.map((p) => p.species?.slug ?? '').filter((s) => s.includes('-mega'))
+    const baseGenMap = new Map<string, number>()
+    if (megaSlugs.length > 0) {
+      const baseSlugs = [...new Set(megaSlugs.map((s) => s.replace(/-mega[xy]?$/, '')))]
+      const baseSpecies = await Species.query()
+        .whereIn('slug', baseSlugs)
+        .select('slug', 'generation')
+      for (const sp of baseSpecies) {
+        baseGenMap.set(sp.slug, sp.generation)
+      }
+    }
+
+    function resolveGen(slug: string, dbGen: number): number {
+      if (slug.includes('-mega')) {
+        const baseSlug = slug.replace(/-mega[xy]?$/, '')
+        return baseGenMap.get(baseSlug) ?? dbGen
+      }
+      return dbGen
+    }
+
     // Compute DPS for all pokemon
     const allWithDps = pokemons.map((p) => {
-      const evoStage = evoStageFromFamily(p.species?.slug ?? '', p.species?.evolutionFamily ?? null)
+      const slug = p.species?.slug ?? ''
+      const evoStage = evoStageFromFamily(slug, p.species?.evolutionFamily ?? null)
       const dps = baseDps(p.level, p.stars, p.isShiny, p.rarity, evoStage)
-      return { p, dps, gen: p.species?.generation ?? 0 }
+      return { p, dps, gen: resolveGen(slug, p.species?.generation ?? 0) }
     })
 
     // Top pokemon by DPS (return all, client filters by gen)
     const topPokemon = [...allWithDps].sort((a, b) => b.dps - a.dps).slice(0, 50)
 
-    // Pokemon per generation
+    // Pokemon per generation (use resolved gen for megas)
     const genCounts: Record<number, number> = {}
-    for (const p of pokemons) {
-      const gen = p.species?.generation ?? 0
-      genCounts[gen] = (genCounts[gen] ?? 0) + 1
+    for (const entry of allWithDps) {
+      genCounts[entry.gen] = (genCounts[entry.gen] ?? 0) + 1
     }
 
     // Rarity distribution

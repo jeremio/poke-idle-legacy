@@ -257,7 +257,7 @@ onMounted(loadPlayers)
             { key: 'badges', label: t('Badges', 'Badges'), icon: '🏅' },
             { key: 'level', label: t('Niveau', 'Level'), icon: '⚡' },
             { key: 'gold', label: t('Or', 'Gold'), icon: '🪙' },
-            { key: 'total_pokemon', label: t('Pokémon', 'Pokémon'), icon: '📦' },
+            { key: 'total_pokemon', label: t('Pokémon', 'Pokémon'), icon: '�' },
             { key: 'shiny_count', label: 'Shiny', icon: '✨' },
           ] as const)"
           :key="s.key"
@@ -322,7 +322,7 @@ onMounted(loadPlayers)
               </span>
               <span class="hidden sm:inline">{{ genName(player.current_generation) }}</span>
               <span class="flex items-center gap-0.5">
-                📦 {{ player.total_pokemon }}
+                <span class="inline-block h-3 w-3 rounded-full" style="background: linear-gradient(to bottom, #ee1515 50%, #fff 50%); border: 1px solid #333; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2)" /> {{ player.total_pokemon }}
               </span>
               <span v-if="player.shiny_count > 0" class="flex items-center gap-0.5">
                 ✨ {{ player.shiny_count }}
