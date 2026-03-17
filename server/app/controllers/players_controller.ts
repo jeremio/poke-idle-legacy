@@ -2,6 +2,51 @@ import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db'
 import User from '#models/user'
 import UserPokemon from '#models/user_pokemon'
+import type { EvolutionStage } from '#models/species'
+
+// ── DPS helpers (mirrors raid_dps.ts but without boss type effectiveness) ──
+const RARITY_DPS_MULT: Record<string, number> = {
+  common: 1.0,
+  rare: 1.1,
+  epic: 1.5,
+  legendary: 4.0,
+}
+const STAR_DPS_MULT = [1, 1, 1.1, 1.2, 1.3, 1.5]
+const STAR_DPS_MULT_SHINY = [1, 1, 1.5, 2, 3, 5]
+
+function getStarMult(stars: number, isShiny: boolean): number {
+  const t = isShiny ? STAR_DPS_MULT_SHINY : STAR_DPS_MULT
+  return t[Math.min(stars, t.length - 1)] ?? 1
+}
+
+function getEvoMult(evoStage: number): number {
+  if (evoStage >= 3) return 1.4
+  if (evoStage === 2) return 1.2
+  return 1.0
+}
+
+function evoStageFromFamily(slug: string, family: EvolutionStage[] | null): number {
+  if (!family || family.length === 0) return 1
+  const idx = family.findIndex(
+    (f) => f.name?.toLowerCase() === slug || f.pokedexId?.toString() === slug
+  )
+  return idx < 0 ? 1 : Math.min(idx + 1, 3)
+}
+
+function baseDps(
+  level: number,
+  stars: number,
+  isShiny: boolean,
+  rarity: string,
+  evoStage: number
+): number {
+  const baseDmg = level * 2
+  const evo = getEvoMult(evoStage)
+  const rar = RARITY_DPS_MULT[rarity] ?? 1.0
+  const shiny = isShiny ? 4.0 : 1.0
+  const star = getStarMult(stars, isShiny)
+  return Math.floor(baseDmg * evo * rar * shiny * star)
+}
 
 export default class PlayersController {
   /**
@@ -52,10 +97,15 @@ export default class PlayersController {
     const legendaryCount = pokemons.filter((p) => p.rarity === 'legendary').length
     const epicCount = pokemons.filter((p) => p.rarity === 'epic').length
 
-    // Top pokemon by level
-    const topPokemon = [...pokemons]
-      .sort((a, b) => b.level - a.level || b.stars - a.stars)
-      .slice(0, 12)
+    // Compute DPS for all pokemon
+    const allWithDps = pokemons.map((p) => {
+      const evoStage = evoStageFromFamily(p.species?.slug ?? '', p.species?.evolutionFamily ?? null)
+      const dps = baseDps(p.level, p.stars, p.isShiny, p.rarity, evoStage)
+      return { p, dps, gen: p.species?.generation ?? 0 }
+    })
+
+    // Top pokemon by DPS (return all, client filters by gen)
+    const topPokemon = [...allWithDps].sort((a, b) => b.dps - a.dps).slice(0, 50)
 
     // Pokemon per generation
     const genCounts: Record<number, number> = {}
@@ -92,7 +142,23 @@ export default class PlayersController {
       epicCount,
       rarityCounts,
       genCounts,
-      teamPokemons: teamPokemons.map((p) => ({
+      teamPokemons: teamPokemons.map((p) => {
+        const evoStage = evoStageFromFamily(
+          p.species?.slug ?? '',
+          p.species?.evolutionFamily ?? null
+        )
+        return {
+          slug: p.species?.slug ?? 'unknown',
+          nameFr: p.species?.nameFr ?? '???',
+          nameEn: p.species?.nameEn ?? '???',
+          level: p.level,
+          stars: p.stars,
+          isShiny: p.isShiny,
+          rarity: p.rarity,
+          dps: baseDps(p.level, p.stars, p.isShiny, p.rarity, evoStage),
+        }
+      }),
+      topPokemon: topPokemon.map(({ p, dps, gen }) => ({
         slug: p.species?.slug ?? 'unknown',
         nameFr: p.species?.nameFr ?? '???',
         nameEn: p.species?.nameEn ?? '???',
@@ -100,15 +166,8 @@ export default class PlayersController {
         stars: p.stars,
         isShiny: p.isShiny,
         rarity: p.rarity,
-      })),
-      topPokemon: topPokemon.map((p) => ({
-        slug: p.species?.slug ?? 'unknown',
-        nameFr: p.species?.nameFr ?? '???',
-        nameEn: p.species?.nameEn ?? '???',
-        level: p.level,
-        stars: p.stars,
-        isShiny: p.isShiny,
-        rarity: p.rarity,
+        dps,
+        gen,
       })),
     })
   }

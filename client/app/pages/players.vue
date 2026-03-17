@@ -82,6 +82,7 @@ interface PlayerDetail {
     stars: number
     isShiny: boolean
     rarity: string
+    dps: number
   }>
   topPokemon: Array<{
     slug: string
@@ -91,6 +92,8 @@ interface PlayerDetail {
     stars: number
     isShiny: boolean
     rarity: string
+    dps: number
+    gen: number
   }>
 }
 
@@ -103,6 +106,21 @@ const selectedPlayer = ref<PlayerRow | null>(null)
 const playerDetail = ref<PlayerDetail | null>(null)
 const showDetailModal = ref(false)
 const detailLoading = ref(false)
+const topGenFilter = ref<number>(0)
+
+const filteredTopPokemon = computed(() => {
+  if (!playerDetail.value) return []
+  const list = topGenFilter.value === 0
+    ? playerDetail.value.topPokemon
+    : playerDetail.value.topPokemon.filter((p) => p.gen === topGenFilter.value)
+  return [...list].sort((a, b) => b.dps - a.dps).slice(0, 12)
+})
+
+const availableGens = computed(() => {
+  if (!playerDetail.value) return []
+  const gens = new Set(playerDetail.value.topPokemon.map((p) => p.gen))
+  return [...gens].filter((g) => g > 0).sort((a, b) => a - b)
+})
 
 const filteredPlayers = computed(() => {
   let filtered = players.value
@@ -193,6 +211,7 @@ async function openDetail(player: PlayerRow) {
   showDetailModal.value = true
   playerDetail.value = null
   detailLoading.value = true
+  topGenFilter.value = 0
   try {
     const res = await fetch(`${API_BASE}/api/players/${player.id}`)
     if (res.ok) {
@@ -528,19 +547,44 @@ onMounted(loadPlayers)
                   <div class="mt-0.5 flex gap-0.5">
                     <span v-for="s in poke.stars" :key="s" class="text-[8px] text-yellow-400">★</span>
                   </div>
+                  <span class="mt-0.5 text-[9px] font-bold text-green-400">{{ poke.dps.toLocaleString() }} DPS</span>
                 </div>
               </div>
             </div>
 
             <!-- Top Pokémon -->
             <div v-if="playerDetail.topPokemon.length > 0" class="rounded-xl border border-slate-700 bg-slate-800/50 p-4">
-              <h4 class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-                <Crown class="h-4 w-4 text-amber-400" />
-                {{ t('Meilleurs Pokémon', 'Top Pokémon') }}
-              </h4>
+              <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h4 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <Crown class="h-4 w-4 text-amber-400" />
+                  {{ t('Meilleurs Pokémon', 'Top Pokémon') }}
+                </h4>
+                <div class="flex flex-wrap gap-1">
+                  <button
+                    class="rounded-lg border px-2 py-1 text-[10px] font-bold transition-all"
+                    :class="topGenFilter === 0
+                      ? 'border-blue-500 bg-blue-500/15 text-blue-400'
+                      : 'border-slate-700 bg-slate-900/50 text-slate-500 hover:border-slate-600 hover:text-white'"
+                    @click="topGenFilter = 0"
+                  >
+                    {{ t('Toutes', 'All') }}
+                  </button>
+                  <button
+                    v-for="gen in availableGens"
+                    :key="gen"
+                    class="rounded-lg border px-2 py-1 text-[10px] font-bold transition-all"
+                    :class="topGenFilter === gen
+                      ? 'border-blue-500 bg-blue-500/15 text-blue-400'
+                      : 'border-slate-700 bg-slate-900/50 text-slate-500 hover:border-slate-600 hover:text-white'"
+                    @click="topGenFilter = gen"
+                  >
+                    {{ genName(gen) }}
+                  </button>
+                </div>
+              </div>
               <div class="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
                 <div
-                  v-for="(poke, idx) in playerDetail.topPokemon"
+                  v-for="(poke, idx) in filteredTopPokemon"
                   :key="idx"
                   class="flex flex-col items-center rounded-lg border p-2"
                   :class="poke.isShiny
@@ -562,7 +606,11 @@ onMounted(loadPlayers)
                   >
                     {{ t(RARITY_LABELS[poke.rarity]?.fr ?? poke.rarity, RARITY_LABELS[poke.rarity]?.en ?? poke.rarity) }}
                   </span>
+                  <span class="mt-0.5 text-[9px] font-bold text-green-400">{{ poke.dps.toLocaleString() }} DPS</span>
                 </div>
+              </div>
+              <div v-if="filteredTopPokemon.length === 0" class="py-4 text-center text-xs text-slate-500">
+                {{ t('Aucun Pokémon dans cette région', 'No Pokémon in this region') }}
               </div>
             </div>
 
