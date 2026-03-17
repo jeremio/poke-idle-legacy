@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { Search, UsersRound, Trophy, Award, Crown, Sparkles, ChevronDown, ChevronUp, X, MapPin, Swords, Clock, Star, TrendingUp, Eye } from 'lucide-vue-next'
 import { useLocale } from '~/composables/useLocale'
-import { getSpriteUrl, getShinySpriteUrl } from '~/utils/showdown'
+import { getStaticSpriteUrl, getStaticShinySpriteUrl } from '~/utils/showdown'
 import { GENERATIONS } from '~/data/zones'
 
 definePageMeta({ layout: 'game' })
@@ -167,7 +167,7 @@ function toggleSort(field: typeof sortBy.value) {
 }
 
 function pokeSprite(slug: string, isShiny: boolean) {
-  return isShiny ? getShinySpriteUrl(slug) : getSpriteUrl(slug)
+  return isShiny ? getStaticShinySpriteUrl(slug) : getStaticSpriteUrl(slug)
 }
 
 function getRank(index: number): string {
@@ -257,7 +257,7 @@ onMounted(loadPlayers)
             { key: 'badges', label: t('Badges', 'Badges'), icon: '🏅' },
             { key: 'level', label: t('Niveau', 'Level'), icon: '⚡' },
             { key: 'gold', label: t('Or', 'Gold'), icon: '🪙' },
-            { key: 'total_pokemon', label: t('Pokémon', 'Pokémon'), icon: '�' },
+            { key: 'total_pokemon', label: t('Pokémon', 'Pokémon'), icon: '' },
             { key: 'shiny_count', label: 'Shiny', icon: '✨' },
           ] as const)"
           :key="s.key"
@@ -267,7 +267,8 @@ onMounted(loadPlayers)
             : 'border-slate-700 bg-slate-800/60 text-slate-400 hover:border-slate-600 hover:text-white'"
           @click="toggleSort(s.key)"
         >
-          <span>{{ s.icon }}</span>
+          <span v-if="s.key === 'total_pokemon'" class="inline-block h-3 w-3 rounded-full" style="background: linear-gradient(to bottom, #ee1515 50%, #fff 50%); border: 1.5px solid #333" />
+          <span v-else>{{ s.icon }}</span>
           <span class="hidden sm:inline">{{ s.label }}</span>
           <ChevronDown v-if="sortBy === s.key && sortOrder === 'desc'" class="h-3 w-3" />
           <ChevronUp v-if="sortBy === s.key && sortOrder === 'asc'" class="h-3 w-3" />
