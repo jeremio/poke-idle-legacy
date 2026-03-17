@@ -95,6 +95,16 @@ interface PlayerDetail {
     dps: number
     gen: number
   }>
+  shinyPokemon: Array<{
+    slug: string
+    nameFr: string
+    nameEn: string
+    level: number
+    stars: number
+    rarity: string
+    dps: number
+    gen: number
+  }>
 }
 
 const players = ref<PlayerRow[]>([])
@@ -120,6 +130,16 @@ const availableGens = computed(() => {
   if (!playerDetail.value) return []
   const gens = new Set(playerDetail.value.topPokemon.map((p) => p.gen))
   return [...gens].filter((g) => g > 0).sort((a, b) => a - b)
+})
+
+const shinyByGen = computed(() => {
+  if (!playerDetail.value) return []
+  const groups = new Map<number, typeof playerDetail.value.shinyPokemon>()
+  for (const p of playerDetail.value.shinyPokemon) {
+    if (!groups.has(p.gen)) groups.set(p.gen, [])
+    groups.get(p.gen)!.push(p)
+  }
+  return [...groups.entries()].sort((a, b) => a[0] - b[0])
 })
 
 const filteredPlayers = computed(() => {
@@ -612,6 +632,44 @@ onMounted(loadPlayers)
               </div>
               <div v-if="filteredTopPokemon.length === 0" class="py-4 text-center text-xs text-slate-500">
                 {{ t('Aucun Pokémon dans cette région', 'No Pokémon in this region') }}
+              </div>
+            </div>
+
+            <!-- Shinys par génération -->
+            <div v-if="playerDetail.shinyPokemon.length > 0" class="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4">
+              <h4 class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-yellow-400">
+                <Sparkles class="h-4 w-4" />
+                {{ t('Shinys', 'Shinies') }} ({{ playerDetail.shinyPokemon.length }})
+              </h4>
+              <div v-for="[gen, shinys] in shinyByGen" :key="gen" class="mb-3 last:mb-0">
+                <div class="mb-2 flex items-center gap-2">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">{{ genName(gen) }}</span>
+                  <div class="h-px flex-1 bg-slate-700/50" />
+                  <span class="text-[10px] font-bold text-yellow-500">{{ shinys.length }}</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
+                  <div
+                    v-for="(poke, idx) in shinys"
+                    :key="idx"
+                    class="flex flex-col items-center rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-2"
+                  >
+                    <img :src="pokeSprite(poke.slug, true)" alt="" class="h-10 w-10" />
+                    <span class="mt-0.5 text-center text-[9px] font-medium text-white">{{ t(poke.nameFr, poke.nameEn) }} ✨</span>
+                    <div class="flex items-center gap-1">
+                      <span class="text-[9px] text-slate-500">Lv.{{ poke.level }}</span>
+                    </div>
+                    <div class="flex gap-0.5">
+                      <span v-for="s in poke.stars" :key="s" class="text-[7px] text-yellow-400">★</span>
+                    </div>
+                    <span
+                      class="mt-0.5 rounded px-1 py-0.5 text-[8px] font-bold"
+                      :style="{ color: RARITY_COLORS[poke.rarity], background: `${RARITY_COLORS[poke.rarity]}15` }"
+                    >
+                      {{ t(RARITY_LABELS[poke.rarity]?.fr ?? poke.rarity, RARITY_LABELS[poke.rarity]?.en ?? poke.rarity) }}
+                    </span>
+                    <span class="mt-0.5 text-[9px] font-bold text-green-400">{{ poke.dps.toLocaleString() }} DPS</span>
+                  </div>
+                </div>
               </div>
             </div>
 

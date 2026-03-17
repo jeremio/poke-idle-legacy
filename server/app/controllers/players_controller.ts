@@ -191,6 +191,19 @@ export default class PlayersController {
         dps,
         gen,
       })),
+      shinyPokemon: allWithDps
+        .filter(({ p }) => p.isShiny)
+        .sort((a, b) => a.gen - b.gen || b.dps - a.dps)
+        .map(({ p, dps, gen }) => ({
+          slug: p.species?.slug ?? 'unknown',
+          nameFr: p.species?.nameFr ?? '???',
+          nameEn: p.species?.nameEn ?? '???',
+          level: p.level,
+          stars: p.stars,
+          rarity: p.rarity,
+          dps,
+          gen,
+        })),
     })
   }
 }
