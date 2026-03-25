@@ -43,6 +43,7 @@ router
         router.post('/save-pokemons', [GameController, 'savePokemons'])
         router.post('/avatar', [GameController, 'uploadAvatar'])
         router.delete('/avatar', [GameController, 'deleteAvatar'])
+        router.put('/username', [GameController, 'updateUsername'])
       })
       .prefix('/game')
       .use(middleware.auth())

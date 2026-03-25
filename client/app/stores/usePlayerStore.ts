@@ -131,6 +131,13 @@ export const usePlayerStore = defineStore('player', {
     isFarming: (state): boolean => {
       return state.combatGeneration !== null
     },
+    isEndgame: (state): boolean => {
+      const lastGen = GENERATIONS[GENERATIONS.length - 1]
+      if (!lastGen) return false
+      const lastZone = lastGen.zones[lastGen.zones.length - 1]
+      if (!lastZone) return false
+      return state.defeatedBosses.includes(lastZone.boss.slug)
+    },
     activeCombatGen: (state): number => {
       return state.combatGeneration ?? state.currentGeneration
     },
@@ -221,8 +228,9 @@ export const usePlayerStore = defineStore('player', {
         const gen = GENERATIONS.find((g) => g.id === this.currentGeneration)
         const zone = gen?.zones[this.currentZone - 1]
         const bossSlug = zone?.boss.slug
+        const isFirstKill = bossSlug ? !this.defeatedBosses.includes(bossSlug) : false
         
-        if (bossSlug && !this.defeatedBosses.includes(bossSlug)) {
+        if (bossSlug && isFirstKill) {
           this.defeatedBosses.push(bossSlug)
           this.badges++
         }
@@ -235,12 +243,18 @@ export const usePlayerStore = defineStore('player', {
             this.currentGeneration++
             this.currentZone = 1
             // Show congratulations message
-            const newRegionName = GENERATION_NAMES[this.currentGeneration] ?? 'Unknown'
-            this.regionUnlockMessage = `🎉 Félicitations ! Vous avez débloqué la région ${newRegionName} !`
-            setTimeout(() => { this.regionUnlockMessage = null }, 5000)
+            if (isFirstKill) {
+              const newRegionName = GENERATION_NAMES[this.currentGeneration] ?? 'Unknown'
+              this.regionUnlockMessage = `🎉 Félicitations ! Vous avez débloqué la région ${newRegionName} !`
+              setTimeout(() => { this.regionUnlockMessage = null }, 5000)
+            }
           } else {
-            // Last generation — stay at last zone
+            // Last generation — loop farming: stay at last zone, reset to stage 1
             this.currentZone = gen.zones.length
+            if (isFirstKill) {
+              this.regionUnlockMessage = `🏆 Félicitations ! Tu as terminé toutes les régions ! Le monde entier est désormais ouvert !`
+              setTimeout(() => { this.regionUnlockMessage = null }, 8000)
+            }
           }
         } else {
           this.currentZone++

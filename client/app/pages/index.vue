@@ -582,8 +582,8 @@ function removeFromTeam(pokeId: number) {
                 <span class="ml-auto shrink-0 rounded-md bg-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-400">Lv{{ poke.level }}</span>
               </div>
               
-              <!-- XP Bar améliorée -->
-              <div class="relative h-2 overflow-hidden rounded-full" style="background: linear-gradient(to bottom, #1e293b, #0f172a); box-shadow: inset 0 1px 3px rgba(0,0,0,0.5)">
+              <!-- XP Bar améliorée (cachée si lvl 100) -->
+              <div v-if="poke.level < 100" class="relative h-2 overflow-hidden rounded-full" style="background: linear-gradient(to bottom, #1e293b, #0f172a); box-shadow: inset 0 1px 3px rgba(0,0,0,0.5)">
                 <div
                   class="h-full transition-all duration-300"
                   style="background: linear-gradient(to right, #06b6d4, #3b82f6); box-shadow: 0 0 8px rgba(59,130,246,0.5)"
@@ -594,6 +594,7 @@ function removeFromTeam(pokeId: number) {
                   </div>
                 </div>
               </div>
+              <div v-else class="text-[10px] font-bold text-amber-400">MAX</div>
               
               <!-- Stats DPS -->
               <div class="flex items-center gap-3 text-[10px]">

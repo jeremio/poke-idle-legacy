@@ -33,9 +33,10 @@ export function useCombatLoop() {
     const starMult = getStarDpsMult(poke.stars, poke.isShiny)
 
     // Region penalty: 99.9% damage reduction if fighting outside native generation
+    // Endgame: no penalty once all regions are completed
     const pokeGen = getSlugGeneration(poke.slug)
     const combatGen = player.combatGeneration ?? player.currentGeneration
-    const regionMult = pokeGen === combatGen ? 1.0 : 0.001
+    const regionMult = player.isEndgame ? 1.0 : (pokeGen === combatGen ? 1.0 : 0.001)
     
     // Pour un Pokémon avec doubles types, utiliser le MEILLEUR type offensif
     const attackerTypes = getPokemonTypes(poke.slug)

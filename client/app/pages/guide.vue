@@ -624,6 +624,59 @@ function toggleGen(id: number) {
     <!-- ═══════════════ PATCH NOTES TAB ═══════════════ -->
     <div v-if="activeTab === 'patchnotes'" class="flex flex-col gap-4">
 
+      <!-- v2.4.0 -->
+      <article class="rounded-xl border-2 border-emerald-500/60 bg-gradient-to-br from-emerald-900/30 to-teal-900/20 p-5">
+        <div class="mb-1 flex items-center gap-2">
+          <span class="rounded bg-emerald-500 px-2 py-0.5 text-xs font-black text-black">QOL</span>
+        </div>
+        <h3 class="mb-3 text-xl font-black text-emerald-300">v2.4.0 — Quality of Life & Endgame — 25 Mars 2026</h3>
+
+        <p class="mb-4 text-sm text-gray-300 italic">
+          {{ t('Améliorations de confort, invocation x100, changement de pseudo et contenu endgame !', 'Quality of life improvements, x100 summoning, username change and endgame content!') }}
+        </p>
+
+        <div class="space-y-4">
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">⚔️ {{ t('Combat', 'Combat') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Les barres d\'XP sont masquées pour les Pokémon niveau 100 (affiche "MAX")', 'XP bars are hidden for level 100 Pokémon (shows "MAX")') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🥚 {{ t('Pension', 'Daycare') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Nouveau tri par Région dans le sélecteur de Pokémon de la pension', 'New Region sort option in the daycare Pokémon picker') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">👤 {{ t('Profil', 'Profile') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Possibilité de changer son pseudo directement depuis la page profil', 'Username can now be changed directly from the profile page') }}</li>
+              <li>{{ t('Validation du pseudo (3-20 caractères, unicité vérifiée)', 'Username validation (3-20 characters, uniqueness checked)') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🎰 {{ t('Gacha / Invocation', 'Gacha / Summoning') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Nouvelle option d\'invocation x100 débloquée après avoir battu le champion d\'une région', 'New x100 summoning option unlocked after defeating a region\'s champion') }}</li>
+              <li>{{ t('Animation accélérée pour les invocations en masse', 'Faster animation for mass summons') }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="mb-2 text-sm font-semibold text-emerald-400">🏆 {{ t('Endgame', 'Endgame') }}</h4>
+            <ul class="space-y-1 text-sm text-gray-300 list-disc list-inside pl-2">
+              <li>{{ t('Message de félicitations quand toutes les régions sont terminées', 'Congratulations message when all regions are completed') }}</li>
+              <li>{{ t('La pénalité de région est supprimée une fois toutes les régions terminées — utilise n\'importe quel Pokémon partout !', 'Region penalty removed once all regions are completed — use any Pokémon anywhere!') }}</li>
+              <li>{{ t('Farm en boucle automatique sur la dernière zone après avoir terminé le jeu', 'Automatic loop farming on the last zone after completing the game') }}</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
       <!-- v2.3.0 -->
       <article class="rounded-xl border-2 border-blue-500/60 bg-gradient-to-br from-blue-900/30 to-indigo-900/20 p-5">
         <div class="mb-1 flex items-center gap-2">

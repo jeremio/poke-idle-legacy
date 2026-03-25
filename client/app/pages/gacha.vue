@@ -7,6 +7,7 @@ import { useAuthStore } from '~/stores/useAuthStore'
 import { useLocale } from '~/composables/useLocale'
 import { BANNERS, RARITY_COLORS, RARITY_LABELS_FR, RARITY_LABELS_EN, pullFromBanner } from '~/data/gacha'
 import type { Banner, Rarity } from '~/data/gacha'
+import { GENERATIONS } from '~/data/zones'
 
 definePageMeta({
   layout: 'game',
@@ -42,7 +43,18 @@ interface PullResultItem {
 const isPulling = ref(false)
 const showResult = ref(false)
 const pullResults = ref<PullResultItem[]>([])
-const pullCount = ref<1 | 5 | 10 | 50>(1)
+const pullCount = ref<1 | 5 | 10 | 50 | 100>(1)
+
+// Check if the region's champion (last zone boss) has been defeated
+function isRegionCompleted(genId: number): boolean {
+  const gen = GENERATIONS.find((g) => g.id === genId)
+  if (!gen) return false
+  const lastZone = gen.zones[gen.zones.length - 1]
+  if (!lastZone) return false
+  return player.defeatedBosses.includes(lastZone.boss.slug)
+}
+
+const canPull100 = computed(() => isRegionCompleted(activeBanner.value.generation))
 
 const animPhase = ref<'idle' | 'shake' | 'color' | 'flash' | 'reveal'>('idle')
 const revealedRarity = ref<Rarity>('common')
@@ -52,6 +64,8 @@ const singleResult = computed(() => pullResults.value.length === 1 ? pullResults
 // Summary for x50 pulls
 const pullSummary = computed(() => {
   if (pullResults.value.length <= 10) return null
+  // x100 label
+  const label = pullResults.value.length >= 100 ? 'x100' : 'x50'
   const byRarity: Record<Rarity, number> = { legendary: 0, epic: 0, rare: 0, common: 0 }
   let newCount = 0
   let shinyCount = 0
@@ -62,7 +76,7 @@ const pullSummary = computed(() => {
     if (r.isShiny) shinyCount++
     totalRefund += r.refundAmount
   }
-  return { byRarity, newCount, shinyCount, totalRefund, total: pullResults.value.length }
+  return { byRarity, newCount, shinyCount, totalRefund, total: pullResults.value.length, label }
 })
 
 // Pokeball color scheme per rarity
@@ -122,12 +136,12 @@ async function doPull() {
 
   // Animation: shake (shorter for x50)
   animPhase.value = 'shake'
-  const shakeTime = count === 1 ? 1400 : count >= 50 ? 600 : 1000
+  const shakeTime = count === 1 ? 1400 : count >= 50 ? 400 : 1000
   await sleep(shakeTime)
 
   // Animation: ball color change to rarity
   animPhase.value = 'color'
-  await sleep(count === 1 ? 800 : count >= 50 ? 300 : 500)
+  await sleep(count === 1 ? 800 : count >= 100 ? 200 : count >= 50 ? 300 : 500)
 
   // Animation: flash
   animPhase.value = 'flash'
@@ -354,7 +368,7 @@ function dismiss() {
       v-if="showResult && pullSummary"
       class="flex w-full max-w-lg flex-col items-center gap-4"
     >
-      <h3 class="text-lg font-bold text-yellow-400">{{ t('Résumé x50', 'x50 Summary') }}</h3>
+      <h3 class="text-lg font-bold text-yellow-400">{{ t(`Résumé ${pullSummary.label}`, `${pullSummary.label} Summary`) }}</h3>
 
       <!-- Rarity breakdown -->
       <div class="w-full space-y-2 rounded-xl border border-slate-700 bg-slate-800/80 p-4">
@@ -528,6 +542,16 @@ function dismiss() {
           @click="pullCount = n"
         >
           x{{ n }}
+        </button>
+        <button
+          v-if="canPull100"
+          class="rounded-lg px-4 py-1.5 text-sm font-bold transition-all"
+          :class="pullCount === 100
+            ? 'bg-yellow-500 text-black shadow-lg'
+            : 'text-amber-400 hover:text-amber-300'"
+          @click="pullCount = 100"
+        >
+          x100
         </button>
       </div>
 

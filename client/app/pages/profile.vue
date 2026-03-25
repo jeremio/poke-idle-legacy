@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { User, Trophy, Swords, Zap, Skull, Star, MapPin, Coins, Sparkles, Crown, Camera, Trash2 } from 'lucide-vue-next'
+import { User, Trophy, Swords, Zap, Skull, Star, MapPin, Coins, Sparkles, Crown, Camera, Trash2, Pencil, Check, X } from 'lucide-vue-next'
 import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useCombatStore } from '~/stores/useCombatStore'
 import { useInventoryStore } from '~/stores/useInventoryStore'
@@ -20,6 +20,58 @@ const config = useRuntimeConfig()
 
 const uploading = ref(false)
 const avatarError = ref('')
+
+// Username editing
+const editingUsername = ref(false)
+const newUsername = ref('')
+const usernameError = ref('')
+const usernameLoading = ref(false)
+
+function startEditUsername() {
+  newUsername.value = player.username
+  usernameError.value = ''
+  editingUsername.value = true
+}
+
+function cancelEditUsername() {
+  editingUsername.value = false
+  usernameError.value = ''
+}
+
+async function saveUsername() {
+  const trimmed = newUsername.value.trim()
+  if (trimmed.length < 3 || trimmed.length > 20) {
+    usernameError.value = t('Le pseudo doit faire entre 3 et 20 caractères', 'Username must be between 3 and 20 characters')
+    return
+  }
+  if (trimmed === player.username) {
+    editingUsername.value = false
+    return
+  }
+  usernameLoading.value = true
+  usernameError.value = ''
+  try {
+    const res = await fetch(`${config.public.apiBase}/api/game/username`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ username: trimmed }),
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      usernameError.value = err.message || t('Erreur', 'Error')
+      return
+    }
+    const data = await res.json()
+    player.username = data.username
+    if (auth.user) auth.user.username = data.username
+    editingUsername.value = false
+  } catch {
+    usernameError.value = t('Erreur réseau', 'Network error')
+  } finally {
+    usernameLoading.value = false
+  }
+}
 
 function getAvatarUrl(path: string | null): string | null {
   if (!path) return null
@@ -169,7 +221,40 @@ const shinyChance = computed(() => {
         </button>
       </div>
       <div>
-        <h2 class="text-2xl font-bold">{{ player.username || t('Dresseur', 'Trainer') }}</h2>
+        <div v-if="!editingUsername" class="flex items-center gap-2">
+          <h2 class="text-2xl font-bold">{{ player.username || t('Dresseur', 'Trainer') }}</h2>
+          <button
+            class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-700 hover:text-white"
+            :title="t('Modifier le pseudo', 'Edit username')"
+            @click="startEditUsername"
+          >
+            <Pencil class="h-4 w-4" />
+          </button>
+        </div>
+        <div v-else class="flex items-center gap-2">
+          <input
+            v-model="newUsername"
+            type="text"
+            maxlength="20"
+            class="rounded-lg border border-gray-600 bg-gray-800 px-3 py-1 text-lg font-bold text-white outline-none focus:border-indigo-500"
+            @keyup.enter="saveUsername"
+            @keyup.escape="cancelEditUsername"
+          />
+          <button
+            class="rounded p-1 text-green-400 transition-colors hover:bg-green-500/20"
+            :disabled="usernameLoading"
+            @click="saveUsername"
+          >
+            <Check class="h-5 w-5" />
+          </button>
+          <button
+            class="rounded p-1 text-red-400 transition-colors hover:bg-red-500/20"
+            @click="cancelEditUsername"
+          >
+            <X class="h-5 w-5" />
+          </button>
+        </div>
+        <p v-if="usernameError" class="text-xs text-red-400">{{ usernameError }}</p>
         <p v-if="avatarError" class="text-xs text-red-400">{{ avatarError }}</p>
         <p v-if="player.pokedexMaster" class="flex items-center gap-1 text-sm font-bold text-amber-400">
           <Crown class="h-4 w-4" /> {{ t('Maître Pokédex', 'Pokédex Master') }}

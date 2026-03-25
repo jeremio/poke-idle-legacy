@@ -6,7 +6,7 @@ import { useInventoryStore, MAX_LEVEL, MAX_STARS } from '~/stores/useInventorySt
 import { useDaycareStore, MAX_DAYCARE_SLOTS, DAYCARE_COST, HATCH_DAMAGE, FIVE_STAR_SHINY_CHANCE } from '~/stores/useDaycareStore'
 import type { DaycareSlot } from '~/stores/useDaycareStore'
 import { useLocale } from '~/composables/useLocale'
-import { RARITY_COLORS, RARITY_LABELS_FR, RARITY_LABELS_EN } from '~/data/gacha'
+import { RARITY_COLORS, RARITY_LABELS_FR, RARITY_LABELS_EN, getSlugGeneration } from '~/data/gacha'
 import type { Rarity } from '~/data/gacha'
 import type { OwnedPokemon } from '~/stores/useInventoryStore'
 import { useAuthStore } from '~/stores/useAuthStore'
@@ -24,7 +24,7 @@ const { t } = useLocale()
 const showPicker = ref(false)
 const pickerSearch = ref('')
 const selectedIds = ref<Set<number>>(new Set())
-const pickerSort = ref<'stars' | 'name' | 'rarity'>('stars')
+const pickerSort = ref<'stars' | 'name' | 'rarity' | 'region'>('stars')
 const pickerRarity = ref<string | null>(null)
 const hatchResults = ref<{ slug: string; nameFr: string; nameEn: string; isShiny: boolean; isNew: boolean; stars: number; rarity: Rarity }[]>([])
 
@@ -61,6 +61,9 @@ const eligiblePokemon = computed(() => {
       list.sort((a, b) => (order[a.rarity] ?? 5) - (order[b.rarity] ?? 5))
       break
     }
+    case 'region':
+      list.sort((a, b) => getSlugGeneration(a.slug) - getSlugGeneration(b.slug) || a.nameFr.localeCompare(b.nameFr))
+      break
   }
 
   return list
@@ -388,6 +391,7 @@ const readyCount = computed(() => daycare.slots.filter(slotReady).length)
               <option value="stars">{{ t('Étoiles', 'Stars') }}</option>
               <option value="name">{{ t('Nom', 'Name') }}</option>
               <option value="rarity">{{ t('Rareté', 'Rarity') }}</option>
+              <option value="region">{{ t('Région', 'Region') }}</option>
             </select>
             <select
               v-model="pickerRarity"

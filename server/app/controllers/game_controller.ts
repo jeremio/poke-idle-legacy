@@ -222,6 +222,34 @@ export default class GameController {
     })
   }
 
+  async updateUsername({ request, response, auth }: HttpContext) {
+    const user = auth.use('web').user
+    if (!user) {
+      return response.unauthorized({ message: 'Not authenticated' })
+    }
+
+    const { username } = request.body() as { username?: string }
+    if (!username || typeof username !== 'string') {
+      return response.badRequest({ message: 'Username is required' })
+    }
+
+    const trimmed = username.trim()
+    if (trimmed.length < 3 || trimmed.length > 20) {
+      return response.badRequest({ message: 'Username must be between 3 and 20 characters' })
+    }
+
+    // Check uniqueness (case-insensitive)
+    const existing = await db.from('users').where('username', trimmed).whereNot('id', user.id).first()
+    if (existing) {
+      return response.conflict({ message: 'Username already taken' })
+    }
+
+    user.username = trimmed
+    await user.save()
+
+    return response.ok({ message: 'Username updated', username: user.username })
+  }
+
   async uploadAvatar({ request, response, auth }: HttpContext) {
     const user = auth.use('web').user
     if (!user) {
