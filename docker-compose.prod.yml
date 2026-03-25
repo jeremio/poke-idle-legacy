@@ -3,6 +3,14 @@ services:
     image: postgres:16-alpine
     container_name: poke-idle-postgres
     restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -26,11 +34,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 512M
+          cpus: '2.0'
+          memory: 2G
         reservations:
-          cpus: '0.25'
-          memory: 256M
+          cpus: '0.5'
+          memory: 512M
     environment:
       TZ: ${TZ:-UTC}
       NODE_ENV: production
@@ -63,6 +71,14 @@ services:
     restart: always
     ports:
       - "3004:3000"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     environment:
       NUXT_PUBLIC_API_BASE: ${API_BASE_URL:-https://api.poke-idle.example.com}
     depends_on:
