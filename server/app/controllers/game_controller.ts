@@ -10,31 +10,31 @@ import { saveGameStateValidator } from '#validators/game_state'
 import UserPokemon from '#models/user_pokemon'
 
 // ── Species slug→id cache (avoids full table scan on every save) ──
-let _speciesCache: Map<string, number> | null = null
-let _speciesCacheTime = 0
+let speciesCache: Map<string, number> | null = null
+let speciesCacheTime = 0
 const SPECIES_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
 async function getSpeciesCache(): Promise<Map<string, number>> {
   const now = Date.now()
-  if (_speciesCache && now - _speciesCacheTime < SPECIES_CACHE_TTL) {
-    return _speciesCache
+  if (speciesCache && now - speciesCacheTime < SPECIES_CACHE_TTL) {
+    return speciesCache
   }
   const allSpecies = await Species.query()
   const map = new Map<string, number>()
   for (const s of allSpecies) {
     map.set(s.slug, s.id)
   }
-  _speciesCache = map
-  _speciesCacheTime = now
+  speciesCache = map
+  speciesCacheTime = now
   return map
 }
 
 function invalidateSpeciesCache() {
-  _speciesCache = null
+  speciesCache = null
 }
 
 // ── lastLoginAt throttle (per-user, max once every 5 min) ──
-const _lastLoginThrottle = new Map<number, number>()
+const lastLoginThrottle = new Map<number, number>()
 const LOGIN_THROTTLE_MS = 5 * 60 * 1000
 
 export default class GameController {
@@ -135,10 +135,10 @@ export default class GameController {
 
     // Throttle lastLoginAt updates to once every 5 minutes
     const now = Date.now()
-    const lastUpdate = _lastLoginThrottle.get(user.id) ?? 0
+    const lastUpdate = lastLoginThrottle.get(user.id) ?? 0
     if (now - lastUpdate > LOGIN_THROTTLE_MS) {
       user.lastLoginAt = DateTime.now()
-      _lastLoginThrottle.set(user.id, now)
+      lastLoginThrottle.set(user.id, now)
     }
     await user.save()
 

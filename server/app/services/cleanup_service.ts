@@ -43,7 +43,7 @@ export async function purgeInactiveUsers(): Promise<number> {
   return inactiveUsers.length
 }
 
-let _cleanupInterval: ReturnType<typeof setInterval> | null = null
+let cleanupInterval: ReturnType<typeof setInterval> | null = null
 
 export function startCleanupScheduler() {
   // Run immediately on startup
@@ -52,18 +52,20 @@ export function startCleanupScheduler() {
   })
 
   // Then every 24 hours
-  _cleanupInterval = setInterval(() => {
+  cleanupInterval = setInterval(() => {
     purgeInactiveUsers().catch((err) => {
       console.error('[Cleanup] Scheduled purge failed:', err)
     })
   }, CLEANUP_INTERVAL_MS)
 
-  console.log(`[Cleanup] Scheduler started — purging accounts inactive for ${INACTIVE_DAYS}+ days every 24h`)
+  console.log(
+    `[Cleanup] Scheduler started — purging accounts inactive for ${INACTIVE_DAYS}+ days every 24h`
+  )
 }
 
 export function stopCleanupScheduler() {
-  if (_cleanupInterval) {
-    clearInterval(_cleanupInterval)
-    _cleanupInterval = null
+  if (cleanupInterval) {
+    clearInterval(cleanupInterval)
+    cleanupInterval = null
   }
 }
