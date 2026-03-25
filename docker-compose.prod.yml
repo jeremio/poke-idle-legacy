@@ -23,6 +23,14 @@ services:
     restart: always
     ports:
       - "3005:3333"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     environment:
       TZ: ${TZ:-UTC}
       NODE_ENV: production

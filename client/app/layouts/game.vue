@@ -67,12 +67,12 @@ function saveOnVisibilityChange() {
   }
 }
 
-// Debounced save: triggers 2s after any state change
+// Debounced save: triggers 5s after any state change
 function debouncedSave() {
   if (debouncedSaveTimer) clearTimeout(debouncedSaveTimer)
   debouncedSaveTimer = setTimeout(() => {
     auth.saveGameState()
-  }, 2000)
+  }, 5000)
 }
 
 onMounted(() => {
@@ -95,10 +95,10 @@ onMounted(() => {
     // Check evolutions on mount
     inventory.checkAllEvolutions(player.currentGeneration)
 
-    // Auto-save every 10s as safety net
+    // Auto-save every 60s as safety net
     autoSaveInterval = setInterval(() => {
       auth.saveGameState()
-    }, 10_000)
+    }, 60_000)
 
     window.addEventListener('beforeunload', saveOnUnload)
     document.addEventListener('visibilitychange', saveOnVisibilityChange)

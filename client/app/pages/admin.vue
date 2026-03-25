@@ -118,6 +118,10 @@ const currentBanner = ref<string | null>(null)
 const bannerLoading = ref(false)
 const progressionGen = ref(1)
 const progressionLoading = ref(false)
+const currentPage = ref(1)
+const totalPages = ref(1)
+const totalUserCount = ref(0)
+const perPage = ref(50)
 
 const filteredUsers = computed(() => {
   let filtered = users.value.filter(u => {
@@ -169,21 +173,30 @@ async function loadDashboard() {
   }
 }
 
-async function loadUsers() {
+async function loadUsers(page = currentPage.value) {
   loading.value = true
   try {
-    const response = await fetch(`${API_BASE}/api/admin/users`, {
+    const response = await fetch(`${API_BASE}/api/admin/users?page=${page}&limit=${perPage.value}`, {
       credentials: 'include',
     })
     if (response.ok) {
       const data = await response.json()
       users.value = (data.data as UserRaw[]).map(normalizeUser)
+      currentPage.value = data.meta?.currentPage ?? page
+      totalPages.value = data.meta?.lastPage ?? 1
+      totalUserCount.value = data.meta?.total ?? users.value.length
     }
   } catch (error) {
     console.error('Failed to load users:', error)
   } finally {
     loading.value = false
   }
+}
+
+function goToPage(page: number) {
+  if (page < 1 || page > totalPages.value) return
+  currentPage.value = page
+  loadUsers(page)
 }
 
 async function updateUser(user: User) {
@@ -853,6 +866,58 @@ onMounted(async () => {
               </tr>
             </tbody>
           </table>
+        </div>
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div class="text-xs text-slate-400">
+            Page {{ currentPage }} / {{ totalPages }} — {{ totalUserCount }} utilisateurs
+          </div>
+          <div class="flex items-center gap-1">
+            <button
+              class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all hover:border-slate-500 disabled:opacity-30 disabled:cursor-not-allowed"
+              :disabled="currentPage <= 1"
+              @click="goToPage(1)"
+            >
+              &laquo;
+            </button>
+            <button
+              class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all hover:border-slate-500 disabled:opacity-30 disabled:cursor-not-allowed"
+              :disabled="currentPage <= 1"
+              @click="goToPage(currentPage - 1)"
+            >
+              &lsaquo;
+            </button>
+            <template v-for="p in totalPages" :key="p">
+              <button
+                v-if="p === 1 || p === totalPages || (p >= currentPage - 2 && p <= currentPage + 2)"
+                class="rounded-lg border px-3 py-1.5 text-xs font-bold transition-all"
+                :class="p === currentPage
+                  ? 'border-blue-500 bg-blue-500/20 text-blue-400'
+                  : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-500'"
+                @click="goToPage(p)"
+              >
+                {{ p }}
+              </button>
+              <span
+                v-else-if="p === currentPage - 3 || p === currentPage + 3"
+                class="px-1 text-slate-500"
+              >…</span>
+            </template>
+            <button
+              class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all hover:border-slate-500 disabled:opacity-30 disabled:cursor-not-allowed"
+              :disabled="currentPage >= totalPages"
+              @click="goToPage(currentPage + 1)"
+            >
+              &rsaquo;
+            </button>
+            <button
+              class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all hover:border-slate-500 disabled:opacity-30 disabled:cursor-not-allowed"
+              :disabled="currentPage >= totalPages"
+              @click="goToPage(totalPages)"
+            >
+              &raquo;
+            </button>
+          </div>
         </div>
       </div>
 

@@ -9,6 +9,34 @@ import Species from '#models/species'
 import { saveGameStateValidator } from '#validators/game_state'
 import UserPokemon from '#models/user_pokemon'
 
+// ── Species slug→id cache (avoids full table scan on every save) ──
+let _speciesCache: Map<string, number> | null = null
+let _speciesCacheTime = 0
+const SPECIES_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+async function getSpeciesCache(): Promise<Map<string, number>> {
+  const now = Date.now()
+  if (_speciesCache && now - _speciesCacheTime < SPECIES_CACHE_TTL) {
+    return _speciesCache
+  }
+  const allSpecies = await Species.query()
+  const map = new Map<string, number>()
+  for (const s of allSpecies) {
+    map.set(s.slug, s.id)
+  }
+  _speciesCache = map
+  _speciesCacheTime = now
+  return map
+}
+
+function invalidateSpeciesCache() {
+  _speciesCache = null
+}
+
+// ── lastLoginAt throttle (per-user, max once every 5 min) ──
+const _lastLoginThrottle = new Map<number, number>()
+const LOGIN_THROTTLE_MS = 5 * 60 * 1000
+
 export default class GameController {
   async loadState({ response, auth }: HttpContext) {
     const user = auth.use('web').user
@@ -105,7 +133,13 @@ export default class GameController {
       return response.ok({ message: 'Admin override', reload: true })
     }
 
-    user.lastLoginAt = DateTime.now()
+    // Throttle lastLoginAt updates to once every 5 minutes
+    const now = Date.now()
+    const lastUpdate = _lastLoginThrottle.get(user.id) ?? 0
+    if (now - lastUpdate > LOGIN_THROTTLE_MS) {
+      user.lastLoginAt = DateTime.now()
+      _lastLoginThrottle.set(user.id, now)
+    }
     await user.save()
 
     return response.ok({ message: 'Game state saved', reload: false })
@@ -149,12 +183,8 @@ export default class GameController {
       return response.ok({ message: 'Pokémon saved' })
     }
 
-    // Build slug → speciesId mapping from existing species
-    const allSpecies = await Species.query()
-    const slugToId = new Map<string, number>()
-    for (const s of allSpecies) {
-      slugToId.set(s.slug, s.id)
-    }
+    // Build slug → speciesId mapping from cached species
+    const slugToId = new Map(await getSpeciesCache())
 
     // Auto-create missing species from client data
     const missingSlugs = pokemons.filter((p) => p.slug && !slugToId.has(p.slug))
@@ -163,24 +193,28 @@ export default class GameController {
       if (!uniqueMissing.has(p.slug)) uniqueMissing.set(p.slug, p)
     }
 
-    for (const [slug, p] of uniqueMissing) {
-      const created = await Species.updateOrCreate(
-        { slug },
-        {
-          tyradexId: p.pokedexId ?? 0,
-          nameFr: p.nameFr ?? slug,
-          nameEn: p.nameEn ?? slug,
-          slug,
-          type1: 'Normal',
-          type2: null,
-          generation: p.gen ?? 1,
-          baseStats: {},
-          evolutionFamily: null,
-          spriteRegular: `https://play.pokemonshowdown.com/sprites/ani/${slug}.gif`,
-          spriteShiny: `https://play.pokemonshowdown.com/sprites/ani-shiny/${slug}.gif`,
-        }
-      )
-      slugToId.set(slug, created.id)
+    if (uniqueMissing.size > 0) {
+      for (const [slug, p] of uniqueMissing) {
+        const created = await Species.updateOrCreate(
+          { slug },
+          {
+            tyradexId: p.pokedexId ?? 0,
+            nameFr: p.nameFr ?? slug,
+            nameEn: p.nameEn ?? slug,
+            slug,
+            type1: 'Normal',
+            type2: null,
+            generation: p.gen ?? 1,
+            baseStats: {},
+            evolutionFamily: null,
+            spriteRegular: `https://play.pokemonshowdown.com/sprites/ani/${slug}.gif`,
+            spriteShiny: `https://play.pokemonshowdown.com/sprites/ani-shiny/${slug}.gif`,
+          }
+        )
+        slugToId.set(slug, created.id)
+      }
+      // Invalidate cache since new species were added
+      invalidateSpeciesCache()
     }
 
     // Now save all pokemons in a transaction to prevent duplication on concurrent saves
