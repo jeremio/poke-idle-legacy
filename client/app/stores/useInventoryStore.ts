@@ -4,6 +4,7 @@ import type { Evolution } from '~/data/evolutions'
 import { getRarityDpsMult, getStarDpsMult, getRarity, hasKnownRarity, RARITY_DPS_MULT } from '~/data/gacha'
 import type { Rarity } from '~/data/gacha'
 import { getGenForSlug, POKEDEX } from '~/data/pokedex'
+import { useDaycareStore } from '~/stores/useDaycareStore'
 
 export interface OwnedPokemon {
   id: number
@@ -315,19 +316,23 @@ export const useInventoryStore = defineStore('inventory', {
     loadTeam(name: string) {
       const saved = this.savedTeams.find(t => t.name === name)
       if (!saved) return
+
+      const daycare = useDaycareStore()
       
       // Clear current team
       for (const p of this.collection) {
         p.teamSlot = null
       }
       
-      // Load saved team
-      saved.pokemonIds.forEach((id, index) => {
+      // Load saved team — skip pokemon currently in daycare
+      let slot = 1
+      for (const id of saved.pokemonIds) {
+        if (slot > 6) break
         const pokemon = this.collection.find(p => p.id === id)
-        if (pokemon) {
-          pokemon.teamSlot = index + 1
-        }
-      })
+        if (!pokemon) continue
+        if (daycare.hasSlug(pokemon.slug, pokemon.isShiny)) continue
+        pokemon.teamSlot = slot++
+      }
     },
 
     deleteTeam(name: string) {
