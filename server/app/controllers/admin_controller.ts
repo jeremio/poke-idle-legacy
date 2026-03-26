@@ -471,6 +471,7 @@ export default class AdminController {
     }
 
     const toDelete: number[] = []
+    const affectedUserIds = new Set<number>()
 
     for (const [, pokemons] of groups) {
       if (pokemons.length <= 1) continue
@@ -486,6 +487,7 @@ export default class AdminController {
       const keeper = pokemons[0]
       for (let i = 1; i < pokemons.length; i++) {
         toDelete.push(pokemons[i].id)
+        affectedUserIds.add(pokemons[i].userId)
         // Transfer team slot if keeper doesn't have one
         if (keeper.teamSlot === null && pokemons[i].teamSlot !== null) {
           keeper.teamSlot = pokemons[i].teamSlot
@@ -500,6 +502,12 @@ export default class AdminController {
     if (toDelete.length > 0) {
       await UserPokemon.query().whereIn('id', toDelete).delete()
     }
+
+    // Resolve affected usernames
+    const affectedUsers = affectedUserIds.size > 0
+      ? await User.query().whereIn('id', [...affectedUserIds]).select('username')
+      : []
+    const affectedUsernames = affectedUsers.map((u) => u.username)
 
     // Fix teams with >6 members per user
     const userTeams = new Map<number, UserPokemon[]>()
@@ -522,10 +530,15 @@ export default class AdminController {
       teamsFixed++
     }
 
+    const usersMsg = affectedUsernames.length > 0
+      ? ` — Joueurs concernés : ${affectedUsernames.join(', ')}`
+      : ''
+
     return response.ok({
-      message: `${toDelete.length} doublon(s) supprimé(s), ${teamsFixed} équipe(s) corrigée(s)`,
+      message: `${toDelete.length} doublon(s) supprimé(s), ${teamsFixed} équipe(s) corrigée(s)${usersMsg}`,
       duplicatesRemoved: toDelete.length,
       teamsFixed,
+      affectedUsernames,
     })
   }
 }
