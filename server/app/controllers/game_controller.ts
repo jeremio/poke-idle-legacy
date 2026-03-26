@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { mkdir, unlink } from 'node:fs/promises'
 import db from '@adonisjs/lucid/services/db'
 import app from '@adonisjs/core/services/app'
+import User from '#models/user'
 import Species from '#models/species'
 import { saveGameStateValidator } from '#validators/game_state'
 import UserPokemon from '#models/user_pokemon'
@@ -239,6 +240,8 @@ export default class GameController {
 
     let created: UserPokemon[] = []
     await db.transaction(async (trx) => {
+      // Lock the user row to prevent concurrent saves from duplicating pokemon
+      await User.query({ client: trx }).where('id', user.id).forUpdate().first()
       await UserPokemon.query({ client: trx }).where('userId', user.id).delete()
       if (valid.length > 0) {
         created = await UserPokemon.createMany(

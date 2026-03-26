@@ -193,6 +193,8 @@ export const useAuthStore = defineStore('auth', {
           teamSlot: p.teamSlot,
         }))
         inventory.nextId = data.pokemons.length + 1
+        // Remove duplicates loaded from server (breaks re-save cycle)
+        inventory.removeDuplicates()
         // Fix rarities for existing Pokemon that inherited wrong rarity from parent
         inventory.migrateRarities()
         // Fix stale FR/EN names
