@@ -269,23 +269,29 @@ export default class GameController {
 
     if (uniqueMissing.size > 0) {
       for (const [slug, p] of uniqueMissing) {
-        const created = await Species.updateOrCreate(
-          { slug },
-          {
-            tyradexId: p.pokedexId ?? 0,
-            nameFr: p.nameFr ?? slug,
-            nameEn: p.nameEn ?? slug,
-            slug,
-            type1: 'Normal',
-            type2: null,
-            generation: p.gen ?? 1,
-            baseStats: {},
-            evolutionFamily: null,
-            spriteRegular: `https://play.pokemonshowdown.com/sprites/ani/${slug}.gif`,
-            spriteShiny: `https://play.pokemonshowdown.com/sprites/ani-shiny/${slug}.gif`,
-          }
-        )
-        slugToId.set(slug, created.id)
+        try {
+          const created = await Species.updateOrCreate(
+            { slug },
+            {
+              tyradexId: p.pokedexId ?? 0,
+              nameFr: p.nameFr ?? slug,
+              nameEn: p.nameEn ?? slug,
+              slug,
+              type1: 'Normal',
+              type2: null,
+              generation: p.gen ?? 1,
+              baseStats: {},
+              evolutionFamily: null,
+              spriteRegular: `https://play.pokemonshowdown.com/sprites/ani/${slug}.gif`,
+              spriteShiny: `https://play.pokemonshowdown.com/sprites/ani-shiny/${slug}.gif`,
+            }
+          )
+          slugToId.set(slug, created.id)
+        } catch {
+          // Species may have been created concurrently — try to fetch it
+          const existing = await Species.findBy('slug', slug)
+          if (existing) slugToId.set(slug, existing.id)
+        }
       }
       // Invalidate cache since new species were added
       invalidateSpeciesCache()
