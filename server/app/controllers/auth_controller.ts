@@ -11,7 +11,7 @@ function generateSessionToken(): string {
 }
 
 export default class AuthController {
-  async register({ request, response, auth }: HttpContext) {
+  async register({ request, response, auth, session }: HttpContext) {
     const totalUsers = await User.query().count('* as total')
     const count = Number(totalUsers[0].$extras.total)
     if (count >= MAX_USERS) {
@@ -24,19 +24,23 @@ export default class AuthController {
     const sessionToken = generateSessionToken()
     const user = await User.create({ ...data, role: 'user', sessionToken })
     await auth.use('web').login(user)
+    // Store session token in session for single active session enforcement
+    session.put('session_token', sessionToken)
     return response.created({ ...user.toJSON(), sessionToken })
   }
 
-  async login({ request, response, auth }: HttpContext) {
+  async login({ request, response, auth, session }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)
     const user = await User.verifyCredentials(email, password)
-    
+
     // Generate new session token - invalidates any other active session
     user.sessionToken = generateSessionToken()
     user.lastLoginAt = DateTime.now()
     await user.save()
-    
+
     await auth.use('web').login(user)
+    // Store session token in session for single active session enforcement
+    session.put('session_token', user.sessionToken)
     return response.ok({ ...user.toJSON(), sessionToken: user.sessionToken })
   }
 

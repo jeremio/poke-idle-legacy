@@ -38,7 +38,7 @@ export default class GoogleAuthController {
   /**
    * Handle Google's OAuth callback
    */
-  async callback({ request, response, auth }: HttpContext) {
+  async callback({ request, response, auth, session }: HttpContext) {
     const code = request.input('code')
     const error = request.input('error')
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
@@ -131,6 +131,9 @@ export default class GoogleAuthController {
     user.lastLoginAt = DateTime.now()
     user.sessionToken = generateSessionToken()
     await user.save()
+
+    // Store session token in session for single active session enforcement
+    session.put('session_token', user.sessionToken)
 
     // Redirect to the client app with success param and session token
     const redirectUrl = new URL(`${frontendUrl}/login`)

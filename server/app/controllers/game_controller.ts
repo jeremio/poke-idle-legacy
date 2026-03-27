@@ -39,14 +39,20 @@ const lastLoginThrottle = new Map<number, number>()
 const LOGIN_THROTTLE_MS = 5 * 60 * 1000 // 5 minutes
 
 // Helper to validate session token for single active session enforcement
-function validateSessionToken(user: User, requestToken: string | undefined): { valid: boolean; response?: any } {
+function validateSessionToken(
+  user: User,
+  requestToken: string | undefined
+): { valid: boolean; response?: any } {
   // Backward compatibility: if user has no sessionToken yet, accept any request
   if (!user.sessionToken) {
     return { valid: true }
   }
   // If user has a session token, the request must provide the same one
   if (!requestToken || requestToken !== user.sessionToken) {
-    return { valid: false, response: { message: 'Session expired - another device connected', code: 'SESSION_EXPIRED' } }
+    return {
+      valid: false,
+      response: { message: 'Session expired - another device connected', code: 'SESSION_EXPIRED' },
+    }
   }
   return { valid: true }
 }
@@ -109,9 +115,15 @@ export default class GameController {
   }
 
   async saveState({ request, response, auth }: HttpContext) {
-    const user = auth.use('web').user
-    if (!user) {
+    const authUser = auth.use('web').user
+    if (!authUser) {
       return response.unauthorized({ message: 'Not authenticated' })
+    }
+
+    // Reload fresh user from DB to get latest sessionToken
+    const user = await User.find(authUser.id)
+    if (!user) {
+      return response.unauthorized({ message: 'User not found' })
     }
 
     const data = await request.validateUsing(saveGameStateValidator)
@@ -123,15 +135,11 @@ export default class GameController {
       return response.conflict(sessionCheck.response)
     }
 
-    // ── Anti-cheat: reload fresh user from DB to compare deltas ──
-    const freshUser = await User.find(user.id)
-    if (!freshUser) {
-      return response.unauthorized({ message: 'User not found' })
-    }
+    // ── Anti-cheat: use fresh user for gold cap check ──
     const MAX_GOLD_INCREASE = 50_000_000
 
     // Cap gold increase per save cycle (decrease is always allowed — spending)
-    user.gold = Math.min(data.gold, freshUser.gold + MAX_GOLD_INCREASE)
+    user.gold = Math.min(data.gold, user.gold + MAX_GOLD_INCREASE)
     user.xp = data.xp
     user.level = data.level
     user.currentGeneration = data.currentGeneration
@@ -188,9 +196,15 @@ export default class GameController {
   }
 
   async savePokemons({ request, response, auth }: HttpContext) {
-    const user = auth.use('web').user
-    if (!user) {
+    const authUser = auth.use('web').user
+    if (!authUser) {
       return response.unauthorized({ message: 'Not authenticated' })
+    }
+
+    // Reload fresh user from DB to get latest sessionToken
+    const user = await User.find(authUser.id)
+    if (!user) {
+      return response.unauthorized({ message: 'User not found' })
     }
 
     const body = request.body() as {

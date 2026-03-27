@@ -47,6 +47,7 @@ router
       })
       .prefix('/game')
       .use(middleware.auth())
+      .use(middleware.sessionToken())
 
     router.get('/avatars/:filename', [GameController, 'serveAvatar'])
 
@@ -81,5 +82,6 @@ router
       .prefix('/admin')
       .use(middleware.auth())
       .use(middleware.admin())
+      .use(middleware.sessionToken())
   })
   .prefix('/api')
