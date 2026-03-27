@@ -8,7 +8,7 @@ export const saveGameStateValidator = vine.compile(
     currentGeneration: vine.number().min(1).max(9),
     currentZone: vine.number().min(1).max(20),
     currentStage: vine.number().min(1).max(10),
-    clickDamage: vine.number().min(1).max(999_999),
-    badges: vine.number().min(0).max(100),
+    clickDamage: vine.number().min(1).max(999_999_999),
+    badges: vine.number().min(0).max(200),
   })
 )
