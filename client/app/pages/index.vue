@@ -236,6 +236,7 @@ function removeFromTeam(pokeId: number) {
       <div v-if="player.isFarming" class="mb-2 flex items-center justify-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5">
         <span class="text-xs font-bold text-amber-400">{{ t('Mode Farm', 'Farm Mode') }}</span>
         <button
+          v-if="!player.isEndgame"
           class="flex items-center gap-1 rounded bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 transition-colors hover:bg-amber-500/30"
           @click="goBackToFrontier"
         >
@@ -261,7 +262,7 @@ function removeFromTeam(pokeId: number) {
       <Transition name="fade">
         <div v-if="showRouteSelector" class="relative z-30 mt-2">
           <div class="mx-auto max-h-60 w-full max-w-sm overflow-y-auto rounded-xl border border-slate-600 shadow-2xl" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%)">
-            <div class="sticky top-0 border-b border-slate-700 px-3 py-2" style="background: rgba(15,23,42,0.95)">
+            <div v-if="!player.isEndgame" class="sticky top-0 border-b border-slate-700 px-3 py-2" style="background: rgba(15,23,42,0.95)">
               <button
                 class="w-full rounded-lg px-3 py-1.5 text-xs font-bold transition-all"
                 :class="!player.isFarming

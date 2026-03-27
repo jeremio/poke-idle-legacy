@@ -237,8 +237,10 @@ export const usePlayerStore = defineStore('player', {
               setTimeout(() => { this.regionUnlockMessage = null }, 5000)
             }
           } else {
-            // Last generation — loop farming: stay at last zone, reset to stage 1
+            // Last generation — enter permanent farm mode on last zone
             this.currentZone = gen.zones.length
+            this.combatGeneration = this.currentGeneration
+            this.combatZone = this.currentZone
             if (isFirstKill) {
               this.regionUnlockMessage = `🏆 Félicitations ! Tu as terminé toutes les régions ! Le monde entier est désormais ouvert !`
               setTimeout(() => { this.regionUnlockMessage = null }, 8000)
@@ -265,6 +267,8 @@ export const usePlayerStore = defineStore('player', {
     },
 
     returnToFrontier() {
+      // Endgame players stay in farm mode permanently
+      if (this.isEndgame) return
       this.combatGeneration = null
       this.combatZone = null
       this.stageKills = 0

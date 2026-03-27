@@ -257,6 +257,12 @@ export const useAuthStore = defineStore('auth', {
           daycareStore.slots = daycareData.map((s: any) => ({ ...s, isShiny: s.isShiny ?? false }))
         }
 
+        // Endgame players: auto-activate farm mode on last zone
+        if (player.isEndgame) {
+          player.combatGeneration = player.currentGeneration
+          player.combatZone = player.currentZone
+        }
+
         // Restore saved teams (convert slug-based format back to local IDs)
         const savedTeamsData = (data.player as any).savedTeams
         if (Array.isArray(savedTeamsData)) {
