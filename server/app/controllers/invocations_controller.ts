@@ -66,7 +66,7 @@ export default class InvocationsController {
       return response.badRequest({ message: `Unknown banner: ${bannerId}` })
     }
 
-    const count = Math.max(1, Math.min(10, Math.floor(rawCount ?? 1)))
+    const count = Math.max(1, Math.min(100, Math.floor(rawCount ?? 1)))
     const totalCost = banner.costGold * count
 
     // Read user's shiny charm count (outside transaction — read-only, stale is fine)
