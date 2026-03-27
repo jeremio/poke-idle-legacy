@@ -104,8 +104,17 @@ export default class GameController {
 
     const data = await request.validateUsing(saveGameStateValidator)
 
-    user.gold = data.gold
-    user.gems = data.gems
+    // ── Anti-cheat: reload fresh user from DB to compare deltas ──
+    const freshUser = await User.find(user.id)
+    if (!freshUser) {
+      return response.unauthorized({ message: 'User not found' })
+    }
+    const MAX_GOLD_INCREASE = 50_000_000
+    const MAX_GEMS_INCREASE = 500
+
+    // Cap gold/gems increase per save cycle (decrease is always allowed — spending)
+    user.gold = Math.min(data.gold, freshUser.gold + MAX_GOLD_INCREASE)
+    user.gems = Math.min(data.gems, freshUser.gems + MAX_GEMS_INCREASE)
     user.xp = data.xp
     user.level = data.level
     user.currentGeneration = data.currentGeneration

@@ -6,6 +6,9 @@ let initialized = false
 // Pages accessible without authentication
 const PUBLIC_PAGES = ['/login', '/guide', '/pokedex', '/leaderboard']
 
+// Pages restricted to admin role only
+const ADMIN_PAGES = ['/admin', '/debug']
+
 export default defineNuxtRouteMiddleware(async (to) => {
   // Skip on server
   if (import.meta.server) return
@@ -26,5 +29,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // Gameplay pages require authentication — redirect to guide
   if (!auth.isAuthenticated) {
     return navigateTo('/guide')
+  }
+
+  // Admin-only pages — redirect non-admins to home
+  if (ADMIN_PAGES.includes(to.path) && auth.user?.role !== 'admin') {
+    return navigateTo('/')
   }
 })
