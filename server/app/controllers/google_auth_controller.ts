@@ -1,10 +1,15 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import { DateTime } from 'luxon'
+import { randomBytes } from 'node:crypto'
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
 const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v2/userinfo'
+
+function generateSessionToken(): string {
+  return randomBytes(32).toString('hex')
+}
 
 export default class GoogleAuthController {
   /**
@@ -124,9 +129,13 @@ export default class GoogleAuthController {
     // Log user in
     await auth.use('web').login(user)
     user.lastLoginAt = DateTime.now()
+    user.sessionToken = generateSessionToken()
     await user.save()
 
-    // Redirect to the client app with success param
-    return response.redirect(`${frontendUrl}/login?oauth_success=true`)
+    // Redirect to the client app with success param and session token
+    const redirectUrl = new URL(`${frontendUrl}/login`)
+    redirectUrl.searchParams.set('oauth_success', 'true')
+    redirectUrl.searchParams.set('session_token', user.sessionToken)
+    return response.redirect(redirectUrl.toString())
   }
 }

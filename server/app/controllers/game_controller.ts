@@ -36,7 +36,20 @@ function invalidateSpeciesCache() {
 
 // ── lastLoginAt throttle (per-user, max once every 5 min) ──
 const lastLoginThrottle = new Map<number, number>()
-const LOGIN_THROTTLE_MS = 5 * 60 * 1000
+const LOGIN_THROTTLE_MS = 5 * 60 * 1000 // 5 minutes
+
+// Helper to validate session token for single active session enforcement
+function validateSessionToken(user: User, requestToken: string | undefined): { valid: boolean; response?: any } {
+  // Backward compatibility: if user has no sessionToken yet, accept any request
+  if (!user.sessionToken) {
+    return { valid: true }
+  }
+  // If user has a session token, the request must provide the same one
+  if (!requestToken || requestToken !== user.sessionToken) {
+    return { valid: false, response: { message: 'Session expired - another device connected', code: 'SESSION_EXPIRED' } }
+  }
+  return { valid: true }
+}
 
 export default class GameController {
   async loadState({ response, auth }: HttpContext) {
@@ -102,6 +115,13 @@ export default class GameController {
     }
 
     const data = await request.validateUsing(saveGameStateValidator)
+    const requestBody = request.body() as any
+
+    // ── Single Active Session Check ──
+    const sessionCheck = validateSessionToken(user, requestBody.sessionToken)
+    if (!sessionCheck.valid) {
+      return response.conflict(sessionCheck.response)
+    }
 
     // ── Anti-cheat: reload fresh user from DB to compare deltas ──
     const freshUser = await User.find(user.id)
@@ -189,6 +209,13 @@ export default class GameController {
         teamSlot: number | null
       }>
       adminVersion?: number
+      sessionToken?: string
+    }
+
+    // ── Single Active Session Check ──
+    const sessionCheck = validateSessionToken(user, body.sessionToken)
+    if (!sessionCheck.valid) {
+      return response.conflict(sessionCheck.response)
     }
 
     const { pokemons } = body

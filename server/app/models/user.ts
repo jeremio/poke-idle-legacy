@@ -116,6 +116,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare betaAccess: boolean
 
+  @column()
+  declare sessionToken: string | null
+
   @column.dateTime()
   declare lastLoginAt: DateTime | null
 

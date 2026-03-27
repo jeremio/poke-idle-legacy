@@ -1,9 +1,14 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
+import { randomBytes } from 'node:crypto'
 import User from '#models/user'
 import { registerValidator, loginValidator } from '#validators/auth'
 
 const MAX_USERS = 500
+
+function generateSessionToken(): string {
+  return randomBytes(32).toString('hex')
+}
 
 export default class AuthController {
   async register({ request, response, auth }: HttpContext) {
@@ -16,18 +21,23 @@ export default class AuthController {
     }
 
     const data = await request.validateUsing(registerValidator)
-    const user = await User.create({ ...data, role: 'user' })
+    const sessionToken = generateSessionToken()
+    const user = await User.create({ ...data, role: 'user', sessionToken })
     await auth.use('web').login(user)
-    return response.created(user)
+    return response.created({ ...user.toJSON(), sessionToken })
   }
 
   async login({ request, response, auth }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)
     const user = await User.verifyCredentials(email, password)
-    await auth.use('web').login(user)
+    
+    // Generate new session token - invalidates any other active session
+    user.sessionToken = generateSessionToken()
     user.lastLoginAt = DateTime.now()
     await user.save()
-    return response.ok(user)
+    
+    await auth.use('web').login(user)
+    return response.ok({ ...user.toJSON(), sessionToken: user.sessionToken })
   }
 
   async logout({ response, auth }: HttpContext) {

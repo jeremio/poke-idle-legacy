@@ -24,12 +24,17 @@ const error = ref('')
 onMounted(async () => {
   if (route.query.error === 'server_full') {
     error.value = t(
-      'Le serveur est complet (150 joueurs max). R\u00e9essayez plus tard !',
+      'Le serveur est complet (150 joueurs max). Réessayez plus tard !',
       'Server is full (150 players max). Try again later!'
     )
   } else if (route.query.error === 'google_denied') {
-    error.value = t('Connexion Google annul\u00e9e', 'Google sign-in cancelled')
+    error.value = t('Connexion Google annulée', 'Google sign-in cancelled')
   } else if (route.query.oauth_success === 'true') {
+    // Capture session token from Google OAuth redirect
+    const sessionToken = route.query.session_token as string | undefined
+    if (sessionToken) {
+      auth.sessionToken = sessionToken
+    }
     try {
       await auth.checkAuth()
       if (auth.isAuthenticated) {

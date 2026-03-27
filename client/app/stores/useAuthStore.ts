@@ -19,6 +19,7 @@ interface AuthState {
     role: 'user' | 'admin'
     betaAccess: boolean
   } | null
+  sessionToken: string | null
 }
 
 interface LoginResponse {
@@ -27,6 +28,7 @@ interface LoginResponse {
   email: string
   role: 'user' | 'admin'
   betaAccess?: boolean
+  sessionToken?: string
 }
 
 interface LoadGameResponse {
@@ -68,6 +70,7 @@ export const useAuthStore = defineStore('auth', {
     isLoading: false,
     error: null,
     user: null,
+    sessionToken: null,
   }),
 
   actions: {
@@ -78,6 +81,7 @@ export const useAuthStore = defineStore('auth', {
         const api = useApi()
         const response = await api.post<LoginResponse>('/api/auth/register', { username, email, password })
         this.user = { ...response, betaAccess: response.betaAccess ?? false }
+        this.sessionToken = response.sessionToken ?? null
         this.isAuthenticated = true
         await this.loadGameState()
       } catch (e: any) {
@@ -95,6 +99,7 @@ export const useAuthStore = defineStore('auth', {
         const api = useApi()
         const response = await api.post<LoginResponse>('/api/auth/login', { email, password })
         this.user = { ...response, betaAccess: response.betaAccess ?? false }
+        this.sessionToken = response.sessionToken ?? null
         this.isAuthenticated = true
         await this.loadGameState()
       } catch (e: any) {
@@ -276,6 +281,7 @@ export const useAuthStore = defineStore('auth', {
           adminVersion: player.adminVersion,
           shinyCharms: player.shinyCharms,
           completedPokedexGens: player.completedPokedexGens,
+          sessionToken: this.sessionToken,
         } as Record<string, unknown>
 
         // Save player data
@@ -292,7 +298,12 @@ export const useAuthStore = defineStore('auth', {
               return // lock released in finally
             }
           }
-        } catch (e) {
+        } catch (e: any) {
+          if (e?.status === 409) {
+            alert('Une session a été ouverte sur un autre appareil. Veuillez rafraîchir la page.')
+            this.logout()
+            return
+          }
           console.error('[SAVE] Player save failed:', e)
         }
 
@@ -318,7 +329,11 @@ export const useAuthStore = defineStore('auth', {
           })
 
           if (pokemons.length > 0 || inventory.collectionCount === 0) {
-            const pokemonsPayload = { pokemons, adminVersion: player.adminVersion } as Record<string, unknown>
+            const pokemonsPayload = { 
+              pokemons, 
+              adminVersion: player.adminVersion,
+              sessionToken: this.sessionToken,
+            } as Record<string, unknown>
             if (keepalive) {
               api.post('/api/game/save-pokemons', pokemonsPayload, fetchOpts)
             } else {
@@ -332,7 +347,12 @@ export const useAuthStore = defineStore('auth', {
               }
             }
           }
-        } catch (e) {
+        } catch (e: any) {
+          if (e?.status === 409) {
+            alert('Une session a été ouverte sur un autre appareil. Veuillez rafraîchir la page.')
+            this.logout()
+            return
+          }
           console.error('[SAVE] Pokémon save failed:', e)
         }
       } finally {
