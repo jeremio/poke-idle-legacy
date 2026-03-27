@@ -31,6 +31,7 @@ export const FIVE_STAR_SHINY_CHANCE = 1 / 150
 export const useDaycareStore = defineStore('daycare', {
   state: () => ({
     slots: [] as DaycareSlot[],
+    lastDeposited: [] as { slug: string; nameFr: string; nameEn: string; rarity: Rarity; isShiny: boolean }[],
   }),
 
   getters: {
@@ -99,6 +100,15 @@ export const useDaycareStore = defineStore('daycare', {
           remaining.push(slot)
         }
       }
+
+      // Remember hatched slugs for quick re-deposit
+      this.lastDeposited = hatched.map(({ slot }) => ({
+        slug: slot.slug,
+        nameFr: slot.nameFr,
+        nameEn: slot.nameEn,
+        rarity: slot.rarity,
+        isShiny: slot.isShiny,
+      }))
 
       this.slots = remaining
       return hatched

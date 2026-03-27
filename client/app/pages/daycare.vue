@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Egg, Coins, X, Star, Trash2, Plus, Search } from 'lucide-vue-next'
+import { Egg, Coins, X, Star, Trash2, Plus, Search, RotateCcw } from 'lucide-vue-next'
 import { getSpriteUrl, getShinySpriteUrl } from '~/utils/showdown'
 import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useInventoryStore, MAX_LEVEL, MAX_STARS } from '~/stores/useInventoryStore'
@@ -199,6 +199,56 @@ function dismissResults() {
   hatchResults.value = []
 }
 
+// ── Refill last deposited Pokémon ──
+const canRefill = computed(() => {
+  if (daycare.lastDeposited.length === 0 || daycare.freeSlots === 0) return false
+  // At least one of the last deposited must be eligible
+  return daycare.lastDeposited.some((d) => {
+    if (daycare.hasSlug(d.slug, d.isShiny)) return false
+    return inventory.collection.some(
+      (p) => p.slug === d.slug && !p.isShiny && p.level >= MAX_LEVEL && !daycare.hasSlug(p.slug, p.isShiny)
+    )
+  })
+})
+
+function refillLastDeposited() {
+  const toDeposit: { slug: string; nameFr: string; nameEn: string; stars: number; rarity: Rarity; id: number }[] = []
+  for (const d of daycare.lastDeposited) {
+    if (daycare.isFull || toDeposit.length >= daycare.freeSlots) break
+    if (daycare.hasSlug(d.slug, d.isShiny)) continue
+    // Find the best candidate (highest stars) in inventory
+    const candidate = inventory.collection
+      .filter((p) => p.slug === d.slug && !p.isShiny && p.level >= MAX_LEVEL && !daycare.hasSlug(p.slug, p.isShiny))
+      .sort((a, b) => b.stars - a.stars)[0]
+    if (candidate && !toDeposit.some((t) => t.slug === candidate.slug)) {
+      toDeposit.push({
+        slug: candidate.slug,
+        nameFr: candidate.nameFr,
+        nameEn: candidate.nameEn,
+        stars: candidate.stars,
+        rarity: candidate.rarity,
+        id: candidate.id,
+      })
+    }
+  }
+  if (toDeposit.length === 0) return
+  const totalCost = toDeposit.length * DAYCARE_COST
+  if (!player.spendGold(totalCost)) return
+  for (const poke of toDeposit) {
+    if (daycare.isFull) break
+    const inv = inventory.collection.find((p) => p.id === poke.id)
+    if (inv?.teamSlot !== null && inv?.teamSlot !== undefined) inventory.removeFromTeam(poke.id)
+    daycare.deposit({
+      slug: poke.slug,
+      nameFr: poke.nameFr,
+      nameEn: poke.nameEn,
+      stars: poke.stars,
+      rarity: poke.rarity,
+    })
+  }
+  auth.saveGameState()
+}
+
 // Auto-check for hatched eggs
 const readyCount = computed(() => daycare.slots.filter(slotReady).length)
 </script>
@@ -304,6 +354,20 @@ const readyCount = computed(() => daycare.slots.filter(slotReady).length)
     >
       <Egg class="h-5 w-5" />
       {{ t(`Récupérer ${readyCount} œuf(s)`, `Collect ${readyCount} egg(s)`) }}
+    </button>
+
+    <!-- Refill last deposited -->
+    <button
+      v-if="canRefill && readyCount === 0"
+      class="flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-indigo-500 active:scale-95"
+      :disabled="player.gold < DAYCARE_COST"
+      @click="refillLastDeposited"
+    >
+      <RotateCcw class="h-4 w-4" />
+      {{ t('Redéposer les mêmes', 'Re-deposit same') }}
+      <span class="flex items-center gap-1 text-yellow-300 text-xs">
+        <Coins class="h-3 w-3" /> {{ daycare.lastDeposited.length * DAYCARE_COST }}
+      </span>
     </button>
 
     <!-- Hatch results modal -->
