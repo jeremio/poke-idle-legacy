@@ -16,6 +16,7 @@ const GameController = () => import('#controllers/game_controller')
 const AdminController = () => import('#controllers/admin_controller')
 const LeaderboardController = () => import('#controllers/leaderboard_controller')
 const PlayersController = () => import('#controllers/players_controller')
+const InvocationsController = () => import('#controllers/invocations_controller')
 
 router.get('/', async () => {
   return { status: 'ok', name: 'Poke-Idle Legacy API' }
@@ -46,6 +47,13 @@ router
         router.put('/username', [GameController, 'updateUsername'])
       })
       .prefix('/game')
+      .use(middleware.auth())
+      .use(middleware.sessionToken())
+      .use(middleware.maintenance())
+
+    // Server-side gacha invocations (secure — no client-side RNG)
+    router
+      .post('/invocations', [InvocationsController, 'invoke'])
       .use(middleware.auth())
       .use(middleware.sessionToken())
       .use(middleware.maintenance())

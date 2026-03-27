@@ -5,16 +5,38 @@ import { useApi } from '~/composables/useApi'
 
 const { t } = useLocale()
 const maintenanceMessage = ref('')
+const loading = ref(true)
 
 onMounted(async () => {
   try {
     const api = useApi()
     const response = await api.get<{ enabled: boolean; message: string | null }>('/api/maintenance')
+
+    // If maintenance is NOT active, redirect away — this page shouldn't be accessible
+    if (!response.enabled) {
+      window.location.href = '/'
+      return
+    }
+
     maintenanceMessage.value = response.message || t('Maintenance en cours', 'Maintenance in progress')
   } catch {
     maintenanceMessage.value = t('Maintenance en cours', 'Maintenance in progress')
+  } finally {
+    loading.value = false
   }
 })
+
+async function retry() {
+  try {
+    const api = useApi()
+    const response = await api.get<{ enabled: boolean }>('/api/maintenance')
+    if (!response.enabled) {
+      window.location.href = '/'
+      return
+    }
+  } catch { /* still in maintenance */ }
+  window.location.reload()
+}
 </script>
 
 <template>
@@ -68,7 +90,7 @@ onMounted(async () => {
       <!-- Refresh Button -->
       <button
         class="mt-6 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-indigo-500"
-        @click="window.location.reload()"
+        @click="retry"
       >
         {{ t('Réessayer', 'Retry') }}
       </button>

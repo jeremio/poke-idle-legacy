@@ -5,8 +5,9 @@ import { usePlayerStore } from '~/stores/usePlayerStore'
 import { useInventoryStore, MAX_STARS } from '~/stores/useInventoryStore'
 import { useAuthStore } from '~/stores/useAuthStore'
 import { useLocale } from '~/composables/useLocale'
-import { BANNERS, RARITY_COLORS, RARITY_LABELS_FR, RARITY_LABELS_EN, pullFromBanner } from '~/data/gacha'
-import type { Banner, Rarity } from '~/data/gacha'
+import { BANNERS, RARITY_COLORS, RARITY_LABELS_FR, RARITY_LABELS_EN } from '~/data/gacha'
+import type { Rarity } from '~/data/gacha'
+import { useApi } from '~/composables/useApi'
 import { GENERATIONS } from '~/data/zones'
 
 definePageMeta({
@@ -111,6 +112,8 @@ function totalCostGold(count: number): number {
   return activeBanner.value.costGold * count
 }
 
+const pullError = ref('')
+
 async function doPull() {
   const banner = activeBanner.value
   if (!banner || banner.pool.length === 0) return
@@ -118,26 +121,59 @@ async function doPull() {
   const count = pullCount.value
   const costGold = totalCostGold(count)
 
-  if (!player.spendGold(costGold)) return
+  // Pre-check gold client-side (server is source of truth)
+  if (player.gold < costGold) return
 
   isPulling.value = true
   showResult.value = false
   pullResults.value = []
+  pullError.value = ''
 
-  // Do all pulls first (always from full pool — 5★ dupes refund gold)
-  const rawPulls = []
-  for (let i = 0; i < count; i++) {
-    rawPulls.push(pullFromBanner(banner, player.shinyCharms, player.pokedexMaster))
-  }
-
-  // Determine best rarity for ball color reveal
-  const bestR = bestRarity(rawPulls.map((p) => ({ rarity: p.pokemon.rarity } as PullResultItem)))
-  revealedRarity.value = bestR
-
-  // Animation: shake (shorter for x50)
+  // Start animation immediately (shake while waiting for server)
   animPhase.value = 'shake'
   const shakeTime = count === 1 ? 1400 : count >= 50 ? 400 : 1000
-  await sleep(shakeTime)
+
+  // Call server-side gacha endpoint
+  const api = useApi()
+  let serverResults: {
+    results: Array<{
+      id: number | null
+      speciesId: number
+      slug: string
+      nameFr: string
+      nameEn: string
+      rarity: Rarity
+      isShiny: boolean
+      level: number
+      xp: number
+      stars: number
+    }>
+    goldSpent: number
+    goldRemaining: number
+  }
+
+  try {
+    const [res] = await Promise.all([
+      api.post<typeof serverResults>('/api/invocations', {
+        bannerId: banner.id,
+        count,
+      }),
+      sleep(shakeTime), // Run animation in parallel with API call
+    ])
+    serverResults = res
+  } catch (err: any) {
+    isPulling.value = false
+    animPhase.value = 'idle'
+    pullError.value = err?.message || 'Invocation failed'
+    return
+  }
+
+  // Sync gold from server (source of truth)
+  player.gold = serverResults.goldRemaining
+
+  // Determine best rarity for ball color reveal
+  const bestR = bestRarity(serverResults.results.map((p) => ({ rarity: p.rarity } as PullResultItem)))
+  revealedRarity.value = bestR
 
   // Animation: ball color change to rarity
   animPhase.value = 'color'
@@ -147,32 +183,32 @@ async function doPull() {
   animPhase.value = 'flash'
   await sleep(500)
 
-  // Add all to inventory and build results
+  // Add server-confirmed Pokémon to local inventory and build display results
   const results: PullResultItem[] = []
-  const costPerPull = activeBanner.value!.costGold
-  
-  for (const { pokemon, isShiny } of rawPulls) {
+  const costPerPull = banner.costGold
+
+  for (const drawn of serverResults.results) {
     const { isNew, isMaxed, wasAlreadyMaxed, pokemon: owned } = inventory.addPokemon({
-      slug: pokemon.slug,
-      nameFr: pokemon.nameFr,
-      nameEn: pokemon.nameEn,
+      slug: drawn.slug,
+      nameFr: drawn.nameFr,
+      nameEn: drawn.nameEn,
       stars: 1,
-      isShiny,
-      rarity: pokemon.rarity,
+      isShiny: drawn.isShiny,
+      rarity: drawn.rarity,
     })
-    
+
     // Calculate refund: 50% of cost per individual pull if already maxed
     const refundAmount = wasAlreadyMaxed ? Math.floor(costPerPull * 0.5) : 0
     if (refundAmount > 0) {
       player.addGold(refundAmount)
     }
-    
+
     results.push({
-      nameFr: pokemon.nameFr,
-      nameEn: pokemon.nameEn,
-      slug: pokemon.slug,
-      rarity: pokemon.rarity,
-      isShiny,
+      nameFr: drawn.nameFr,
+      nameEn: drawn.nameEn,
+      slug: drawn.slug,
+      rarity: drawn.rarity,
+      isShiny: drawn.isShiny,
       isNew,
       isMaxed,
       wasAlreadyMaxed,
@@ -527,6 +563,11 @@ function dismiss() {
         OK
       </button>
     </div>
+
+    <!-- ═══ Error Message ═══ -->
+    <p v-if="pullError" class="text-sm font-bold text-red-400">
+      {{ pullError }}
+    </p>
 
     <!-- ═══ Pull Buttons ═══ -->
     <div v-if="!isPulling && !showResult" class="flex flex-col items-center gap-4">

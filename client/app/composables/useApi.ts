@@ -23,14 +23,13 @@ async function api<T = unknown>(path: string, options: ApiOptions = {}): Promise
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }))
     
-    // Handle maintenance mode (503)
+    // Handle maintenance mode (503) — hard redirect to reset all SPA state
     if (res.status === 503 && err.maintenance) {
-      // Store maintenance message and redirect
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.setItem('maintenance_message', err.message || 'Maintenance en cours')
       }
-      if (typeof navigateTo !== 'undefined') {
-        navigateTo('/maintenance')
+      if (typeof window !== 'undefined') {
+        window.location.href = '/maintenance'
       }
     }
     

@@ -7,6 +7,7 @@ import app from '@adonisjs/core/services/app'
 import User from '#models/user'
 import UserPokemon from '#models/user_pokemon'
 import { purgeInactiveUsers, dedupAllPokemons } from '../services/cleanup_service.js'
+import { invalidateMaintenanceCache } from '../middleware/maintenance_middleware.js'
 
 const BANNER_FILE = () => join(app.makePath('storage'), 'banner.json')
 
@@ -495,6 +496,9 @@ export default class AdminController {
       maintenanceMode: enabled ?? false,
       maintenanceMessage: message || null,
     })
+
+    // Bust the in-memory cache so the middleware picks up the change instantly
+    invalidateMaintenanceCache()
 
     return response.ok({
       enabled: enabled ?? false,

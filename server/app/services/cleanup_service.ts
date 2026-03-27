@@ -44,7 +44,7 @@ export async function purgeInactiveUsers(): Promise<number> {
   return inactiveUsers.length
 }
 
-const DEDUP_INTERVAL_MS = 10 * 60 * 1000 // 10 minutes
+const DEDUP_INTERVAL_MS = 6 * 60 * 60 * 1000 // 6 hours (was 10 min — caused 137% CPU)
 
 export async function dedupAllPokemons(): Promise<{
   duplicatesRemoved: number
@@ -170,7 +170,7 @@ export function startCleanupScheduler() {
     })
   }, DEDUP_INTERVAL_MS)
 
-  console.log('[Dedup] Scheduler started — deduplicating every 10 min')
+  console.log('[Dedup] Scheduler started — deduplicating every 6h')
 
   // Vacuum: run on startup then every hour (non-blocking, no table lock)
   vacuumPokemons()
