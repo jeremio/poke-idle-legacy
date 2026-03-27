@@ -23,7 +23,7 @@ export default class MaintenanceMiddleware {
       if (maintenanceUser) {
         return ctx.response.serviceUnavailable({
           maintenance: true,
-          message: maintenanceUser.maintenanceMessage || 'Maintenance en cours',
+          message: maintenanceUser.maintenanceMessage || 'Maintenance en cours'
         })
       }
       

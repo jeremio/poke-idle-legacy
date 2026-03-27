@@ -468,9 +468,7 @@ export default class AdminController {
    * Get maintenance mode status
    */
   async getMaintenanceStatus({ response }: HttpContext) {
-    const maintenanceUser = await User.query()
-      .where('maintenanceMode', true)
-      .first()
+    const maintenanceUser = await User.query().where('maintenanceMode', true).first()
 
     return response.ok({
       enabled: !!maintenanceUser,

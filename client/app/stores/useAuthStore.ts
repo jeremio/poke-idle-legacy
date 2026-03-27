@@ -63,6 +63,10 @@ interface LoadGameResponse {
 // Save lock to prevent concurrent server saves (race condition causes pokemon duplication)
 let _saveLock = false
 let _savePending = false
+// Guard: prevents saves until game state is loaded from server (avoids sending empty/default data)
+let _gameLoaded = false
+// Track consecutive save failures to alert user
+let _saveFailCount = 0
 
 // Session token storage key for persistence across page refreshes
 const SESSION_TOKEN_KEY = 'poke-idle-session-token'
@@ -147,6 +151,25 @@ export const useAuthStore = defineStore('auth', {
         const api = useApi()
         const response = await api.get<LoginResponse>('/api/auth/me')
         this.user = { ...response, betaAccess: response.betaAccess ?? false }
+
+        // Check maintenance status BEFORE loading game (prevents rendering game without data)
+        if (this.user.role !== 'admin') {
+          try {
+            const maintenance = await api.get<{ enabled: boolean; message?: string }>('/api/maintenance')
+            if (maintenance.enabled) {
+              if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem('maintenance_message', maintenance.message || 'Maintenance en cours')
+              }
+              if (typeof window !== 'undefined') {
+                window.location.href = '/maintenance'
+                return
+              }
+            }
+          } catch {
+            // If maintenance check fails, continue normally
+          }
+        }
+
         this.isAuthenticated = true
         await this.loadGameState()
       } catch {
@@ -157,7 +180,7 @@ export const useAuthStore = defineStore('auth', {
 
     async loadGameState() {
       if (!this.isAuthenticated) return null
-      
+      _gameLoaded = false
       try {
         const api = useApi()
         const data = await api.get<LoadGameResponse>('/api/game/load')
@@ -222,6 +245,10 @@ export const useAuthStore = defineStore('auth', {
         // Rebuild hasEvolved flags so checkAllEvolutions doesn't re-create existing evolutions
         inventory.rebuildHasEvolvedFlags()
 
+        // Mark game as loaded — saves are now safe
+        _gameLoaded = true
+        _saveFailCount = 0
+
         // Restore daycare
         const daycareStore = useDaycareStore()
         const daycareData = (data.player as any).daycare
@@ -248,14 +275,22 @@ export const useAuthStore = defineStore('auth', {
         }
 
         return null
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to load game state:', e)
+        _gameLoaded = false
         return null
       }
     },
 
     async saveGameState(keepalive = false) {
       if (!this.isAuthenticated) return
+
+      // Block saves until loadGameState has completed successfully
+      // This prevents sending empty/default data that would wipe server state
+      if (!_gameLoaded) {
+        console.warn('[SAVE] Blocked — game state not loaded yet')
+        return
+      }
 
       // Prevent concurrent saves (race condition causes pokemon duplication)
       if (_saveLock) {
@@ -321,7 +356,12 @@ export const useAuthStore = defineStore('auth', {
             this.logout()
             return
           }
+          _saveFailCount++
           console.error('[SAVE] Player save failed:', e)
+          if (_saveFailCount >= 3) {
+            alert('⚠️ Sauvegarde échouée plusieurs fois. Vérifiez votre connexion et rechargez la page.')
+            _saveFailCount = 0
+          }
         }
 
         // Save pokemons separately so player save failure doesn't block it
@@ -345,7 +385,7 @@ export const useAuthStore = defineStore('auth', {
             }
           })
 
-          if (pokemons.length > 0 || inventory.collectionCount === 0) {
+          if (pokemons.length > 0) {
             const pokemonsPayload = { 
               pokemons, 
               adminVersion: player.adminVersion,
@@ -370,7 +410,12 @@ export const useAuthStore = defineStore('auth', {
             this.logout()
             return
           }
+          _saveFailCount++
           console.error('[SAVE] Pokémon save failed:', e)
+          if (_saveFailCount >= 3) {
+            alert('⚠️ Sauvegarde échouée plusieurs fois. Vérifiez votre connexion et rechargez la page.')
+            _saveFailCount = 0
+          }
         }
       } finally {
         // Always release lock, even on error or early return

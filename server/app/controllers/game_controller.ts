@@ -138,59 +138,64 @@ export default class GameController {
     // ── Anti-cheat: use fresh user for gold cap check ──
     const MAX_GOLD_INCREASE = 50_000_000
 
-    // Cap gold increase per save cycle (decrease is always allowed — spending)
-    user.gold = Math.min(data.gold, user.gold + MAX_GOLD_INCREASE)
-    user.xp = data.xp
-    user.level = data.level
-    user.currentGeneration = data.currentGeneration
-    user.currentZone = data.currentZone
-    user.currentStage = data.currentStage
-    user.clickDamage = data.clickDamage
-    user.badges = data.badges
-    if ((request.body() as any).candies) {
-      user.candies = (request.body() as any).candies
-    }
-    if ((request.body() as any).daycare !== undefined) {
-      user.daycare = (request.body() as any).daycare
-    }
-    if ((request.body() as any).savedTeams !== undefined) {
-      user.savedTeams = (request.body() as any).savedTeams
-    }
-    if ((request.body() as any).clickDamageBonus !== undefined) {
-      ;(user as any).clickDamageBonus = (request.body() as any).clickDamageBonus
-    }
-    if ((request.body() as any).teamDpsBonus !== undefined) {
-      ;(user as any).teamDpsBonus = (request.body() as any).teamDpsBonus
-    }
-    if ((request.body() as any).defeatedBosses !== undefined) {
-      ;(user as any).defeatedBosses = (request.body() as any).defeatedBosses
-    }
-    // Persist shiny charms & completed pokedex gens (validated: max 9 gens)
-    if ((request.body() as any).completedPokedexGens !== undefined) {
-      const gens = (request.body() as any).completedPokedexGens
-      if (Array.isArray(gens)) {
-        const validGens = [...new Set(gens.filter((g: number) => g >= 1 && g <= 9))] as number[]
-        user.completedPokedexGens = validGens
-        user.shinyCharms = validGens.length
-      }
-    }
-    // Check if admin modified this user since last client load
+    // Check admin version BEFORE transaction (cheap early exit)
     const clientAdminVersion = Number((request.body() as any).adminVersion ?? 0)
     const serverAdminVersion = user.adminVersion ?? 0
-
     if (clientAdminVersion < serverAdminVersion) {
-      // Admin made changes — tell client to reload fresh data
       return response.ok({ message: 'Admin override', reload: true })
     }
 
-    // Throttle lastLoginAt updates to once every 5 minutes
-    const now = Date.now()
-    const lastUpdate = lastLoginThrottle.get(user.id) ?? 0
-    if (now - lastUpdate > LOGIN_THROTTLE_MS) {
-      user.lastLoginAt = DateTime.now()
-      lastLoginThrottle.set(user.id, now)
-    }
-    await user.save()
+    // Use transaction with row lock for atomic save
+    await db.transaction(async (trx) => {
+      const u = await User.query({ client: trx }).where('id', user.id).forUpdate().first()
+      if (!u) throw new Error('User not found in transaction')
+
+      // Cap gold increase per save cycle (decrease is always allowed — spending)
+      u.gold = Math.min(data.gold, u.gold + MAX_GOLD_INCREASE)
+      u.xp = data.xp
+      u.level = data.level
+      u.currentGeneration = data.currentGeneration
+      u.currentZone = data.currentZone
+      u.currentStage = data.currentStage
+      u.clickDamage = data.clickDamage
+      u.badges = data.badges
+      if ((request.body() as any).candies) {
+        u.candies = (request.body() as any).candies
+      }
+      if ((request.body() as any).daycare !== undefined) {
+        u.daycare = (request.body() as any).daycare
+      }
+      if ((request.body() as any).savedTeams !== undefined) {
+        u.savedTeams = (request.body() as any).savedTeams
+      }
+      if ((request.body() as any).clickDamageBonus !== undefined) {
+        ;(u as any).clickDamageBonus = (request.body() as any).clickDamageBonus
+      }
+      if ((request.body() as any).teamDpsBonus !== undefined) {
+        ;(u as any).teamDpsBonus = (request.body() as any).teamDpsBonus
+      }
+      if ((request.body() as any).defeatedBosses !== undefined) {
+        ;(u as any).defeatedBosses = (request.body() as any).defeatedBosses
+      }
+      // Persist shiny charms & completed pokedex gens (validated: max 9 gens)
+      if ((request.body() as any).completedPokedexGens !== undefined) {
+        const gens = (request.body() as any).completedPokedexGens
+        if (Array.isArray(gens)) {
+          const validGens = [...new Set(gens.filter((g: number) => g >= 1 && g <= 9))] as number[]
+          u.completedPokedexGens = validGens
+          u.shinyCharms = validGens.length
+        }
+      }
+
+      // Throttle lastLoginAt updates to once every 5 minutes
+      const now = Date.now()
+      const lastUpdate = lastLoginThrottle.get(u.id) ?? 0
+      if (now - lastUpdate > LOGIN_THROTTLE_MS) {
+        u.lastLoginAt = DateTime.now()
+        lastLoginThrottle.set(u.id, now)
+      }
+      await u.save()
+    })
 
     return response.ok({ message: 'Game state saved', reload: false })
   }
@@ -242,8 +247,16 @@ export default class GameController {
     }
 
     if (!pokemons || pokemons.length === 0) {
-      await UserPokemon.query().where('userId', user.id).delete()
-      return response.ok({ message: 'Pokémon saved' })
+      // Safety: check if user has existing pokemon on server before allowing a wipe
+      const existingCount = await UserPokemon.query().where('userId', user.id).count('* as total')
+      const total = Number(existingCount[0]?.$extras?.total ?? 0)
+      if (total > 0) {
+        // Reject empty save when user has pokemon — this is likely a client bug sending stale/empty data
+        return response.badRequest({
+          message: `Rejected: cannot overwrite ${total} existing Pokémon with empty collection`,
+        })
+      }
+      return response.ok({ message: 'Pokémon saved (no data)' })
     }
 
     // ── Anti-cheat: hard caps ──
