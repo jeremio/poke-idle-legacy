@@ -70,6 +70,13 @@ interface InventoryState {
 export const MAX_STARS = 5
 export const MAX_LEVEL = 100
 
+// Module-level dirty flag — tracks whether pokemon collection changed since last save
+// Kept outside Pinia state to avoid triggering reactive watchers
+let _pokemonsDirty = false
+export function isPokemonsDirty() { return _pokemonsDirty }
+export function resetPokemonsDirty() { _pokemonsDirty = false }
+export function markPokemonsDirty() { _pokemonsDirty = true }
+
 export const useInventoryStore = defineStore('inventory', {
   state: (): InventoryState => {
     const saved = typeof localStorage !== 'undefined' ? loadFiltersFromStorage() : {}
@@ -172,6 +179,7 @@ export const useInventoryStore = defineStore('inventory', {
       if (existing) {
         const wasAlreadyMaxed = existing.stars >= MAX_STARS
         existing.stars = Math.min(existing.stars + 1, MAX_STARS)
+        _pokemonsDirty = true
         return { 
           isNew: false, 
           isMaxed: existing.stars >= MAX_STARS, 
@@ -199,6 +207,7 @@ export const useInventoryStore = defineStore('inventory', {
         teamSlot: freeSlot,
       }
       this.collection.push(newPokemon)
+      _pokemonsDirty = true
       return { isNew: true, isMaxed: false, wasAlreadyMaxed: false, pokemon: newPokemon }
     },
 
@@ -212,6 +221,7 @@ export const useInventoryStore = defineStore('inventory', {
         teamSlot: null,
       }
       this.collection.push(newPokemon)
+      _pokemonsDirty = true
       return newPokemon
     },
 
@@ -231,11 +241,15 @@ export const useInventoryStore = defineStore('inventory', {
         }
       }
       pokemon.teamSlot = slot
+      _pokemonsDirty = true
     },
 
     removeFromTeam(pokemonId: number) {
       const pokemon = this.collection.find((p) => p.id === pokemonId)
-      if (pokemon) pokemon.teamSlot = null
+      if (pokemon) {
+        pokemon.teamSlot = null
+        _pokemonsDirty = true
+      }
     },
 
     addPokemonXp(pokemonId: number, amount: number, currentGeneration?: number) {
@@ -246,6 +260,7 @@ export const useInventoryStore = defineStore('inventory', {
       while (pokemon.level < MAX_LEVEL && pokemon.xp >= pokemonXpForLevel(pokemon.level + 1, pokemon.rarity)) {
         pokemon.level++
       }
+      _pokemonsDirty = true
       // After all level-ups, check if we crossed any evolution threshold
       if (pokemon.level > levelBefore) {
         const evo = canEvolveByLevel(pokemon.slug, pokemon.level)
@@ -316,6 +331,7 @@ export const useInventoryStore = defineStore('inventory', {
       // Remove original from team, put evolved in its slot
       pokemon.teamSlot = null
       this.collection.push(evolved)
+      _pokemonsDirty = true
       
       // Log evolution for toast notifications
       this.evolutionLog.push({
@@ -364,6 +380,7 @@ export const useInventoryStore = defineStore('inventory', {
         if (daycare.hasSlug(pokemon.slug, pokemon.isShiny)) continue
         pokemon.teamSlot = slot++
       }
+      _pokemonsDirty = true
     },
 
     deleteTeam(name: string) {
@@ -400,6 +417,7 @@ export const useInventoryStore = defineStore('inventory', {
       if (toRemove.length > 0) {
         console.log(`[Inventory] Removing ${toRemove.length} duplicate Pokemon:`, toRemove)
         this.collection = this.collection.filter(p => !toRemove.includes(p.id))
+        _pokemonsDirty = true
       }
     },
 

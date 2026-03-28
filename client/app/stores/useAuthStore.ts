@@ -3,7 +3,7 @@ import { useApi } from '~/composables/useApi'
 import { POKEDEX } from '~/data/pokedex'
 import type { CandySize } from '~/stores/usePlayerStore'
 import { usePlayerStore } from '~/stores/usePlayerStore'
-import { useInventoryStore } from '~/stores/useInventoryStore'
+import { useInventoryStore, isPokemonsDirty, resetPokemonsDirty } from '~/stores/useInventoryStore'
 import { useDaycareStore } from '~/stores/useDaycareStore'
 import { useCombatStore } from '~/stores/useCombatStore'
 import { getRarity } from '~/data/gacha'
@@ -370,57 +370,64 @@ export const useAuthStore = defineStore('auth', {
         }
 
         // Save pokemons separately so player save failure doesn't block it
+        // Skip pokemon save if nothing changed (dirty flag) — unless keepalive (page unload)
+        const shouldSavePokemons = keepalive || isPokemonsDirty()
         let pokemonSaveOk = false
-        try {
-          const pokedexMap = new Map(POKEDEX.map((p) => [p.slug, p]))
+        if (!shouldSavePokemons) {
+          pokemonSaveOk = true
+        } else {
+          try {
+            const pokedexMap = new Map(POKEDEX.map((p) => [p.slug, p]))
 
-          const pokemons = inventory.collection.map((p) => {
-            const entry = pokedexMap.get(p.slug)
-            return {
-              slug: p.slug,
-              nameFr: p.nameFr ?? entry?.nameFr ?? p.slug,
-              nameEn: p.nameEn ?? entry?.nameEn ?? p.slug,
-              pokedexId: entry?.id ?? 0,
-              gen: entry?.gen ?? 1,
-              level: p.level,
-              xp: p.xp,
-              stars: p.stars,
-              isShiny: p.isShiny,
-              rarity: p.rarity ?? 'common',
-              teamSlot: p.teamSlot,
-            }
-          })
+            const pokemons = inventory.collection.map((p) => {
+              const entry = pokedexMap.get(p.slug)
+              return {
+                slug: p.slug,
+                nameFr: p.nameFr ?? entry?.nameFr ?? p.slug,
+                nameEn: p.nameEn ?? entry?.nameEn ?? p.slug,
+                pokedexId: entry?.id ?? 0,
+                gen: entry?.gen ?? 1,
+                level: p.level,
+                xp: p.xp,
+                stars: p.stars,
+                isShiny: p.isShiny,
+                rarity: p.rarity ?? 'common',
+                teamSlot: p.teamSlot,
+              }
+            })
 
-          if (pokemons.length > 0) {
-            const pokemonsPayload = { 
-              pokemons, 
-              adminVersion: player.adminVersion,
-              sessionToken: this.sessionToken,
-            } as Record<string, unknown>
-            if (keepalive) {
-              api.post('/api/game/save-pokemons', pokemonsPayload, fetchOpts)
-              pokemonSaveOk = true
-            } else {
-              const pokRes = await api.post<{ ids?: (number | null)[] }>('/api/game/save-pokemons', pokemonsPayload)
-              pokemonSaveOk = true
-              if (pokRes?.ids) {
-                const newIds = pokRes.ids
-                for (let i = 0; i < inventory.collection.length; i++) {
-                  const poke = inventory.collection[i]
-                  if (poke) poke.serverId = newIds[i] ?? null
+            if (pokemons.length > 0) {
+              const pokemonsPayload = { 
+                pokemons, 
+                adminVersion: player.adminVersion,
+                sessionToken: this.sessionToken,
+              } as Record<string, unknown>
+              if (keepalive) {
+                api.post('/api/game/save-pokemons', pokemonsPayload, fetchOpts)
+                pokemonSaveOk = true
+              } else {
+                const pokRes = await api.post<{ ids?: (number | null)[] }>('/api/game/save-pokemons', pokemonsPayload)
+                pokemonSaveOk = true
+                if (pokRes?.ids) {
+                  const newIds = pokRes.ids
+                  for (let i = 0; i < inventory.collection.length; i++) {
+                    const poke = inventory.collection[i]
+                    if (poke) poke.serverId = newIds[i] ?? null
+                  }
                 }
               }
+            } else {
+              pokemonSaveOk = true
             }
-          } else {
-            pokemonSaveOk = true
+            if (pokemonSaveOk) resetPokemonsDirty()
+          } catch (e: any) {
+            if (e?.status === 409) {
+              alert('Une session a été ouverte sur un autre appareil. Veuillez rafraîchir la page.')
+              this.logout()
+              return
+            }
+            console.error(`[SAVE] Pokémon save failed (status=${e?.status ?? '?'}):`, e?.message ?? e)
           }
-        } catch (e: any) {
-          if (e?.status === 409) {
-            alert('Une session a été ouverte sur un autre appareil. Veuillez rafraîchir la page.')
-            this.logout()
-            return
-          }
-          console.error(`[SAVE] Pokémon save failed (status=${e?.status ?? '?'}):`, e?.message ?? e)
         }
 
         // Track consecutive full-save failures (both must fail to count)

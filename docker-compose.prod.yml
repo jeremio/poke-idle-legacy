@@ -3,14 +3,37 @@ services:
     image: postgres:16-alpine
     container_name: poke-idle-postgres
     restart: always
+    shm_size: 256mb
+    command:
+      - postgres
+      - -c
+      - shared_buffers=1GB
+      - -c
+      - effective_cache_size=3GB
+      - -c
+      - work_mem=16MB
+      - -c
+      - maintenance_work_mem=256MB
+      - -c
+      - max_connections=80
+      - -c
+      - checkpoint_completion_target=0.9
+      - -c
+      - wal_buffers=32MB
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - effective_io_concurrency=200
+      - -c
+      - log_min_duration_statement=1000
     deploy:
       resources:
         limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
           cpus: '1.0'
           memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -75,10 +98,10 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 1G
-        reservations:
-          cpus: '0.25'
           memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
     environment:
       NUXT_PUBLIC_API_BASE: ${API_BASE_URL:-https://api.poke-idle.example.com}
     depends_on:

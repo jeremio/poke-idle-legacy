@@ -67,12 +67,12 @@ function saveOnVisibilityChange() {
   }
 }
 
-// Debounced save: triggers 5s after any state change
+// Debounced save: triggers 15s after any state change (reduced from 5s for server perf)
 function debouncedSave() {
   if (debouncedSaveTimer) clearTimeout(debouncedSaveTimer)
   debouncedSaveTimer = setTimeout(() => {
     auth.saveGameState()
-  }, 5000)
+  }, 15_000)
 }
 
 onMounted(() => {
