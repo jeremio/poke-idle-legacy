@@ -284,8 +284,8 @@ function dismiss() {
 
     <!-- ═══ OK / Pull Buttons (above results so position never shifts) ═══ -->
     <div v-if="!isPulling" class="flex flex-col items-center gap-3">
-      <!-- Pull count selector (hidden during result) -->
-      <div v-if="!showResult" class="flex items-center gap-1.5 rounded-xl bg-slate-800 p-1">
+      <!-- Pull count selector (invisible but keeps space during result) -->
+      <div class="flex items-center gap-1.5 rounded-xl bg-slate-800 p-1" :class="{ 'invisible': showResult }">
         <button
           v-for="n in ([1, 5, 10, 50] as const)"
           :key="n"
