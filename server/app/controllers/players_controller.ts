@@ -131,15 +131,17 @@ export default class PlayersController {
     // Top pokemon by DPS (return all, client filters by gen)
     const topPokemon = [...allWithDps].sort((a, b) => b.dps - a.dps).slice(0, 50)
 
-    // Pokemon per generation (use resolved gen for megas)
+    // Pokemon per generation (use resolved gen for megas) — exclude shinys
     const genCounts: Record<number, number> = {}
     for (const entry of allWithDps) {
+      if (entry.p.isShiny) continue
       genCounts[entry.gen] = (genCounts[entry.gen] ?? 0) + 1
     }
 
-    // Unique species per generation (for pokedex completion)
+    // Unique species per generation (for pokedex completion) — exclude shinys
     const uniquePerGen: Record<number, Set<string>> = {}
     for (const entry of allWithDps) {
+      if (entry.p.isShiny) continue
       const slug = entry.p.species?.slug ?? ''
       if (!slug) continue
       if (!uniquePerGen[entry.gen]) uniquePerGen[entry.gen] = new Set()
@@ -184,7 +186,7 @@ export default class PlayersController {
       createdAt: user.createdAt,
       lastLoginAt: user.lastLoginAt,
       pokemonCount: pokemons.length,
-      uniquePokemon: new Set(pokemons.map((p) => p.species?.slug)).size,
+      uniquePokemon: new Set(pokemons.filter((p) => !p.isShiny).map((p) => p.species?.slug)).size,
       shinyCount,
       legendaryCount,
       epicCount,
