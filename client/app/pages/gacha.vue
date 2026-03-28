@@ -115,6 +115,7 @@ function totalCostGold(count: number): number {
 const pullError = ref('')
 
 async function doPull() {
+  if (isPulling.value || showResult.value) return
   const banner = activeBanner.value
   if (!banner || banner.pool.length === 0) return
 
@@ -262,8 +263,8 @@ function dismiss() {
           : selectedBannerIndex === unlockedBanners.indexOf(banner)
             ? 'bg-yellow-500/20 text-yellow-400 ring-1 ring-yellow-500/50'
             : 'bg-gray-700/40 text-gray-400 hover:bg-gray-700/60'"
-        :disabled="banner.generation > player.currentGeneration"
-        @click="banner.generation <= player.currentGeneration && (selectedBannerIndex = unlockedBanners.indexOf(banner))"
+        :disabled="banner.generation > player.currentGeneration || isPulling || showResult"
+        @click="banner.generation <= player.currentGeneration && !isPulling && !showResult && (selectedBannerIndex = unlockedBanners.indexOf(banner))"
       >
         {{ t(banner.nameFr, banner.nameEn) }}
         <span v-if="banner.generation > player.currentGeneration" class="ml-1 text-[10px]">🔒</span>

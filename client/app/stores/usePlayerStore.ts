@@ -45,11 +45,9 @@ export const CANDY_XP: Record<CandySize, number> = { S: 100, M: 500, L: 2000, XL
 // Base candy costs (Gen 1)
 const CANDY_COST_BASE: Record<CandySize, number> = { S: 100, M: 500, L: 2000, XL: 10000 }
 
-// Candy cost scales with player generation (like evolution items)
-// Gen 2+ gets an extra ×2 multiplier to balance gold inflation
+// Candy cost scales quadratically with generation (matches gold income curve)
 export function getCandyCost(size: CandySize, generation: number): number {
-  const genMult = generation >= 2 ? 2 : 1
-  return Math.round(CANDY_COST_BASE[size] * Math.pow(2, generation - 1) * genMult)
+  return Math.round(CANDY_COST_BASE[size] * generation * generation)
 }
 
 // Legacy export for compatibility (uses gen 1 prices)
@@ -230,6 +228,10 @@ export const usePlayerStore = defineStore('player', {
           if (nextGen) {
             this.currentGeneration++
             this.currentZone = 1
+            // Reset candies on region unlock (prevents stockpiling cheap candies)
+            for (const k of ['S', 'M', 'L', 'XL'] as CandySize[]) {
+              this.candies[k] = 0
+            }
             // Show congratulations message
             if (isFirstKill) {
               const newRegionName = GENERATION_NAMES[this.currentGeneration] ?? 'Unknown'

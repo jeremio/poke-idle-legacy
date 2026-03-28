@@ -118,8 +118,8 @@ export function useCombatLoop() {
     const diffScale = 1 + localDiff * 0.02
     const goldBase = gen === 1 ? 50 : 400 * gen * gen
     const xpBase = 50
-    const goldReward = Math.round(goldBase * diffScale * (isShiny ? 5 : 1))
-    const xpReward = Math.round(xpBase * diffScale * (isShiny ? 3 : 1))
+    const goldReward = Math.round(goldBase * diffScale * (isShiny ? 100 : 1))
+    const xpReward = Math.round(xpBase * diffScale * (isShiny ? 100 : 1))
     combat.setEnemy({
       nameFr: isShiny ? `✨ ${poke.nameFr} sauvage ✨` : `${poke.nameFr} sauvage`,
       nameEn: isShiny ? `✨ Wild ${poke.nameEn} ✨` : `Wild ${poke.nameEn}`,
