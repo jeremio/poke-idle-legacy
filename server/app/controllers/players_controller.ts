@@ -153,15 +153,24 @@ export default class PlayersController {
     }
 
     // Total species per generation from Species table
+    // Remap mega evolutions to their base form's generation
     const speciesPerGen = await db.rawQuery(`
-      SELECT generation, COUNT(*)::int AS total
-      FROM species
-      WHERE generation BETWEEN 1 AND 9
-      GROUP BY generation
+      SELECT
+        COALESCE(
+          CASE WHEN s.slug LIKE '%-mega%' THEN base.generation END,
+          s.generation
+        ) AS resolved_gen,
+        COUNT(*)::int AS total
+      FROM species s
+      LEFT JOIN species base
+        ON s.slug LIKE '%-mega%'
+        AND base.slug = regexp_replace(s.slug, '-mega[xy]?$', '')
+      WHERE s.generation BETWEEN 1 AND 9
+      GROUP BY resolved_gen
     `)
     const totalPerGen: Record<number, number> = {}
     for (const row of speciesPerGen.rows) {
-      totalPerGen[row.generation] = row.total
+      totalPerGen[row.resolved_gen] = row.total
     }
 
     // Rarity distribution

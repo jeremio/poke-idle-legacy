@@ -427,7 +427,7 @@ const readyCount = computed(() => daycare.slots.filter(slotReady).length)
               OK
             </button>
             <button
-              v-if="canRefill"
+              v-if="daycare.lastDeposited.length > 0 && daycare.freeSlots > 0"
               class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2 text-sm font-bold text-white transition-colors hover:bg-indigo-500"
               :disabled="player.gold < daycare.lastDeposited.length * DAYCARE_COST"
               :class="{ 'opacity-40': player.gold < daycare.lastDeposited.length * DAYCARE_COST }"
