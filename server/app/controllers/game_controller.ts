@@ -367,23 +367,48 @@ export default class GameController {
     }))
     const valid = mapped.filter((m) => m.data.speciesId > 0)
 
-    let created: UserPokemon[] = []
+    let insertedIds: number[] = []
     await db.transaction(async (trx) => {
       // Lock the user row to prevent concurrent saves from duplicating pokemon
-      await User.query({ client: trx }).where('id', user.id).forUpdate().first()
-      await UserPokemon.query({ client: trx }).where('userId', user.id).delete()
+      await trx.rawQuery('SELECT 1 FROM users WHERE id = ? FOR UPDATE', [user.id])
+      await trx.rawQuery('DELETE FROM user_pokemons WHERE user_id = ?', [user.id])
       if (valid.length > 0) {
-        created = await UserPokemon.createMany(
-          valid.map((m) => m.data),
-          { client: trx }
+        // Build raw multi-row INSERT — avoids 200+ ORM model allocations
+        const now = new Date().toISOString()
+        const row = '(?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        const placeholders = valid.map(() => row).join(', ')
+        const bindings: unknown[] = []
+        for (const m of valid) {
+          bindings.push(
+            m.data.userId,
+            m.data.speciesId,
+            m.data.xp,
+            m.data.level,
+            m.data.isShiny,
+            m.data.stars,
+            m.data.rarity,
+            m.data.teamSlot,
+            now,
+          )
+        }
+        const result = await trx.rawQuery(
+          `INSERT INTO user_pokemons (user_id, species_id, xp, level, is_shiny, stars, rarity, team_slot, created_at)
+           VALUES ${placeholders}
+           RETURNING id`,
+          bindings
         )
+        const rows = result.rows ?? result ?? []
+        insertedIds = Array.isArray(rows) ? rows.map((r: any) => r.id) : []
+        if (insertedIds.length !== valid.length) {
+          console.warn(`[savePokemons] Expected ${valid.length} IDs, got ${insertedIds.length}`)
+        }
       }
     })
 
     // Build positional ID array matching the original pokemons order
     const ids: (number | null)[] = new Array(pokemons.length).fill(null)
     for (const [i, entry] of valid.entries()) {
-      ids[entry.idx] = created[i]?.id ?? null
+      ids[entry.idx] = insertedIds[i] ?? null
     }
 
     return response.ok({
