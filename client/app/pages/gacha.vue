@@ -282,8 +282,8 @@ function dismiss() {
       </p>
     </div>
 
-    <!-- ═══ Pokeball Animation Area ═══ -->
-    <div class="relative flex h-64 w-64 items-center justify-center">
+    <!-- ═══ Pokeball Animation Area (hidden during multi/summary to keep button position stable) ═══ -->
+    <div v-if="!showResult || singleResult" class="relative flex h-64 w-64 items-center justify-center">
       <!-- Pokeball (idle / shake / color) -->
       <div
         v-if="!showResult"
@@ -401,10 +401,10 @@ function dismiss() {
       </div>
     </div>
 
-    <!-- ═══ x50 SUMMARY Result ═══ -->
+    <!-- ═══ x50 SUMMARY Result (fixed h-64 to match pokeball area) ═══ -->
     <div
       v-if="showResult && pullSummary"
-      class="flex w-full max-w-lg flex-col items-center gap-4"
+      class="flex h-64 w-full max-w-lg flex-col items-center gap-4 overflow-y-auto"
     >
       <h3 class="text-lg font-bold text-yellow-400">{{ t(`Résumé ${pullSummary.label}`, `${pullSummary.label} Summary`) }}</h3>
 
@@ -474,10 +474,10 @@ function dismiss() {
 
     </div>
 
-    <!-- ═══ MULTI Result Reveal (x5, x10) ═══ -->
+    <!-- ═══ MULTI Result Reveal (x5, x10 — fixed h-64 to match pokeball area) ═══ -->
     <div
       v-if="showResult && pullResults.length > 1 && !pullSummary"
-      class="flex w-full max-w-2xl flex-col items-center gap-4"
+      class="flex h-64 w-full max-w-2xl flex-col items-center gap-4 overflow-y-auto"
     >
       <div class="grid w-full gap-2 sm:gap-3" :class="pullResults.length <= 5 ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-3 sm:grid-cols-5'">
         <div
