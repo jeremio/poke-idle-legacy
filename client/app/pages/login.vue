@@ -59,7 +59,7 @@ async function handleSubmit() {
     await router.push('/')
   } catch (e: any) {
     const msg = e?.data?.message || e?.message || ''
-    if (e?.status === 403 || msg.includes('600')) {
+    if (e?.status === 403 || msg.includes('700')) {
       serverFull.value = true
     } else {
       error.value = msg || t('Une erreur est survenue', 'An error occurred')
