@@ -125,7 +125,7 @@ async function handleSubmit() {
           {{ error }}
         </p>
         <div v-if="serverFull" class="rounded-lg bg-red-500/10 px-3 py-2.5 text-xs text-red-400">
-          <p>{{ t('Le serveur est complet (600 joueurs max).', 'Server is full (600 players max).') }}</p>
+          <p>{{ t('Le serveur est complet (700 joueurs max).', 'Server is full (700 players max).') }}</p>
           <p class="mt-1">
             {{ t('Rejoignez le', 'Join the') }}
             <a href="https://discord.gg/Z45MNEcvRk" target="_blank" class="font-bold text-indigo-400 underline hover:text-indigo-300">Discord</a>

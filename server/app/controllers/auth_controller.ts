@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto'
 import User from '#models/user'
 import { registerValidator, loginValidator } from '#validators/auth'
 
-const MAX_USERS = 600
+const MAX_USERS = 700
 
 function generateSessionToken(): string {
   return randomBytes(32).toString('hex')
